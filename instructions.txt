@@ -1,0 +1,77 @@
+You are an expert PHP system architect and developer.
+
+Generate clean, documented, modular PHP code following this architecture. Use OOP principles. Ensure extensibility (easy to add new entities and processes).
+
+Implement the full responsiveness across mobile, tablet, web, and desktop platforms, following 2025 Responsive Web Design (RWD) standards.
+Setup unit test case framework
+Provide both dark mode and light mode themes.
+
+Build a server-side web application with the following architecture and technologies:
+
+🔹 Architecture & Tech Stack
+
+Backend: PHP Core (no framework).
+
+Entities: Each entity is a PHP Class with attributes (fields) and actions (methods).
+
+Process: A separate PHP Class as State Machine that manages entity workflows (states, transitions, roles, conditions).
+
+Database: SQLite (lightweight, file-based).
+
+Frontend: HTML, CSS (Bootstrap for UI), JavaScript with Ajax for requests.
+
+Real-time: WebSocket for pushing live updates (e.g., status changes, notifications).
+
+Microservices: Backend should be modular and designed as microservices (separate modules for entities, workflow, notifications, reports, etc.).
+
+🔹 Requirements
+
+Entity Definition
+
+Each Entity (e.g., User, Order, Project) is a PHP class with attributes and CRUD methods.
+
+Entities must be stored in SQLite tables.
+
+Auto-generate database schema from entity definitions.
+
+Process (Workflow Engine)
+
+A PHP State Machine class (Process) to manage entity lifecycles.
+
+Store workflows in SQLite (tables for process, states, transitions).
+
+Each transition has rules (allowed roles, conditions, actions).
+
+Support rollback, audit logs, and history tracking.
+
+Frontend Integration
+
+Use Bootstrap for clean UI.
+
+Ajax (vanilla JS or jQuery) to call backend PHP endpoints.
+
+WebSocket for real-time updates (status changes, new messages, notifications).
+
+Microservices
+
+Separate services/modules for:
+
+Entity management (CRUD)
+
+Process/workflow engine
+
+Notifications (WebSocket events)
+
+Reports (text, tables, charts)
+
+Deliverables
+
+Folder structure (clear separation of entities/, process/, services/, public/).
+
+Example Entity (Order) with attributes (id, customer, status, total).
+
+Example Process (OrderProcess) with states (Draft → Pending → Paid → Shipped → Closed).
+
+PHP scripts for database migrations (create tables automatically).
+
+Example frontend page: show orders list, allow actions (approve, reject, ship), update status in real-time.
