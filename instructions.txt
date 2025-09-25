@@ -3,75 +3,79 @@ You are an expert PHP system architect and developer.
 Generate clean, documented, modular PHP code following this architecture. Use OOP principles. Ensure extensibility (easy to add new entities and processes).
 
 Implement the full responsiveness across mobile, tablet, web, and desktop platforms, following 2025 Responsive Web Design (RWD) standards.
+
 Setup unit test case framework
+
 Provide both dark mode and light mode themes.
 
 Build a server-side web application with the following architecture and technologies:
 
-🔹 Architecture & Tech Stack
+Architecture & Tech Stack
 
-Backend: PHP Core (no framework).
+    Backend: PHP Core (no framework).
 
-Entities: Each entity is a PHP Class with attributes (fields) and actions (methods).
+    Entities: Each entity is a PHP Class with attributes (fields) and actions (methods).
 
-Process: A separate PHP Class as State Machine that manages entity workflows (states, transitions, roles, conditions).
+    Process: A separate PHP Class as State Machine that manages entity workflows (states, transitions, roles, conditions).
 
-Database: SQLite (lightweight, file-based).
+    Database: SQLite (lightweight, file-based).
 
-Frontend: HTML, CSS (Bootstrap for UI), JavaScript with Ajax for requests.
+    Frontend: HTML, CSS (Bootstrap for UI), JavaScript with Ajax for requests.
 
-Real-time: WebSocket for pushing live updates (e.g., status changes, notifications).
+    Real-time: WebSocket for pushing live updates (e.g., status changes, notifications).
 
-Microservices: Backend should be modular and designed as microservices (separate modules for entities, workflow, notifications, reports, etc.).
+    Microservices: Backend should be modular and designed as microservices (separate modules for entities, workflow, notifications, reports, etc.).
 
-🔹 Requirements
+Requirements
 
-Entity Definition
+    Entity Definition
 
-Each Entity (e.g., User, Order, Project) is a PHP class with attributes and CRUD methods.
+        Each Entity is a PHP class with attributes and CRUD methods. 
 
-Entities must be stored in SQLite tables.
+        Add as many as methods for entity actions
 
-Auto-generate database schema from entity definitions.
+        A web page should be there to access the entity.
 
-Process (Workflow Engine)
+        Entities must be stored in SQLite tables.
 
-A PHP State Machine class (Process) to manage entity lifecycles.
+        Auto-generate database schema from entity definitions.
 
-Store workflows in SQLite (tables for process, states, transitions).
+    Process (Workflow Engine)
 
-Each transition has rules (allowed roles, conditions, actions).
+        A PHP State Machine class (Process) to manage entity lifecycles.
 
-Support rollback, audit logs, and history tracking.
+        Store workflows in SQLite (tables for process, states, transitions).
 
-Frontend Integration
+        Each transition has rules (allowed roles, conditions, actions).
 
-Use Bootstrap for clean UI.
+        Support rollback, audit logs, and history tracking.
 
-Ajax (vanilla JS or jQuery) to call backend PHP endpoints.
+    Frontend Integration
 
-WebSocket for real-time updates (status changes, new messages, notifications).
+        Use Bootstrap for clean UI.
 
-Microservices
+        Ajax (vanilla JS or jQuery) to call backend PHP endpoints.
 
-Separate services/modules for:
+        WebSocket for real-time updates (status changes, new messages, notifications).
 
-Entity management (CRUD)
+    Microservices
 
-Process/workflow engine
+        Separate services/modules for:
 
-Notifications (WebSocket events)
+            Entity management (CRUD)
 
-Reports (text, tables, charts)
+            Process/workflow engine
+
+            Notifications (WebSocket events)
+
+            Reports (text, tables, charts)
 
 Deliverables
 
-Folder structure (clear separation of entities/, process/, services/, public/).
+    Folder structure (clear separation of entities/, process/, services/, public/).
 
-Example Entity (Order) with attributes (id, customer, status, total).
+    PHP scripts for database migrations (create tables automatically).
 
-Example Process (OrderProcess) with states (Draft → Pending → Paid → Shipped → Closed).
+    Frontend page: show list, allow actions, update status in real-time.
 
-PHP scripts for database migrations (create tables automatically).
-
-Example frontend page: show orders list, allow actions (approve, reject, ship), update status in real-time.
+Generate clean, documented, modular PHP code following this architecture. Use OOP principles. Ensure extensibility (easy to add new entities and processes).

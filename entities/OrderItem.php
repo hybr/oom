@@ -1,6 +1,6 @@
 <?php
 
-require_once 'entities/BaseEntity.php';
+require_once __DIR__ . '/BaseEntity.php';
 
 class OrderItem extends BaseEntity {
     protected $table = 'order_items';

@@ -3,7 +3,8 @@
     "allow": [
       "Bash(mkdir:*)",
       "Bash(php:*)",
-      "Read(//c/php/**)"
+      "Read(//c/php/**)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

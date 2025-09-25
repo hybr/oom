@@ -1,7 +1,7 @@
 <?php
 
-require_once 'process/BaseProcess.php';
-require_once 'entities/Order.php';
+require_once __DIR__ . '/BaseProcess.php';
+require_once __DIR__ . '/../entities/Order.php';
 
 class OrderProcess extends BaseProcess {
     protected $processName = 'order';

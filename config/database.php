@@ -6,7 +6,7 @@ class DatabaseConfig {
 
     private function __construct() {
         try {
-            $this->pdo = new PDO('sqlite:database/app.db');
+            $this->pdo = new PDO('sqlite:' . __DIR__ . '/../database/app.db');
             $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $this->pdo->exec('PRAGMA foreign_keys = ON');
         } catch (PDOException $e) {

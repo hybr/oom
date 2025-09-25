@@ -1,6 +1,6 @@
 <?php
 
-require_once 'process/OrderProcess.php';
+require_once __DIR__ . '/../../process/OrderProcess.php';
 
 class ProcessService {
     private $processes = [
