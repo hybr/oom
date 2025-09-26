@@ -34,12 +34,18 @@ Requirements
 
         Add as many as methods for entity actions
 
-        A web page should be there to access the entity.
+        A web page should be there to access the entity via Frontend. It is must requirement.
+
+        When showing the list of records provide one action of "View Details". When clicked on this the detail view of the record of that entity is shown. Also all the applicable actions at record level are also shown.
 
         Entities must be stored in SQLite tables.
 
         Auto-generate database schema from entity definitions.
 
+        Where ever possible include one to one or one to many  relationships with other entities. Many to many relationships must be done using the another Entity. 
+
+        Do not polulate the records for entity until asked in the prompt.
+        
     Process (Workflow Engine)
 
         A PHP State Machine class (Process) to manage entity lifecycles.

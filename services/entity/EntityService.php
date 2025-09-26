@@ -1,14 +1,46 @@
 <?php
 
 class EntityService {
-    private $allowedEntities = ['Order', 'OrderItem', 'Person'];
+    private $allowedEntities = ['Order', 'OrderItem', 'Person', 'PersonCredential', 'Continent', 'Language', 'Country'];
 
     public function create($entityType, $data) {
         $this->validateEntity($entityType);
 
         require_once __DIR__ . "/../../entities/{$entityType}.php";
         $entity = new $entityType();
+
+        // Special handling for PersonCredential
+        if ($entityType === 'PersonCredential') {
+            return $this->createPersonCredential($entity, $data);
+        }
+
         $entity->fill($data);
+        return $entity->save();
+    }
+
+    private function createPersonCredential($entity, $data) {
+        // Fill basic data
+        $entity->fill([
+            'person_id' => $data['person_id'],
+            'username' => $data['username']
+        ]);
+
+        // Set password
+        if (isset($data['password'])) {
+            $entity->setPassword($data['password']);
+        }
+
+        // Set security questions
+        if (isset($data['security_question_1']) && isset($data['security_answer_1'])) {
+            $entity->setSecurityQuestion(1, $data['security_question_1'], $data['security_answer_1']);
+        }
+        if (isset($data['security_question_2']) && isset($data['security_answer_2'])) {
+            $entity->setSecurityQuestion(2, $data['security_question_2'], $data['security_answer_2']);
+        }
+        if (isset($data['security_question_3']) && isset($data['security_answer_3'])) {
+            $entity->setSecurityQuestion(3, $data['security_question_3'], $data['security_answer_3']);
+        }
+
         return $entity->save();
     }
 

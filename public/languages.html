@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Language Management - Order Management System</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom CSS -->
+    <link href="styles.css" rel="stylesheet">
+
+    <!-- Favicon -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗣️</text></svg>">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="index.html">
+                📦 Order Management System
+            </a>
+
+            <div class="navbar-nav ms-auto">
+                <a class="nav-link" href="index.html">Orders</a>
+                <a class="nav-link" href="persons.html">Persons</a>
+                <a class="nav-link" href="personcredentials.html">User Management</a>
+                <a class="nav-link" href="continents.html">Continents</a>
+                <a class="nav-link active" href="languages.html">Languages</a>
+                <a class="nav-link" href="countries.html">Countries</a>
+
+                <div class="nav-item d-flex align-items-center me-3 ms-3">
+                    <span class="connection-status connected"></span>
+                    <small class="text-muted">Real-time</small>
+                </div>
+
+                <button id="themeToggle" class="theme-toggle me-2">
+                    🌙
+                </button>
+
+                <button id="refreshLanguages" class="btn btn-outline-primary btn-sm">
+                    <span id="loadingIndicator" class="loading-spinner" style="display: none;"></span>
+                    Refresh
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container-fluid py-4">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h1 class="h3 mb-0">🗣️ Language Management</h1>
+                <p class="text-muted">Manage world languages with linguistic and demographic data</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addLanguageModal">
+                    <i class="bi bi-plus-circle"></i> Add Language
+                </button>
+            </div>
+        </div>
+
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-subtitle mb-2">Total Languages</h6>
+                                <h4 class="card-title mb-0" id="totalLanguages">0</h4>
+                            </div>
+                            <div class="stats-icon">🗣️</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-subtitle mb-2">Living Languages</h6>
+                                <h4 class="card-title mb-0" id="livingLanguages">0</h4>
+                            </div>
+                            <div class="stats-icon">💚</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-subtitle mb-2">Endangered</h6>
+                                <h4 class="card-title mb-0" id="endangeredLanguages">0</h4>
+                            </div>
+                            <div class="stats-icon">⚠️</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stats-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h6 class="card-subtitle mb-2">Language Families</h6>
+                                <h4 class="card-title mb-0" id="languageFamilies">0</h4>
+                            </div>
+                            <div class="stats-icon">🌳</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Languages Table -->
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Languages List</h5>
+                <div class="d-flex gap-2">
+                    <input type="search" id="searchLanguages" class="form-control form-control-sm" placeholder="Search languages..." style="width: 200px;">
+                    <select id="statusFilter" class="form-select form-select-sm" style="width: 150px;">
+                        <option value="">All Status</option>
+                        <option value="living">Living</option>
+                        <option value="endangered">Endangered</option>
+                        <option value="extinct">Extinct</option>
+                        <option value="dormant">Dormant</option>
+                        <option value="revitalized">Revitalized</option>
+                    </select>
+                    <select id="typeFilter" class="form-select form-select-sm" style="width: 150px;">
+                        <option value="">All Types</option>
+                        <option value="natural">Natural</option>
+                        <option value="constructed">Constructed</option>
+                        <option value="sign">Sign</option>
+                        <option value="pidgin">Pidgin</option>
+                        <option value="creole">Creole</option>
+                    </select>
+                    <select id="sortBy" class="form-select form-select-sm" style="width: 180px;">
+                        <option value="">Default Order</option>
+                        <option value="name">By Name</option>
+                        <option value="speakers_desc">By Speakers (Most)</option>
+                        <option value="speakers_asc">By Speakers (Least)</option>
+                        <option value="family">By Family</option>
+                    </select>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>ID</th>
+                                <th>Language</th>
+                                <th>ISO Codes</th>
+                                <th>Family</th>
+                                <th>Speakers</th>
+                                <th>Writing System</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="languagesTableBody">
+                            <tr>
+                                <td colspan="9" class="text-center py-4">
+                                    <div class="spinner-border text-primary" role="status">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <div class="mt-2">Loading languages...</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Language Modal -->
+    <div class="modal fade" id="addLanguageModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add New Language</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="addLanguageForm">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="name" class="form-label">Language Name *</label>
+                                    <input type="text" class="form-control" id="name" name="name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="nativeName" class="form-label">Native Name</label>
+                                    <input type="text" class="form-control" id="nativeName" name="native_name">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="iso639_1" class="form-label">ISO 639-1</label>
+                                    <input type="text" class="form-control" id="iso639_1" name="iso_639_1" maxlength="2" placeholder="en">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="iso639_2" class="form-label">ISO 639-2</label>
+                                    <input type="text" class="form-control" id="iso639_2" name="iso_639_2" maxlength="3" placeholder="eng">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="iso639_3" class="form-label">ISO 639-3</label>
+                                    <input type="text" class="form-control" id="iso639_3" name="iso_639_3" maxlength="3" placeholder="eng">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="languageFamily" class="form-label">Language Family</label>
+                                    <input type="text" class="form-control" id="languageFamily" name="language_family" placeholder="e.g., Indo-European">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="writingSystem" class="form-label">Writing System</label>
+                                    <input type="text" class="form-control" id="writingSystem" name="writing_system" placeholder="e.g., Latin, Cyrillic">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="speakersNative" class="form-label">Native Speakers</label>
+                                    <input type="number" class="form-control" id="speakersNative" name="speakers_native" min="0">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="speakersTotal" class="form-label">Total Speakers</label>
+                                    <input type="number" class="form-control" id="speakersTotal" name="speakers_total" min="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="languageType" class="form-label">Language Type</label>
+                                    <select class="form-select" id="languageType" name="language_type">
+                                        <option value="natural">Natural</option>
+                                        <option value="constructed">Constructed</option>
+                                        <option value="sign">Sign Language</option>
+                                        <option value="pidgin">Pidgin</option>
+                                        <option value="creole">Creole</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="status" class="form-label">Status</label>
+                                    <select class="form-select" id="status" name="status">
+                                        <option value="living">Living</option>
+                                        <option value="endangered">Endangered</option>
+                                        <option value="extinct">Extinct</option>
+                                        <option value="dormant">Dormant</option>
+                                        <option value="revitalized">Revitalized</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" placeholder="Additional information about the language..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Language</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Details Modal -->
+    <div class="modal fade" id="viewDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Language Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="detailsContent">
+                    <!-- Content will be populated by JavaScript -->
+                </div>
+                <div class="modal-footer" id="detailsActions">
+                    <!-- Actions will be populated by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Language Modal -->
+    <div class="modal fade" id="editLanguageModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Language</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editLanguageForm">
+                    <input type="hidden" id="editLanguageId">
+                    <div class="modal-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editName" class="form-label">Language Name *</label>
+                                    <input type="text" class="form-control" id="editName" name="name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editNativeName" class="form-label">Native Name</label>
+                                    <input type="text" class="form-control" id="editNativeName" name="native_name">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="editIso639_1" class="form-label">ISO 639-1</label>
+                                    <input type="text" class="form-control" id="editIso639_1" name="iso_639_1" maxlength="2">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="editIso639_2" class="form-label">ISO 639-2</label>
+                                    <input type="text" class="form-control" id="editIso639_2" name="iso_639_2" maxlength="3">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="editIso639_3" class="form-label">ISO 639-3</label>
+                                    <input type="text" class="form-control" id="editIso639_3" name="iso_639_3" maxlength="3">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editLanguageFamily" class="form-label">Language Family</label>
+                                    <input type="text" class="form-control" id="editLanguageFamily" name="language_family">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editWritingSystem" class="form-label">Writing System</label>
+                                    <input type="text" class="form-control" id="editWritingSystem" name="writing_system">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editSpeakersNative" class="form-label">Native Speakers</label>
+                                    <input type="number" class="form-control" id="editSpeakersNative" name="speakers_native" min="0">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editSpeakersTotal" class="form-label">Total Speakers</label>
+                                    <input type="number" class="form-control" id="editSpeakersTotal" name="speakers_total" min="0">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editLanguageType" class="form-label">Language Type</label>
+                                    <select class="form-select" id="editLanguageType" name="language_type">
+                                        <option value="natural">Natural</option>
+                                        <option value="constructed">Constructed</option>
+                                        <option value="sign">Sign Language</option>
+                                        <option value="pidgin">Pidgin</option>
+                                        <option value="creole">Creole</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="editStatus" class="form-label">Status</label>
+                                    <select class="form-select" id="editStatus" name="status">
+                                        <option value="living">Living</option>
+                                        <option value="endangered">Endangered</option>
+                                        <option value="extinct">Extinct</option>
+                                        <option value="dormant">Dormant</option>
+                                        <option value="revitalized">Revitalized</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="editDescription" name="description" rows="3"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="editIsActive" class="form-label">Active Status</label>
+                            <select class="form-select" id="editIsActive" name="is_active">
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Language</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JS -->
+    <script src="app.js"></script>
+
+    <script>
+        // Language Management System
+        class LanguageManager {
+            constructor() {
+                this.languages = [];
+                this.filteredLanguages = [];
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.loadLanguages();
+            }
+
+            bindEvents() {
+                // Refresh button
+                document.getElementById('refreshLanguages').addEventListener('click', () => {
+                    this.loadLanguages();
+                });
+
+                // Search and filters
+                document.getElementById('searchLanguages').addEventListener('input', () => {
+                    this.filterLanguages();
+                });
+
+                document.getElementById('statusFilter').addEventListener('change', () => {
+                    this.filterLanguages();
+                });
+
+                document.getElementById('typeFilter').addEventListener('change', () => {
+                    this.filterLanguages();
+                });
+
+                document.getElementById('sortBy').addEventListener('change', () => {
+                    this.filterLanguages();
+                });
+
+                // Forms
+                document.getElementById('addLanguageForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.addLanguage();
+                });
+
+                document.getElementById('editLanguageForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.updateLanguage();
+                });
+            }
+
+            async loadLanguages() {
+                try {
+                    const loadingIndicator = document.getElementById('loadingIndicator');
+                    loadingIndicator.style.display = 'inline-block';
+
+                    const response = await fetch('/api/entities/Language');
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.languages = result.data || [];
+                        this.filteredLanguages = [...this.languages];
+                        this.renderLanguages();
+                        this.updateStatistics();
+                    } else {
+                        throw new Error(result.error || 'Failed to load languages');
+                    }
+                } catch (error) {
+                    console.error('Error loading languages:', error);
+                    this.showError('Failed to load languages: ' + error.message);
+                } finally {
+                    document.getElementById('loadingIndicator').style.display = 'none';
+                }
+            }
+
+            filterLanguages() {
+                const searchTerm = document.getElementById('searchLanguages').value.toLowerCase();
+                const statusFilter = document.getElementById('statusFilter').value;
+                const typeFilter = document.getElementById('typeFilter').value;
+                const sortBy = document.getElementById('sortBy').value;
+
+                this.filteredLanguages = this.languages.filter(language => {
+                    const matchesSearch = !searchTerm ||
+                        language.name.toLowerCase().includes(searchTerm) ||
+                        (language.native_name && language.native_name.toLowerCase().includes(searchTerm)) ||
+                        (language.language_family && language.language_family.toLowerCase().includes(searchTerm)) ||
+                        (language.iso_639_1 && language.iso_639_1.toLowerCase().includes(searchTerm)) ||
+                        (language.iso_639_2 && language.iso_639_2.toLowerCase().includes(searchTerm)) ||
+                        (language.iso_639_3 && language.iso_639_3.toLowerCase().includes(searchTerm));
+
+                    const matchesStatus = !statusFilter || language.status === statusFilter;
+                    const matchesType = !typeFilter || language.language_type === typeFilter;
+
+                    return matchesSearch && matchesStatus && matchesType;
+                });
+
+                // Apply sorting
+                if (sortBy) {
+                    this.filteredLanguages.sort((a, b) => {
+                        switch (sortBy) {
+                            case 'name':
+                                return a.name.localeCompare(b.name);
+                            case 'speakers_desc':
+                                return (b.speakers_total || 0) - (a.speakers_total || 0);
+                            case 'speakers_asc':
+                                return (a.speakers_total || 0) - (b.speakers_total || 0);
+                            case 'family':
+                                return (a.language_family || '').localeCompare(b.language_family || '');
+                            default:
+                                return 0;
+                        }
+                    });
+                }
+
+                this.renderLanguages();
+            }
+
+            renderLanguages() {
+                const tbody = document.getElementById('languagesTableBody');
+
+                if (this.filteredLanguages.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="9" class="text-center py-4">
+                                <div class="text-muted">No languages found</div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = this.filteredLanguages.map(language => {
+                    const displayName = language.native_name && language.native_name !== language.name
+                        ? `${language.name} (${language.native_name})`
+                        : language.name;
+
+                    const isoCodes = [language.iso_639_1, language.iso_639_2, language.iso_639_3]
+                        .filter(Boolean).join(', ') || '-';
+
+                    const speakers = this.formatNumber(language.speakers_total || language.speakers_native || 0);
+
+                    const statusBadge = this.getStatusBadge(language.status);
+                    const typeBadge = `<span class="badge bg-info">${this.capitalizeFirst(language.language_type)}</span>`;
+
+                    return `
+                        <tr>
+                            <td>${language.id}</td>
+                            <td><strong>${displayName}</strong></td>
+                            <td><small class="text-muted">${isoCodes}</small></td>
+                            <td>${language.language_family || '-'}</td>
+                            <td>${speakers}</td>
+                            <td>${language.writing_system || '-'}</td>
+                            <td>${typeBadge}</td>
+                            <td>${statusBadge}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button class="btn btn-outline-info" onclick="languageManager.viewDetails(${language.id})">
+                                        View Details
+                                    </button>
+                                    <button class="btn btn-outline-primary" onclick="languageManager.editLanguage(${language.id})">
+                                        Edit
+                                    </button>
+                                    <button class="btn btn-outline-danger" onclick="languageManager.deleteLanguage(${language.id})">
+                                        Delete
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+
+            getStatusBadge(status) {
+                const badges = {
+                    'living': '<span class="badge bg-success">Living</span>',
+                    'endangered': '<span class="badge bg-warning">Endangered</span>',
+                    'extinct': '<span class="badge bg-secondary">Extinct</span>',
+                    'dormant': '<span class="badge bg-dark">Dormant</span>',
+                    'revitalized': '<span class="badge bg-primary">Revitalized</span>'
+                };
+                return badges[status] || '<span class="badge bg-light text-dark">Unknown</span>';
+            }
+
+            formatNumber(number) {
+                if (!number) return 'Unknown';
+                if (number >= 1000000000) {
+                    return (number / 1000000000).toFixed(2) + 'B';
+                } else if (number >= 1000000) {
+                    return (number / 1000000).toFixed(1) + 'M';
+                } else if (number >= 1000) {
+                    return (number / 1000).toFixed(1) + 'K';
+                }
+                return new Intl.NumberFormat().format(number);
+            }
+
+            capitalizeFirst(str) {
+                return str.charAt(0).toUpperCase() + str.slice(1);
+            }
+
+            updateStatistics() {
+                const total = this.languages.length;
+                const living = this.languages.filter(l => l.status === 'living').length;
+                const endangered = this.languages.filter(l => ['endangered', 'dormant', 'extinct'].includes(l.status)).length;
+                const families = [...new Set(this.languages.map(l => l.language_family).filter(Boolean))].length;
+
+                document.getElementById('totalLanguages').textContent = total;
+                document.getElementById('livingLanguages').textContent = living;
+                document.getElementById('endangeredLanguages').textContent = endangered;
+                document.getElementById('languageFamilies').textContent = families;
+            }
+
+            async addLanguage() {
+                try {
+                    const formData = new FormData(document.getElementById('addLanguageForm'));
+                    const data = Object.fromEntries(formData.entries());
+
+                    // Convert numeric fields
+                    if (data.speakers_native) data.speakers_native = parseInt(data.speakers_native);
+                    if (data.speakers_total) data.speakers_total = parseInt(data.speakers_total);
+
+                    const response = await fetch('/api/entities/Language', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('addLanguageModal')).hide();
+                        document.getElementById('addLanguageForm').reset();
+                        this.loadLanguages();
+                        this.showSuccess('Language added successfully!');
+                    } else {
+                        throw new Error(result.error || 'Failed to add language');
+                    }
+                } catch (error) {
+                    console.error('Error adding language:', error);
+                    this.showError('Failed to add language: ' + error.message);
+                }
+            }
+
+            viewDetails(id) {
+                const language = this.languages.find(l => l.id == id);
+                if (!language) return;
+
+                const displayName = language.native_name && language.native_name !== language.name
+                    ? `${language.name} (${language.native_name})`
+                    : language.name;
+
+                const isoCodes = [
+                    language.iso_639_1 ? `ISO 639-1: ${language.iso_639_1}` : null,
+                    language.iso_639_2 ? `ISO 639-2: ${language.iso_639_2}` : null,
+                    language.iso_639_3 ? `ISO 639-3: ${language.iso_639_3}` : null
+                ].filter(Boolean).join('<br>') || 'None';
+
+                const detailsContent = document.getElementById('detailsContent');
+                detailsContent.innerHTML = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Basic Information</h6>
+                            <table class="table table-borderless table-sm">
+                                <tr><th width="40%">ID:</th><td>${language.id}</td></tr>
+                                <tr><th>Name:</th><td><strong>${displayName}</strong></td></tr>
+                                <tr><th>Language Family:</th><td>${language.language_family || 'Unknown'}</td></tr>
+                                <tr><th>Type:</th><td>${this.capitalizeFirst(language.language_type)}</td></tr>
+                                <tr><th>Status:</th><td>${this.getStatusBadge(language.status)}</td></tr>
+                                <tr><th>Writing System:</th><td>${language.writing_system || 'Unknown'}</td></tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Linguistic Data</h6>
+                            <table class="table table-borderless table-sm">
+                                <tr><th width="40%">ISO Codes:</th><td><small>${isoCodes}</small></td></tr>
+                                <tr><th>Native Speakers:</th><td>${this.formatNumber(language.speakers_native)}</td></tr>
+                                <tr><th>Total Speakers:</th><td>${this.formatNumber(language.speakers_total)}</td></tr>
+                                <tr><th>Active:</th><td>${language.is_active == 1 ? '✅ Yes' : '❌ No'}</td></tr>
+                                <tr><th>Created:</th><td>${new Date(language.created_at).toLocaleString()}</td></tr>
+                                <tr><th>Updated:</th><td>${new Date(language.updated_at).toLocaleString()}</td></tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    ${language.description ? `
+                        <div class="mt-3">
+                            <h6>Description</h6>
+                            <div class="card card-body bg-light">
+                                <p class="mb-0">${language.description}</p>
+                            </div>
+                        </div>
+                    ` : ''}
+                `;
+
+                const detailsActions = document.getElementById('detailsActions');
+                detailsActions.innerHTML = `
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="languageManager.editLanguage(${language.id})">Edit</button>
+                    ${language.is_active == 1
+                        ? `<button type="button" class="btn btn-warning" onclick="languageManager.deactivateLanguage(${language.id})">Deactivate</button>`
+                        : `<button type="button" class="btn btn-success" onclick="languageManager.activateLanguage(${language.id})">Activate</button>`
+                    }
+                `;
+
+                new bootstrap.Modal(document.getElementById('viewDetailsModal')).show();
+            }
+
+            editLanguage(id) {
+                const language = this.languages.find(l => l.id == id);
+                if (!language) return;
+
+                document.getElementById('editLanguageId').value = language.id;
+                document.getElementById('editName').value = language.name;
+                document.getElementById('editNativeName').value = language.native_name || '';
+                document.getElementById('editIso639_1').value = language.iso_639_1 || '';
+                document.getElementById('editIso639_2').value = language.iso_639_2 || '';
+                document.getElementById('editIso639_3').value = language.iso_639_3 || '';
+                document.getElementById('editLanguageFamily').value = language.language_family || '';
+                document.getElementById('editWritingSystem').value = language.writing_system || '';
+                document.getElementById('editSpeakersNative').value = language.speakers_native || '';
+                document.getElementById('editSpeakersTotal').value = language.speakers_total || '';
+                document.getElementById('editLanguageType').value = language.language_type;
+                document.getElementById('editStatus').value = language.status;
+                document.getElementById('editDescription').value = language.description || '';
+                document.getElementById('editIsActive').value = language.is_active;
+
+                bootstrap.Modal.getOrCreateInstance(document.getElementById('viewDetailsModal'))?.hide();
+                new bootstrap.Modal(document.getElementById('editLanguageModal')).show();
+            }
+
+            async updateLanguage() {
+                try {
+                    const id = document.getElementById('editLanguageId').value;
+                    const formData = new FormData(document.getElementById('editLanguageForm'));
+                    const data = Object.fromEntries(formData.entries());
+
+                    // Convert numeric fields
+                    if (data.speakers_native) data.speakers_native = parseInt(data.speakers_native);
+                    if (data.speakers_total) data.speakers_total = parseInt(data.speakers_total);
+                    data.is_active = parseInt(data.is_active);
+
+                    const response = await fetch(`/api/entities/Language/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('editLanguageModal')).hide();
+                        this.loadLanguages();
+                        this.showSuccess('Language updated successfully!');
+                    } else {
+                        throw new Error(result.error || 'Failed to update language');
+                    }
+                } catch (error) {
+                    console.error('Error updating language:', error);
+                    this.showError('Failed to update language: ' + error.message);
+                }
+            }
+
+            async activateLanguage(id) {
+                await this.toggleLanguageStatus(id, 1);
+            }
+
+            async deactivateLanguage(id) {
+                await this.toggleLanguageStatus(id, 0);
+            }
+
+            async toggleLanguageStatus(id, isActive) {
+                try {
+                    const response = await fetch(`/api/entities/Language/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ is_active: isActive })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.loadLanguages();
+                        this.showSuccess(`Language ${isActive ? 'activated' : 'deactivated'} successfully!`);
+                        bootstrap.Modal.getInstance(document.getElementById('viewDetailsModal')).hide();
+                    } else {
+                        throw new Error(result.error || `Failed to ${isActive ? 'activate' : 'deactivate'} language`);
+                    }
+                } catch (error) {
+                    console.error('Error toggling language status:', error);
+                    this.showError(`Failed to ${isActive ? 'activate' : 'deactivate'} language: ` + error.message);
+                }
+            }
+
+            async deleteLanguage(id) {
+                if (!confirm('Are you sure you want to delete this language? This action cannot be undone.')) return;
+
+                try {
+                    const response = await fetch(`/api/entities/Language/${id}`, {
+                        method: 'DELETE'
+                    });
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        this.loadLanguages();
+                        this.showSuccess('Language deleted successfully!');
+                    } else {
+                        throw new Error(result.error || 'Failed to delete language');
+                    }
+                } catch (error) {
+                    console.error('Error deleting language:', error);
+                    this.showError('Failed to delete language: ' + error.message);
+                }
+            }
+
+            showSuccess(message) {
+                alert('Success: ' + message);
+            }
+
+            showError(message) {
+                alert('Error: ' + message);
+            }
+        }
+
+        // Initialize language manager when page loads
+        let languageManager;
+        document.addEventListener('DOMContentLoaded', function() {
+            languageManager = new LanguageManager();
+        });
+    </script>
+</body>
+</html>

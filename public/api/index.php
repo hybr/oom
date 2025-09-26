@@ -59,9 +59,15 @@ class ApiRouter {
     private function handleEntityRequest($method, $pathParts) {
         $entityType = $pathParts[0] ?? null;
         $id = $pathParts[1] ?? null;
+        $action = $pathParts[2] ?? null;
 
         if (!$entityType) {
             throw new Exception('Entity type required', 400);
+        }
+
+        // Handle PersonCredential specific actions
+        if ($entityType === 'PersonCredential' && $id && $action && $method === 'POST') {
+            return $this->handlePersonCredentialAction($id, $action);
         }
 
         switch ($method) {
@@ -106,6 +112,48 @@ class ApiRouter {
 
             default:
                 throw new Exception('Method not allowed', 405);
+        }
+    }
+
+    private function handlePersonCredentialAction($id, $action) {
+        require_once __DIR__ . '/../../entities/PersonCredential.php';
+        $credential = PersonCredential::find($id);
+
+        if (!$credential) {
+            throw new Exception('User account not found', 404);
+        }
+
+        $data = $this->getJsonInput();
+
+        switch ($action) {
+            case 'reset-password':
+                if (!isset($data['new_password'])) {
+                    throw new Exception('New password required', 400);
+                }
+                $credential->setPassword($data['new_password']);
+                $credential->resetLoginAttempts();
+                $credential->save();
+                $this->sendSuccess(['message' => 'Password reset successfully']);
+                break;
+
+            case 'activate':
+                $credential->activate();
+                $this->sendSuccess(['message' => 'Account activated successfully']);
+                break;
+
+            case 'deactivate':
+                $credential->deactivate();
+                $this->sendSuccess(['message' => 'Account deactivated successfully']);
+                break;
+
+            case 'unlock':
+                $credential->resetLoginAttempts();
+                $credential->save();
+                $this->sendSuccess(['message' => 'Account unlocked successfully']);
+                break;
+
+            default:
+                throw new Exception('Unknown action', 400);
         }
     }
 
