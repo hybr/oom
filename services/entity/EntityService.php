@@ -1,7 +1,7 @@
 <?php
 
 class EntityService {
-    private $allowedEntities = ['Order', 'OrderItem', 'Person', 'PersonCredential', 'Continent', 'Language', 'Country'];
+    private $allowedEntities = ['Order', 'OrderItem', 'Person', 'PersonCredential', 'Continent', 'Language', 'Country', 'IndustryCategory', 'OrganizationLegalType'];
 
     public function create($entityType, $data) {
         $this->validateEntity($entityType);
@@ -12,6 +12,11 @@ class EntityService {
         // Special handling for PersonCredential
         if ($entityType === 'PersonCredential') {
             return $this->createPersonCredential($entity, $data);
+        }
+
+        // Special handling for IndustryCategory
+        if ($entityType === 'IndustryCategory') {
+            return $this->createIndustryCategory($entity, $data);
         }
 
         $entity->fill($data);
@@ -44,6 +49,43 @@ class EntityService {
         return $entity->save();
     }
 
+    private function createIndustryCategory($entity, $data) {
+        $entity->fill($data);
+
+        // Auto-generate slug if not provided
+        if (empty($data['slug'])) {
+            $entity->setSlug();
+        }
+
+        $entity->updatePath();
+        return $entity->save();
+    }
+
+    private function updateIndustryCategory($entity, $data) {
+        $oldParentId = $entity->parent_id;
+
+        $entity->fill($data);
+
+        // Auto-generate slug if name changed and no slug provided
+        if (isset($data['name']) && empty($data['slug'])) {
+            $entity->setSlug();
+        }
+
+        // Update path if parent changed
+        if ($entity->parent_id !== $oldParentId) {
+            $entity->updatePath();
+
+            // Update children paths if parent changed
+            if ($entity->save()) {
+                $entity->updateChildrenPaths();
+            }
+        } else {
+            $entity->updatePath();
+        }
+
+        return $entity->save();
+    }
+
     public function read($entityType, $id) {
         $this->validateEntity($entityType);
 
@@ -58,6 +100,11 @@ class EntityService {
         $entity = $entityType::find($id);
         if (!$entity) {
             throw new Exception("Entity not found");
+        }
+
+        // Special handling for IndustryCategory
+        if ($entityType === 'IndustryCategory') {
+            return $this->updateIndustryCategory($entity, $data);
         }
 
         $entity->fill($data);

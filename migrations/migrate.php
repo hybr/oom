@@ -8,6 +8,8 @@ require_once 'entities/PersonCredential.php';
 require_once 'entities/Continent.php';
 require_once 'entities/Language.php';
 require_once 'entities/Country.php';
+require_once 'entities/IndustryCategory.php';
+require_once 'entities/OrganizationLegalType.php';
 require_once 'process/BaseProcess.php';
 
 class DatabaseMigration {
@@ -48,6 +50,8 @@ class DatabaseMigration {
         Continent::createTable();
         Language::createTable();
         Country::createTable();
+        IndustryCategory::createTable();
+        OrganizationLegalType::createTable();
     }
 
     public function seed() {
@@ -56,6 +60,8 @@ class DatabaseMigration {
         $this->seedContinents();
         $this->seedLanguages();
         $this->seedCountries();
+        $this->seedIndustryCategories();
+        $this->seedOrganizationLegalTypes();
         $this->seedOrders();
     }
 
@@ -652,6 +658,32 @@ class DatabaseMigration {
                 echo "Country {$countryData['name']} already exists, skipping...\n";
             }
         }
+    }
+
+    private function seedIndustryCategories() {
+        echo "Seeding industry categories...\n";
+
+        // Check if already seeded
+        $existing = IndustryCategory::all();
+        if (!empty($existing)) {
+            echo "Industry categories already exist, skipping seeding...\n";
+            return;
+        }
+
+        IndustryCategory::seedIndustryTaxonomy();
+    }
+
+    private function seedOrganizationLegalTypes() {
+        echo "Seeding organization legal types...\n";
+
+        // Check if already seeded
+        $existing = OrganizationLegalType::all();
+        if (!empty($existing)) {
+            echo "Organization legal types already exist, skipping seeding...\n";
+            return;
+        }
+
+        OrganizationLegalType::seedOrganizationLegalTypes();
     }
 
     private function seedOrders() {

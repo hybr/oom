@@ -1,0 +1,1196 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Organization Legal Types - PHP Order Management</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <style>
+        .theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+        }
+
+        .legal-type-card {
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border-left: 4px solid #dee2e6;
+        }
+
+        .legal-type-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .legal-type-card.selected {
+            border-left-color: var(--bs-primary);
+            background-color: var(--bs-primary-bg-subtle);
+        }
+
+        .country-flag {
+            font-size: 1.2em;
+            margin-right: 0.5rem;
+        }
+
+        .liability-badge {
+            font-size: 0.75em;
+        }
+
+        .details-panel {
+            position: sticky;
+            top: 20px;
+        }
+
+        .loading {
+            display: none;
+        }
+
+        .capital-amount {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+
+        .requirement-check {
+            color: #28a745;
+        }
+
+        .requirement-cross {
+            color: #dc3545;
+        }
+
+        .search-highlight {
+            background-color: yellow;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+
+        .commonly-used-badge {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            font-weight: bold;
+        }
+
+        .category-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+
+        .formation-time {
+            font-size: 0.875em;
+            color: #6c757d;
+        }
+
+        [data-bs-theme="dark"] .legal-type-card:hover {
+            background-color: var(--bs-dark);
+        }
+
+        [data-bs-theme="dark"] .search-highlight {
+            background-color: #ffc107;
+            color: #000;
+        }
+
+        @media (max-width: 768px) {
+            .details-panel {
+                position: static;
+                margin-top: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <button class="btn btn-outline-secondary theme-toggle" id="themeToggle" title="Toggle Theme">
+        <i class="bi bi-sun-fill" id="themeIcon"></i>
+    </button>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi bi-building"></i>
+                Organization Legal Types
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/organization_legal_types.html">Legal Types</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/industry_categories.html">Industry Categories</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/countries.html">Countries</a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <button class="btn btn-success btn-sm" onclick="showCreateModal()">
+                            <i class="bi bi-plus-circle"></i> New Legal Type
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <!-- Left Panel - Legal Types List -->
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-building-fill"></i>
+                                    Organization Legal Types
+                                    <span class="badge bg-primary ms-2" id="totalCount">0</span>
+                                </h5>
+                            </div>
+                            <div class="col-auto">
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <button class="btn btn-outline-primary active" id="allViewBtn">
+                                        <i class="bi bi-list"></i> All
+                                    </button>
+                                    <button class="btn btn-outline-primary" id="commonViewBtn">
+                                        <i class="bi bi-star"></i> Common
+                                    </button>
+                                    <button class="btn btn-outline-primary" id="countryViewBtn">
+                                        <i class="bi bi-globe"></i> By Country
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Search and Filters -->
+                        <div class="row mt-3">
+                            <div class="col-md-4">
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="bi bi-search"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="searchInput"
+                                           placeholder="Search legal types...">
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="countryFilter">
+                                    <option value="">All Countries</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="categoryFilter">
+                                    <option value="">All Categories</option>
+                                    <option value="corporation">Corporation</option>
+                                    <option value="llc">LLC</option>
+                                    <option value="partnership">Partnership</option>
+                                    <option value="sole_proprietorship">Sole Proprietorship</option>
+                                    <option value="cooperative">Cooperative</option>
+                                    <option value="nonprofit">Non-profit</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="liabilityFilter">
+                                    <option value="">All Liability Types</option>
+                                    <option value="limited">Limited</option>
+                                    <option value="unlimited">Unlimited</option>
+                                    <option value="mixed">Mixed</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <select class="form-select" id="statusFilter">
+                                    <option value="">All Status</option>
+                                    <option value="1">Active</option>
+                                    <option value="0">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="loading text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <div class="mt-2">Loading legal types...</div>
+                        </div>
+                        <div id="legalTypesList">
+                            <!-- Legal types will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel - Details -->
+            <div class="col-md-4">
+                <div class="card details-panel">
+                    <div class="card-header">
+                        <h6 class="mb-0">
+                            <i class="bi bi-info-circle"></i>
+                            Legal Type Details
+                        </h6>
+                    </div>
+                    <div class="card-body" id="detailsPanel">
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-arrow-left-circle fs-1 mb-3"></i>
+                            <p>Select a legal type to view details</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create/Edit Legal Type Modal -->
+    <div class="modal fade" id="legalTypeModal" tabindex="-1">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Create Legal Type</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="legalTypeForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="legalTypeId">
+
+                        <!-- Basic Information -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="legalTypeName" required>
+                                    <label for="legalTypeName">Name *</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="legalTypeAbbreviation">
+                                    <label for="legalTypeAbbreviation">Abbreviation</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <select class="form-select" id="legalTypeCountry" required>
+                                        <option value="">Select Country</option>
+                                    </select>
+                                    <label for="legalTypeCountry">Country *</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <textarea class="form-control" id="legalTypeDescription" style="height: 80px"></textarea>
+                            <label for="legalTypeDescription">Description</label>
+                        </div>
+
+                        <!-- Classification -->
+                        <h6>Classification</h6>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-floating mb-3">
+                                    <select class="form-select" id="legalTypeCategory">
+                                        <option value="corporation">Corporation</option>
+                                        <option value="llc">LLC</option>
+                                        <option value="partnership">Partnership</option>
+                                        <option value="sole_proprietorship">Sole Proprietorship</option>
+                                        <option value="cooperative">Cooperative</option>
+                                        <option value="nonprofit">Non-profit</option>
+                                        <option value="trust">Trust</option>
+                                        <option value="joint_venture">Joint Venture</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                    <label for="legalTypeCategory">Category</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-floating mb-3">
+                                    <select class="form-select" id="legalTypeLiability">
+                                        <option value="limited">Limited</option>
+                                        <option value="unlimited">Unlimited</option>
+                                        <option value="mixed">Mixed</option>
+                                    </select>
+                                    <label for="legalTypeLiability">Liability Type</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-floating mb-3">
+                                    <select class="form-select" id="legalTypeTax">
+                                        <option value="corporate">Corporate</option>
+                                        <option value="pass_through">Pass-through</option>
+                                        <option value="hybrid">Hybrid</option>
+                                        <option value="exempt">Tax Exempt</option>
+                                    </select>
+                                    <label for="legalTypeTax">Tax Structure</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Requirements -->
+                        <h6>Requirements</h6>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control" id="legalTypeMinShareholders" value="1" min="1">
+                                    <label for="legalTypeMinShareholders">Min Shareholders</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control" id="legalTypeMaxShareholders" min="1">
+                                    <label for="legalTypeMaxShareholders">Max Shareholders</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control" id="legalTypeMinDirectors" value="1" min="1">
+                                    <label for="legalTypeMinDirectors">Min Directors</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control" id="legalTypeMaxDirectors" min="1">
+                                    <label for="legalTypeMaxDirectors">Max Directors</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Capital Requirements -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control" id="legalTypeMinCapital" value="0" min="0">
+                                    <label for="legalTypeMinCapital">Minimum Capital Required</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="legalTypeCurrency" value="USD">
+                                    <label for="legalTypeCurrency">Currency Code</label>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-floating mb-3">
+                                    <input type="number" class="form-control" id="legalTypeFormationTime" value="0" min="0">
+                                    <label for="legalTypeFormationTime">Formation Time (days)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Business Requirements -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="legalTypePublic">
+                                    <label class="form-check-label" for="legalTypePublic">
+                                        Public Company
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="legalTypeForeignOwnership" checked>
+                                    <label class="form-check-label" for="legalTypeForeignOwnership">
+                                        Allows Foreign Ownership
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Governance Requirements -->
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="legalTypeLocalDirector">
+                                    <label class="form-check-label" for="legalTypeLocalDirector">
+                                        Requires Local Director
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="legalTypeSecretary">
+                                    <label class="form-check-label" for="legalTypeSecretary">
+                                        Requires Company Secretary
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="legalTypeOffice" checked>
+                                    <label class="form-check-label" for="legalTypeOffice">
+                                        Requires Registered Office
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="legalTypeActive" checked>
+                                    <label class="form-check-label" for="legalTypeActive">
+                                        Active
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" id="legalTypeCommon">
+                                    <label class="form-check-label" for="legalTypeCommon">
+                                        Commonly Used
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <span class="spinner-border spinner-border-sm d-none" id="saveSpinner"></span>
+                            Save Legal Type
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Legal Type</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this organization legal type?</p>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        This action cannot be undone.
+                    </div>
+                    <div id="deleteLegalTypeInfo"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDelete">
+                        <span class="spinner-border spinner-border-sm d-none" id="deleteSpinner"></span>
+                        Delete Legal Type
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JavaScript -->
+    <script>
+        class OrganizationLegalTypeManager {
+            constructor() {
+                this.legalTypes = [];
+                this.countries = [];
+                this.selectedLegalType = null;
+                this.currentView = 'all';
+                this.searchTerm = '';
+                this.filters = {
+                    country: '',
+                    category: '',
+                    liability: '',
+                    status: ''
+                };
+
+                this.init();
+            }
+
+            init() {
+                this.setupEventListeners();
+                this.setupTheme();
+                this.loadCountries();
+                this.loadLegalTypes();
+            }
+
+            setupEventListeners() {
+                // Search
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                    this.searchTerm = e.target.value.toLowerCase();
+                    this.renderLegalTypes();
+                });
+
+                // Filters
+                ['countryFilter', 'categoryFilter', 'liabilityFilter', 'statusFilter'].forEach(id => {
+                    document.getElementById(id).addEventListener('change', (e) => {
+                        const filterType = id.replace('Filter', '');
+                        this.filters[filterType] = e.target.value;
+                        this.renderLegalTypes();
+                    });
+                });
+
+                // View toggles
+                document.getElementById('allViewBtn').addEventListener('click', () => this.setView('all'));
+                document.getElementById('commonViewBtn').addEventListener('click', () => this.setView('common'));
+                document.getElementById('countryViewBtn').addEventListener('click', () => this.setView('country'));
+
+                // Form submission
+                document.getElementById('legalTypeForm').addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    this.saveLegalType();
+                });
+
+                // Delete confirmation
+                document.getElementById('confirmDelete').addEventListener('click', () => {
+                    this.deleteLegalType();
+                });
+            }
+
+            setupTheme() {
+                const themeToggle = document.getElementById('themeToggle');
+                const themeIcon = document.getElementById('themeIcon');
+                const html = document.documentElement;
+
+                const savedTheme = localStorage.getItem('theme') || 'light';
+                html.setAttribute('data-bs-theme', savedTheme);
+                this.updateThemeIcon(savedTheme);
+
+                themeToggle.addEventListener('click', () => {
+                    const currentTheme = html.getAttribute('data-bs-theme');
+                    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+
+                    html.setAttribute('data-bs-theme', newTheme);
+                    localStorage.setItem('theme', newTheme);
+                    this.updateThemeIcon(newTheme);
+                });
+            }
+
+            updateThemeIcon(theme) {
+                const icon = document.getElementById('themeIcon');
+                icon.className = theme === 'light' ? 'bi bi-moon-stars-fill' : 'bi bi-sun-fill';
+            }
+
+            async loadCountries() {
+                try {
+                    const response = await fetch('/api/entities/Country');
+
+                    if (!response.ok) {
+                        throw new Error('Failed to load countries');
+                    }
+
+                    const result = await response.json();
+                    if (result.success && Array.isArray(result.data)) {
+                        this.countries = result.data;
+                        this.populateCountrySelects();
+                    }
+                } catch (error) {
+                    console.error('Error loading countries:', error);
+                }
+            }
+
+            populateCountrySelects() {
+                const countryFilter = document.getElementById('countryFilter');
+                const countrySelect = document.getElementById('legalTypeCountry');
+
+                // Clear existing options (except first)
+                countryFilter.innerHTML = '<option value="">All Countries</option>';
+                countrySelect.innerHTML = '<option value="">Select Country</option>';
+
+                // Sort countries by name
+                const sortedCountries = [...this.countries].sort((a, b) => a.name.localeCompare(b.name));
+
+                sortedCountries.forEach(country => {
+                    const filterOption = new Option(`${country.flag_emoji || '🏳️'} ${country.name}`, country.id);
+                    const selectOption = new Option(`${country.flag_emoji || '🏳️'} ${country.name}`, country.id);
+
+                    countryFilter.appendChild(filterOption);
+                    countrySelect.appendChild(selectOption);
+                });
+            }
+
+            async loadLegalTypes() {
+                try {
+                    this.showLoading(true);
+                    const response = await fetch('/api/entities/OrganizationLegalType');
+
+                    if (!response.ok) {
+                        throw new Error('Failed to load legal types');
+                    }
+
+                    const result = await response.json();
+                    if (result.success && Array.isArray(result.data)) {
+                        this.legalTypes = result.data;
+                    } else {
+                        throw new Error('Invalid API response format');
+                    }
+
+                    this.renderLegalTypes();
+                    this.updateTotalCount();
+
+                } catch (error) {
+                    console.error('Error loading legal types:', error);
+                    this.showError('Failed to load organization legal types');
+                    this.legalTypes = [];
+                } finally {
+                    this.showLoading(false);
+                }
+            }
+
+            renderLegalTypes() {
+                const container = document.getElementById('legalTypesList');
+
+                if (this.legalTypes.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center text-muted py-4">
+                            <i class="bi bi-inbox fs-1 mb-3"></i>
+                            <p>No organization legal types found</p>
+                            <button class="btn btn-primary" onclick="showCreateModal()">
+                                <i class="bi bi-plus-circle"></i> Create First Legal Type
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                let filteredTypes = this.filterLegalTypes();
+
+                switch (this.currentView) {
+                    case 'common':
+                        filteredTypes = filteredTypes.filter(type => type.is_commonly_used);
+                        break;
+                    case 'country':
+                        filteredTypes = this.groupByCountry(filteredTypes);
+                        container.innerHTML = this.renderByCountry(filteredTypes);
+                        this.attachItemListeners();
+                        return;
+                }
+
+                container.innerHTML = filteredTypes.map(type => this.renderLegalTypeCard(type)).join('');
+                this.attachItemListeners();
+            }
+
+            filterLegalTypes() {
+                if (!Array.isArray(this.legalTypes)) {
+                    console.warn('Legal types is not an array, initializing as empty array');
+                    this.legalTypes = [];
+                    return [];
+                }
+
+                return this.legalTypes.filter(type => {
+                    if (!type || typeof type !== 'object') {
+                        return false;
+                    }
+
+                    // Search filter
+                    if (this.searchTerm) {
+                        const searchableText = [
+                            type.name,
+                            type.abbreviation,
+                            type.description,
+                            type.category,
+                            type.jurisdiction
+                        ].join(' ').toLowerCase();
+
+                        if (!searchableText.includes(this.searchTerm)) {
+                            return false;
+                        }
+                    }
+
+                    // Country filter
+                    if (this.filters.country && type.country_id != this.filters.country) {
+                        return false;
+                    }
+
+                    // Category filter
+                    if (this.filters.category && type.category !== this.filters.category) {
+                        return false;
+                    }
+
+                    // Liability filter
+                    if (this.filters.liability && type.liability_type !== this.filters.liability) {
+                        return false;
+                    }
+
+                    // Status filter
+                    if (this.filters.status !== '' && type.is_active != this.filters.status) {
+                        return false;
+                    }
+
+                    return true;
+                });
+            }
+
+            renderLegalTypeCard(type) {
+                const country = this.countries.find(c => c.id == type.country_id);
+                const countryFlag = country ? country.flag_emoji || '🏳️' : '🏳️';
+                const countryName = country ? country.name : 'Unknown';
+
+                const highlightedName = this.highlightSearchTerm(type.name || '');
+                const highlightedDesc = this.highlightSearchTerm(type.description || '');
+
+                return `
+                    <div class="card legal-type-card mb-3" data-id="${type.id}">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div class="flex-grow-1">
+                                    <h6 class="card-title mb-2">
+                                        <span class="country-flag">${countryFlag}</span>
+                                        ${highlightedName}
+                                        ${type.abbreviation ? `<small class="text-muted">(${type.abbreviation})</small>` : ''}
+                                    </h6>
+                                    <p class="card-text text-muted small mb-2">${countryName}</p>
+                                    ${highlightedDesc ? `<p class="card-text small">${highlightedDesc.substring(0, 150)}${highlightedDesc.length > 150 ? '...' : ''}</p>` : ''}
+                                </div>
+                                <div class="text-end">
+                                    ${type.is_commonly_used ? '<span class="badge commonly-used-badge mb-2">Popular</span><br>' : ''}
+                                    <span class="badge ${this.getLiabilityBadgeClass(type.liability_type)} liability-badge">${this.formatLiabilityType(type.liability_type)}</span>
+                                </div>
+                            </div>
+                            <div class="row mt-2 small text-muted">
+                                <div class="col-6">
+                                    <i class="bi bi-people"></i> ${type.min_shareholders || 1}${type.max_shareholders ? `-${type.max_shareholders}` : '+'} shareholders
+                                </div>
+                                <div class="col-6">
+                                    <i class="bi bi-person-badge"></i> ${type.min_directors || 1}${type.max_directors ? `-${type.max_directors}` : '+'} directors
+                                </div>
+                            </div>
+                            ${type.min_capital_required > 0 ? `
+                                <div class="mt-2 small">
+                                    <i class="bi bi-cash-stack"></i>
+                                    <span class="capital-amount">${type.currency_code || 'USD'} ${this.formatNumber(type.min_capital_required)}</span>
+                                    <span class="text-muted">minimum capital</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            groupByCountry(types) {
+                const grouped = {};
+                types.forEach(type => {
+                    const countryId = type.country_id;
+                    if (!grouped[countryId]) {
+                        grouped[countryId] = [];
+                    }
+                    grouped[countryId].push(type);
+                });
+                return grouped;
+            }
+
+            renderByCountry(groupedTypes) {
+                let html = '';
+
+                Object.keys(groupedTypes).forEach(countryId => {
+                    const country = this.countries.find(c => c.id == countryId);
+                    const countryName = country ? country.name : 'Unknown Country';
+                    const countryFlag = country ? country.flag_emoji || '🏳️' : '🏳️';
+                    const types = groupedTypes[countryId];
+
+                    html += `
+                        <div class="mb-4">
+                            <h6 class="border-bottom pb-2 mb-3">
+                                <span class="country-flag">${countryFlag}</span>
+                                ${countryName}
+                                <span class="badge bg-secondary ms-2">${types.length}</span>
+                            </h6>
+                            <div class="row">
+                                ${types.map(type => `
+                                    <div class="col-md-6 mb-3">
+                                        ${this.renderLegalTypeCard(type)}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                return html;
+            }
+
+            getLiabilityBadgeClass(liability) {
+                switch (liability) {
+                    case 'limited': return 'bg-success';
+                    case 'unlimited': return 'bg-danger';
+                    case 'mixed': return 'bg-warning';
+                    default: return 'bg-secondary';
+                }
+            }
+
+            formatLiabilityType(liability) {
+                switch (liability) {
+                    case 'limited': return 'Limited';
+                    case 'unlimited': return 'Unlimited';
+                    case 'mixed': return 'Mixed';
+                    default: return liability;
+                }
+            }
+
+            formatNumber(number) {
+                return new Intl.NumberFormat().format(number);
+            }
+
+            highlightSearchTerm(text) {
+                if (!this.searchTerm || !text) return text;
+
+                const regex = new RegExp(`(${this.searchTerm})`, 'gi');
+                return text.replace(regex, '<span class="search-highlight">$1</span>');
+            }
+
+            attachItemListeners() {
+                document.querySelectorAll('.legal-type-card').forEach(card => {
+                    card.addEventListener('click', () => {
+                        const typeId = parseInt(card.dataset.id);
+                        this.selectLegalType(typeId);
+                    });
+                });
+            }
+
+            selectLegalType(typeId) {
+                // Remove previous selection
+                document.querySelectorAll('.legal-type-card.selected').forEach(card => {
+                    card.classList.remove('selected');
+                });
+
+                // Add selection to clicked card
+                const card = document.querySelector(`[data-id="${typeId}"]`);
+                if (card) {
+                    card.classList.add('selected');
+                }
+
+                // Find and display details
+                this.selectedLegalType = this.legalTypes.find(type => type.id === typeId);
+                if (this.selectedLegalType) {
+                    this.showLegalTypeDetails(this.selectedLegalType);
+                }
+            }
+
+            showLegalTypeDetails(type) {
+                const container = document.getElementById('detailsPanel');
+                const country = this.countries.find(c => c.id == type.country_id);
+
+                container.innerHTML = `
+                    <div class="mb-3">
+                        <h6>${country ? country.flag_emoji || '🏳️' : '🏳️'} ${type.name} ${type.abbreviation ? `(${type.abbreviation})` : ''}</h6>
+                        <p class="text-muted">${country ? country.name : 'Unknown Country'}</p>
+                    </div>
+
+                    ${type.description ? `
+                        <div class="mb-3">
+                            <h6><i class="bi bi-info-circle"></i> Description</h6>
+                            <p class="small">${type.description}</p>
+                        </div>
+                    ` : ''}
+
+                    <div class="mb-3">
+                        <h6><i class="bi bi-tags"></i> Classification</h6>
+                        <div class="row small">
+                            <div class="col-6"><strong>Category:</strong> ${this.formatCategory(type.category)}</div>
+                            <div class="col-6"><strong>Liability:</strong> ${this.formatLiabilityType(type.liability_type)}</div>
+                            <div class="col-6"><strong>Tax:</strong> ${this.formatTaxStructure(type.tax_structure)}</div>
+                            <div class="col-6"><strong>Type:</strong> ${type.is_public_company ? 'Public' : 'Private'}</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6><i class="bi bi-people"></i> Requirements</h6>
+                        <div class="small">
+                            <div><strong>Shareholders:</strong> ${type.min_shareholders || 1}${type.max_shareholders ? ` - ${type.max_shareholders}` : '+'}</div>
+                            <div><strong>Directors:</strong> ${type.min_directors || 1}${type.max_directors ? ` - ${type.max_directors}` : '+'}</div>
+                            ${type.min_capital_required > 0 ? `<div><strong>Min Capital:</strong> ${type.currency_code || 'USD'} ${this.formatNumber(type.min_capital_required)}</div>` : ''}
+                            ${type.formation_time_days > 0 ? `<div><strong>Formation Time:</strong> ${type.formation_time_days} days</div>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6><i class="bi bi-check-square"></i> Compliance</h6>
+                        <div class="small">
+                            <div><i class="bi ${type.requires_local_director ? 'bi-check-circle requirement-check' : 'bi-x-circle requirement-cross'}"></i> Local Director</div>
+                            <div><i class="bi ${type.requires_company_secretary ? 'bi-check-circle requirement-check' : 'bi-x-circle requirement-cross'}"></i> Company Secretary</div>
+                            <div><i class="bi ${type.requires_registered_office ? 'bi-check-circle requirement-check' : 'bi-x-circle requirement-cross'}"></i> Registered Office</div>
+                            <div><i class="bi ${type.allows_foreign_ownership ? 'bi-check-circle requirement-check' : 'bi-x-circle requirement-cross'}"></i> Foreign Ownership</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6><i class="bi bi-gear"></i> Status</h6>
+                        <div class="d-flex gap-2 flex-wrap">
+                            ${type.is_active ? '<span class="badge bg-success">Active</span>' : '<span class="badge bg-secondary">Inactive</span>'}
+                            ${type.is_commonly_used ? '<span class="badge commonly-used-badge">Commonly Used</span>' : ''}
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary btn-sm" onclick="showEditModal(${type.id})">
+                            <i class="bi bi-pencil"></i> Edit Legal Type
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="showDeleteModal(${type.id})">
+                            <i class="bi bi-trash"></i> Delete Legal Type
+                        </button>
+                    </div>
+                `;
+            }
+
+            formatCategory(category) {
+                return category ? category.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()) : 'Unknown';
+            }
+
+            formatTaxStructure(tax) {
+                switch (tax) {
+                    case 'corporate': return 'Corporate Tax';
+                    case 'pass_through': return 'Pass-through';
+                    case 'hybrid': return 'Hybrid';
+                    case 'exempt': return 'Tax Exempt';
+                    default: return tax;
+                }
+            }
+
+            setView(view) {
+                document.querySelectorAll('[id$="ViewBtn"]').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.getElementById(view + 'ViewBtn').classList.add('active');
+
+                this.currentView = view;
+                this.renderLegalTypes();
+            }
+
+            updateTotalCount() {
+                document.getElementById('totalCount').textContent = this.legalTypes.length;
+            }
+
+            showLoading(show) {
+                const loading = document.querySelector('.loading');
+                const list = document.getElementById('legalTypesList');
+
+                if (show) {
+                    loading.style.display = 'block';
+                    list.style.display = 'none';
+                } else {
+                    loading.style.display = 'none';
+                    list.style.display = 'block';
+                }
+            }
+
+            showSuccess(message) {
+                // Implement toast notification
+                alert('Success: ' + message);
+            }
+
+            showError(message) {
+                // Implement toast notification
+                alert('Error: ' + message);
+            }
+
+            async showCreateModal() {
+                const modal = new bootstrap.Modal(document.getElementById('legalTypeModal'));
+                document.getElementById('modalTitle').textContent = 'Create Legal Type';
+                document.getElementById('legalTypeForm').reset();
+                document.getElementById('legalTypeId').value = '';
+
+                // Set defaults
+                document.getElementById('legalTypeMinShareholders').value = 1;
+                document.getElementById('legalTypeMinDirectors').value = 1;
+                document.getElementById('legalTypeMinCapital').value = 0;
+                document.getElementById('legalTypeCurrency').value = 'USD';
+                document.getElementById('legalTypeFormationTime').value = 0;
+                document.getElementById('legalTypeActive').checked = true;
+                document.getElementById('legalTypeForeignOwnership').checked = true;
+                document.getElementById('legalTypeOffice').checked = true;
+
+                modal.show();
+            }
+
+            async showEditModal(typeId) {
+                const type = this.legalTypes.find(t => t.id === typeId);
+                if (!type) return;
+
+                const modal = new bootstrap.Modal(document.getElementById('legalTypeModal'));
+                document.getElementById('modalTitle').textContent = 'Edit Legal Type';
+
+                // Populate form
+                document.getElementById('legalTypeId').value = type.id;
+                document.getElementById('legalTypeName').value = type.name || '';
+                document.getElementById('legalTypeAbbreviation').value = type.abbreviation || '';
+                document.getElementById('legalTypeCountry').value = type.country_id || '';
+                document.getElementById('legalTypeDescription').value = type.description || '';
+                document.getElementById('legalTypeCategory').value = type.category || 'corporation';
+                document.getElementById('legalTypeLiability').value = type.liability_type || 'limited';
+                document.getElementById('legalTypeTax').value = type.tax_structure || 'corporate';
+                document.getElementById('legalTypeMinShareholders').value = type.min_shareholders || 1;
+                document.getElementById('legalTypeMaxShareholders').value = type.max_shareholders || '';
+                document.getElementById('legalTypeMinDirectors').value = type.min_directors || 1;
+                document.getElementById('legalTypeMaxDirectors').value = type.max_directors || '';
+                document.getElementById('legalTypeMinCapital').value = type.min_capital_required || 0;
+                document.getElementById('legalTypeCurrency').value = type.currency_code || 'USD';
+                document.getElementById('legalTypeFormationTime').value = type.formation_time_days || 0;
+                document.getElementById('legalTypePublic').checked = type.is_public_company == 1;
+                document.getElementById('legalTypeForeignOwnership').checked = type.allows_foreign_ownership == 1;
+                document.getElementById('legalTypeLocalDirector').checked = type.requires_local_director == 1;
+                document.getElementById('legalTypeSecretary').checked = type.requires_company_secretary == 1;
+                document.getElementById('legalTypeOffice').checked = type.requires_registered_office == 1;
+                document.getElementById('legalTypeActive').checked = type.is_active == 1;
+                document.getElementById('legalTypeCommon').checked = type.is_commonly_used == 1;
+
+                modal.show();
+            }
+
+            async saveLegalType() {
+                const form = document.getElementById('legalTypeForm');
+                const saveButton = form.querySelector('button[type="submit"]');
+                const spinner = document.getElementById('saveSpinner');
+
+                const typeData = {
+                    name: document.getElementById('legalTypeName').value,
+                    abbreviation: document.getElementById('legalTypeAbbreviation').value,
+                    country_id: document.getElementById('legalTypeCountry').value,
+                    description: document.getElementById('legalTypeDescription').value,
+                    category: document.getElementById('legalTypeCategory').value,
+                    liability_type: document.getElementById('legalTypeLiability').value,
+                    tax_structure: document.getElementById('legalTypeTax').value,
+                    min_shareholders: parseInt(document.getElementById('legalTypeMinShareholders').value) || 1,
+                    max_shareholders: document.getElementById('legalTypeMaxShareholders').value || null,
+                    min_directors: parseInt(document.getElementById('legalTypeMinDirectors').value) || 1,
+                    max_directors: document.getElementById('legalTypeMaxDirectors').value || null,
+                    min_capital_required: parseInt(document.getElementById('legalTypeMinCapital').value) || 0,
+                    currency_code: document.getElementById('legalTypeCurrency').value,
+                    formation_time_days: parseInt(document.getElementById('legalTypeFormationTime').value) || 0,
+                    is_public_company: document.getElementById('legalTypePublic').checked ? 1 : 0,
+                    allows_foreign_ownership: document.getElementById('legalTypeForeignOwnership').checked ? 1 : 0,
+                    requires_local_director: document.getElementById('legalTypeLocalDirector').checked ? 1 : 0,
+                    requires_company_secretary: document.getElementById('legalTypeSecretary').checked ? 1 : 0,
+                    requires_registered_office: document.getElementById('legalTypeOffice').checked ? 1 : 0,
+                    is_active: document.getElementById('legalTypeActive').checked ? 1 : 0,
+                    is_commonly_used: document.getElementById('legalTypeCommon').checked ? 1 : 0
+                };
+
+                try {
+                    saveButton.disabled = true;
+                    spinner.classList.remove('d-none');
+
+                    const typeId = document.getElementById('legalTypeId').value;
+                    const url = typeId ?
+                        `/api/entities/OrganizationLegalType/${typeId}` :
+                        '/api/entities/OrganizationLegalType';
+                    const method = typeId ? 'PUT' : 'POST';
+
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(typeData)
+                    });
+
+                    if (response.ok) {
+                        bootstrap.Modal.getInstance(document.getElementById('legalTypeModal')).hide();
+                        this.showSuccess(typeId ? 'Legal type updated successfully' : 'Legal type created successfully');
+                        this.loadLegalTypes();
+                    } else {
+                        throw new Error('Failed to save legal type');
+                    }
+
+                } catch (error) {
+                    console.error('Error saving legal type:', error);
+                    this.showError('Failed to save legal type');
+                } finally {
+                    saveButton.disabled = false;
+                    spinner.classList.add('d-none');
+                }
+            }
+
+            showDeleteModal(typeId) {
+                const type = this.legalTypes.find(t => t.id === typeId);
+                if (!type) return;
+
+                const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+                const country = this.countries.find(c => c.id == type.country_id);
+
+                document.getElementById('deleteLegalTypeInfo').innerHTML = `
+                    <div class="card">
+                        <div class="card-body">
+                            <h6>${country ? country.flag_emoji || '🏳️' : '🏳️'} ${type.name} ${type.abbreviation ? `(${type.abbreviation})` : ''}</h6>
+                            <p class="text-muted mb-0">${country ? country.name : 'Unknown Country'}</p>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('confirmDelete').onclick = () => this.deleteLegalType(typeId);
+                modal.show();
+            }
+
+            async deleteLegalType(typeId) {
+                const button = document.getElementById('confirmDelete');
+                const spinner = document.getElementById('deleteSpinner');
+
+                try {
+                    button.disabled = true;
+                    spinner.classList.remove('d-none');
+
+                    const response = await fetch(`/api/entities/OrganizationLegalType/${typeId}`, {
+                        method: 'DELETE'
+                    });
+
+                    if (response.ok) {
+                        bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+                        this.showSuccess('Legal type deleted successfully');
+                        this.loadLegalTypes();
+
+                        // Clear details if this type was selected
+                        if (this.selectedLegalType && this.selectedLegalType.id === typeId) {
+                            document.getElementById('detailsPanel').innerHTML = `
+                                <div class="text-center text-muted py-4">
+                                    <i class="bi bi-arrow-left-circle fs-1 mb-3"></i>
+                                    <p>Select a legal type to view details</p>
+                                </div>
+                            `;
+                        }
+                    } else {
+                        throw new Error('Failed to delete legal type');
+                    }
+
+                } catch (error) {
+                    console.error('Error deleting legal type:', error);
+                    this.showError('Failed to delete legal type');
+                } finally {
+                    button.disabled = false;
+                    spinner.classList.add('d-none');
+                }
+            }
+        }
+
+        // Global functions for inline event handlers
+        let legalTypeManager;
+
+        function showCreateModal() {
+            legalTypeManager.showCreateModal();
+        }
+
+        function showEditModal(typeId) {
+            legalTypeManager.showEditModal(typeId);
+        }
+
+        function showDeleteModal(typeId) {
+            legalTypeManager.showDeleteModal(typeId);
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            legalTypeManager = new OrganizationLegalTypeManager();
+        });
+    </script>
+</body>
+</html>
