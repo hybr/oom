@@ -10,6 +10,9 @@ require_once 'entities/Language.php';
 require_once 'entities/Country.php';
 require_once 'entities/IndustryCategory.php';
 require_once 'entities/OrganizationLegalType.php';
+require_once 'entities/PostalAddress.php';
+require_once 'entities/OrganizationBranch.php';
+require_once 'entities/OrganizationBuilding.php';
 require_once 'process/BaseProcess.php';
 
 class DatabaseMigration {
@@ -52,6 +55,9 @@ class DatabaseMigration {
         Country::createTable();
         IndustryCategory::createTable();
         OrganizationLegalType::createTable();
+        PostalAddress::createTable();
+        OrganizationBranch::createTable();
+        OrganizationBuilding::createTable();
     }
 
     public function seed() {

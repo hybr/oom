@@ -287,5 +287,228 @@ class ApiRouter {
     }
 }
 
+// Handle action-based requests (for frontend compatibility)
+$input = file_get_contents('php://input');
+$requestData = json_decode($input, true);
+
+if ($requestData && isset($requestData['action'])) {
+    try {
+        $response = handleActionRequest($requestData);
+        http_response_code(200);
+        echo json_encode([
+            'success' => true,
+            'data' => $response
+        ]);
+        exit();
+    } catch (Exception $e) {
+        http_response_code(500);
+        echo json_encode([
+            'success' => false,
+            'error' => $e->getMessage()
+        ]);
+        exit();
+    }
+}
+
+// Handle REST API requests
 $router = new ApiRouter();
 $router->handleRequest();
+
+function handleActionRequest($requestData) {
+    $action = $requestData['action'];
+
+    switch ($action) {
+        // Countries
+        case 'getAllCountries':
+            require_once '../../entities/Country.php';
+            $countries = Country::all();
+            return array_map(function($country) {
+                return $country->toArray();
+            }, $countries);
+
+        // Organizations
+        case 'getAllOrganizations':
+            require_once '../../entities/Organization.php';
+            $orgs = Organization::all();
+            return array_map(function($org) {
+                return $org->toArray();
+            }, $orgs);
+
+        case 'createOrganization':
+            require_once '../../entities/Organization.php';
+            $org = new Organization();
+            $org->fill($requestData['data']);
+            $org->save();
+            return $org->toArray();
+
+        case 'updateOrganization':
+            require_once '../../entities/Organization.php';
+            $org = Organization::find($requestData['data']['id']);
+            if (!$org) throw new Exception('Organization not found');
+            $org->fill($requestData['data']);
+            $org->save();
+            return $org->toArray();
+
+        case 'deleteOrganization':
+            require_once '../../entities/Organization.php';
+            $org = Organization::find($requestData['id']);
+            if (!$org) throw new Exception('Organization not found');
+            $org->delete();
+            return ['message' => 'Organization deleted successfully'];
+
+        // PostalAddresses
+        case 'getAllPostalAddresses':
+            require_once '../../entities/PostalAddress.php';
+            $addresses = PostalAddress::all();
+            return array_map(function($address) {
+                return $address->toArray();
+            }, $addresses);
+
+        case 'createPostalAddress':
+            require_once '../../entities/PostalAddress.php';
+            $address = new PostalAddress();
+            $address->fill($requestData['data']);
+            $address->save();
+            return $address->toArray();
+
+        case 'updatePostalAddress':
+            require_once '../../entities/PostalAddress.php';
+            $address = PostalAddress::find($requestData['data']['id']);
+            if (!$address) throw new Exception('Address not found');
+            $address->fill($requestData['data']);
+            $address->save();
+            return $address->toArray();
+
+        case 'deletePostalAddress':
+            require_once '../../entities/PostalAddress.php';
+            $address = PostalAddress::find($requestData['id']);
+            if (!$address) throw new Exception('Address not found');
+            $address->delete();
+            return ['message' => 'Address deleted successfully'];
+
+        // Industry Categories
+        case 'getAllIndustryCategories':
+            require_once '../../entities/IndustryCategory.php';
+            $categories = IndustryCategory::all();
+            return array_map(function($category) {
+                return $category->toArray();
+            }, $categories);
+
+        // Organization Legal Types
+        case 'getAllOrganizationLegalTypes':
+            require_once '../../entities/OrganizationLegalType.php';
+            $types = OrganizationLegalType::all();
+            return array_map(function($type) {
+                return $type->toArray();
+            }, $types);
+
+        // Persons
+        case 'getAllPersons':
+            require_once '../../entities/Person.php';
+            $persons = Person::all();
+            return array_map(function($person) {
+                return $person->toArray();
+            }, $persons);
+
+        // OrganizationBranches
+        case 'getAllOrganizationBranches':
+            require_once '../../entities/OrganizationBranch.php';
+            $branches = OrganizationBranch::all();
+            return array_map(function($branch) {
+                return $branch->toArray();
+            }, $branches);
+
+        case 'createOrganizationBranch':
+            require_once '../../entities/OrganizationBranch.php';
+            $branch = new OrganizationBranch();
+
+            // Auto-generate code if not provided
+            if (empty($requestData['data']['code'])) {
+                $branch->fill($requestData['data']);
+                $requestData['data']['code'] = $branch->generateCode();
+            }
+
+            // Auto-generate slug if not provided
+            if (empty($requestData['data']['slug'])) {
+                $branch->fill($requestData['data']);
+                $requestData['data']['slug'] = $branch->generateSlug();
+            }
+
+            $branch->fill($requestData['data']);
+            $branch->save();
+            return $branch->toArray();
+
+        case 'updateOrganizationBranch':
+            require_once '../../entities/OrganizationBranch.php';
+            $branch = OrganizationBranch::find($requestData['data']['id']);
+            if (!$branch) throw new Exception('Branch not found');
+
+            // Update slug if name changed
+            if (isset($requestData['data']['name']) && $requestData['data']['name'] !== $branch->name) {
+                $requestData['data']['slug'] = $branch->generateSlug($requestData['data']['name']);
+            }
+
+            $branch->fill($requestData['data']);
+            $branch->save();
+            return $branch->toArray();
+
+        case 'deleteOrganizationBranch':
+            require_once '../../entities/OrganizationBranch.php';
+            $branch = OrganizationBranch::find($requestData['id']);
+            if (!$branch) throw new Exception('Branch not found');
+            $branch->delete();
+            return ['message' => 'Branch deleted successfully'];
+
+        // OrganizationBuildings
+        case 'getAllOrganizationBuildings':
+            require_once '../../entities/OrganizationBuilding.php';
+            $buildings = OrganizationBuilding::all();
+            return array_map(function($building) {
+                return $building->toArray();
+            }, $buildings);
+
+        case 'createOrganizationBuilding':
+            require_once '../../entities/OrganizationBuilding.php';
+            $building = new OrganizationBuilding();
+
+            // Auto-generate code if not provided
+            if (empty($requestData['data']['code'])) {
+                $building->fill($requestData['data']);
+                $requestData['data']['code'] = $building->generateCode();
+            }
+
+            // Auto-generate slug if not provided
+            if (empty($requestData['data']['slug'])) {
+                $building->fill($requestData['data']);
+                $requestData['data']['slug'] = $building->generateSlug();
+            }
+
+            $building->fill($requestData['data']);
+            $building->save();
+            return $building->toArray();
+
+        case 'updateOrganizationBuilding':
+            require_once '../../entities/OrganizationBuilding.php';
+            $building = OrganizationBuilding::find($requestData['data']['id']);
+            if (!$building) throw new Exception('Building not found');
+
+            // Update slug if name changed
+            if (isset($requestData['data']['name']) && $requestData['data']['name'] !== $building->name) {
+                $requestData['data']['slug'] = $building->generateSlug($requestData['data']['name']);
+            }
+
+            $building->fill($requestData['data']);
+            $building->save();
+            return $building->toArray();
+
+        case 'deleteOrganizationBuilding':
+            require_once '../../entities/OrganizationBuilding.php';
+            $building = OrganizationBuilding::find($requestData['id']);
+            if (!$building) throw new Exception('Building not found');
+            $building->delete();
+            return ['message' => 'Building deleted successfully'];
+
+        default:
+            throw new Exception('Unknown action: ' . $action);
+    }
+}

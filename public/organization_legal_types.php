@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/header.php';
+require_once '../includes/sub_menu.php';
 ?>
 
 <div class="container-fluid py-4">

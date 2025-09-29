@@ -32,7 +32,8 @@ Requirements
 
     Entity Definition
 
-        Each Entity is a PHP class with attributes and CRUD methods. 
+        Each Entity is a PHP class with attributes and CRUD methods.
+        Define as many as possible attributes. 
 
         Add as many as methods for entity actions
 
@@ -67,9 +68,13 @@ Requirements
         Desktop (lg+): Traditional table view with optimized columns
         Mobile (< lg): Card-based layout with dropdowns for actions
 
+        In each web page show the sub menus using the @menu.txt file. 
+        The top toolbar only has level one menus from @menu.txt 
+
         When showing the list of records provide one action of "View Details". 
         When clicked on this the detail view of the record of that entity is shown. 
         Also all the applicable actions at record level are also shown.
+        Categorise the attributtes of the entity in the View Detail/Add/Update forms.
 
         Touch-Friendly: Large touch targets and dropdowns
         Information Hierarchy: Most important info (name, status) prominently displayed

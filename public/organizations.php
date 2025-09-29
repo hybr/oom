@@ -1,5 +1,6 @@
 <?php
 require_once '../includes/header.php';
+require_once '../includes/sub_menu.php';
 ?>
 
 <div class="container-fluid py-4">
@@ -202,12 +203,13 @@ require_once '../includes/header.php';
                             <div class="mb-3">
                                 <label for="name" class="form-label">Organization Name *</label>
                                 <input type="text" class="form-control" id="name" name="name" required>
+                                <div class="form-text">Used for display and marketing</div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="legal_name" class="form-label">Legal Name</label>
-                                <input type="text" class="form-control" id="legal_name" name="legal_name">
+                                <label for="legal_name" class="form-label">Legal Name *</label>
+                                <input type="text" class="form-control" id="legal_name" name="legal_name" required>
                                 <div class="form-text">Official registered business name</div>
                             </div>
                         </div>

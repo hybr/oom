@@ -7,6 +7,78 @@ header('Referrer-Policy: strict-origin-when-cross-origin');
 
 // Get current page for active navigation
 $current_page = basename($_SERVER['PHP_SELF'], '.php');
+
+// Menu structure based on menu.txt
+$menu_structure = [
+    'Dashboard' => [
+        'icon' => '🎙️',
+        'page' => 'index',
+        'title' => 'Dashboard'
+    ],
+    'My' => [
+        'icon' => '👤',
+        'items' => [
+            'persons' => ['title' => 'Persons', 'icon' => '👤'],
+            'postal_addresses' => ['title' => 'Addresses', 'icon' => '📍'],
+            'personcredentials' => ['title' => 'User Management', 'icon' => '🔐', 'sub_items' => [
+                'login' => ['title' => 'Login', 'icon' => '🔑'],
+                'logout' => ['title' => 'Logout', 'icon' => '🚪'],
+                'signup' => ['title' => 'Sign Up', 'icon' => '📝'],
+                'forgot_password' => ['title' => 'Forgot Password', 'icon' => '❓'],
+                'reset_password' => ['title' => 'Reset Password', 'icon' => '🔄'],
+                'change_password' => ['title' => 'Change Password', 'icon' => '🔐']
+            ]]
+        ]
+    ],
+    'Common' => [
+        'icon' => '🌍',
+        'items' => [
+            'continents' => ['title' => 'Continents', 'icon' => '🌍'],
+            'languages' => ['title' => 'Languages', 'icon' => '🗣️'],
+            'countries' => ['title' => 'Countries', 'icon' => '🏴'],
+            'industry_categories' => ['title' => 'Industry Categories', 'icon' => '🏭'],
+            'organization_legal_types' => ['title' => 'Legal Types', 'icon' => '🏢']
+        ]
+    ],
+    'Organizations' => [
+        'icon' => '🏛️',
+        'items' => [
+            'organizations' => ['title' => 'Organizations', 'icon' => '🏛️'],
+            'organization_branches' => ['title' => 'Branches', 'icon' => '🏢', 'sub_items' => [
+                'organization_buildings' => ['title' => 'Buildings', 'icon' => '🏗️']
+            ]],
+            'postal_addresses' => ['title' => 'Addresses', 'icon' => '📍']
+        ]
+    ]
+];
+
+// Get current menu context
+function getCurrentMenuContext($current_page, $menu_structure) {
+    foreach ($menu_structure as $section_name => $section) {
+        if (isset($section['page']) && $section['page'] === $current_page) {
+            return ['section' => $section_name, 'level' => 1];
+        }
+        if (isset($section['items'])) {
+            foreach ($section['items'] as $page => $item) {
+                if ($page === $current_page) {
+                    return ['section' => $section_name, 'page' => $page, 'level' => 2];
+                }
+                if (isset($item['sub_items'])) {
+                    foreach ($item['sub_items'] as $sub_page => $sub_item) {
+                        if ($sub_page === $current_page) {
+                            return ['section' => $section_name, 'parent' => $page, 'page' => $sub_page, 'level' => 3];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return ['section' => 'Dashboard', 'level' => 1];
+}
+
+$menu_context = getCurrentMenuContext($current_page, $menu_structure);
+
+// Page titles mapping
 $page_titles = [
     'index' => 'Dashboard',
     'persons' => 'Person Management',
@@ -16,23 +88,48 @@ $page_titles = [
     'countries' => 'Country Management',
     'industry_categories' => 'Industry Categories',
     'organization_legal_types' => 'Organization Legal Types',
-    'organizations' => 'Organizations'
+    'organizations' => 'Organizations',
+    'organization_branches' => 'Organization Branches',
+    'organization_buildings' => 'Organization Buildings',
+    'postal_addresses' => 'Postal Addresses'
 ];
 
-$page_icons = [
-    'index' => '🎙️',
-    'persons' => '👤',
-    'personcredentials' => '🔐',
-    'continents' => '🌍',
-    'languages' => '🗣️',
-    'countries' => '🏴',
-    'industry_categories' => '🏭',
-    'organization_legal_types' => '🏢',
-    'organizations' => '🏛️'
-];
+// Get page title and icon
+function getPageDetails($current_page, $menu_structure, $page_titles) {
+    // Check direct mapping first
+    $title = $page_titles[$current_page] ?? 'V4L - Vocal 4 Local';
+    $icon = '🎙️';
 
-$page_title = $page_titles[$current_page] ?? 'V4L - Vocal 4 Local';
-$page_icon = $page_icons[$current_page] ?? '🎙️';
+    // Find icon from menu structure
+    foreach ($menu_structure as $section) {
+        if (isset($section['page']) && $section['page'] === $current_page) {
+            $icon = $section['icon'];
+            break;
+        }
+        if (isset($section['items'])) {
+            foreach ($section['items'] as $page => $item) {
+                if ($page === $current_page) {
+                    $icon = $item['icon'];
+                    break 2;
+                }
+                if (isset($item['sub_items'])) {
+                    foreach ($item['sub_items'] as $sub_page => $sub_item) {
+                        if ($sub_page === $current_page) {
+                            $icon = $sub_item['icon'];
+                            break 3;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return ['title' => $title, 'icon' => $icon];
+}
+
+$page_details = getPageDetails($current_page, $menu_structure, $page_titles);
+$page_title = $page_details['title'];
+$page_icon = $page_details['icon'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -78,42 +175,44 @@ $page_icon = $page_icons[$current_page] ?? '🎙️';
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <div class="navbar-nav ms-auto">
-                    <a class="nav-link <?php echo $current_page === 'index' ? 'active' : ''; ?>"
-                       href="index.php" aria-label="Dashboard">
-                        <span class="nav-icon">🎙️</span> Dashboard
-                    </a>
-                    <a class="nav-link <?php echo $current_page === 'persons' ? 'active' : ''; ?>"
-                       href="persons.php" aria-label="Person Management">
-                        <span class="nav-icon">👤</span> Persons
-                    </a>
-                    <a class="nav-link <?php echo $current_page === 'personcredentials' ? 'active' : ''; ?>"
-                       href="personcredentials.php" aria-label="User Management">
-                        <span class="nav-icon">🔐</span> User Management
-                    </a>
-                    <a class="nav-link <?php echo $current_page === 'continents' ? 'active' : ''; ?>"
-                       href="continents.php" aria-label="Continent Management">
-                        <span class="nav-icon">🌍</span> Continents
-                    </a>
-                    <a class="nav-link <?php echo $current_page === 'languages' ? 'active' : ''; ?>"
-                       href="languages.php" aria-label="Language Management">
-                        <span class="nav-icon">🗣️</span> Languages
-                    </a>
-                    <a class="nav-link <?php echo $current_page === 'countries' ? 'active' : ''; ?>"
-                       href="countries.php" aria-label="Country Management">
-                        <span class="nav-icon">🏴</span> Countries
-                    </a>
-                    <a class="nav-link <?php echo $current_page === 'industry_categories' ? 'active' : ''; ?>"
-                       href="industry_categories.php" aria-label="Industry Categories">
-                        <span class="nav-icon">🏭</span> Industry Categories
-                    </a>
-                    <a class="nav-link <?php echo $current_page === 'organization_legal_types' ? 'active' : ''; ?>"
-                       href="organization_legal_types.php" aria-label="Organization Legal Types">
-                        <span class="nav-icon">🏢</span> Legal Types
-                    </a>
-                    <a class="nav-link <?php echo $current_page === 'organizations' ? 'active' : ''; ?>"
-                       href="organizations.php" aria-label="Organizations">
-                        <span class="nav-icon">🏛️</span> Organizations
-                    </a>
+                    <?php foreach ($menu_structure as $section_name => $section): ?>
+                        <?php if (isset($section['page'])): ?>
+                            <!-- Direct page link -->
+                            <a class="nav-link <?php echo $menu_context['section'] === $section_name ? 'active' : ''; ?>"
+                               href="<?php echo $section['page']; ?>.php" aria-label="<?php echo $section['title']; ?>">
+                                <span class="nav-icon"><?php echo $section['icon']; ?></span> <?php echo $section_name; ?>
+                            </a>
+                        <?php else: ?>
+                            <!-- Dropdown menu -->
+                            <div class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle <?php echo $menu_context['section'] === $section_name ? 'active' : ''; ?>"
+                                   href="#" id="dropdown<?php echo $section_name; ?>" role="button"
+                                   data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span class="nav-icon"><?php echo $section['icon']; ?></span> <?php echo $section_name; ?>
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="dropdown<?php echo $section_name; ?>">
+                                    <?php foreach ($section['items'] as $page => $item): ?>
+                                        <li>
+                                            <a class="dropdown-item <?php echo $current_page === $page ? 'active' : ''; ?>"
+                                               href="<?php echo $page; ?>.php">
+                                                <span class="nav-icon"><?php echo $item['icon']; ?></span> <?php echo $item['title']; ?>
+                                            </a>
+                                        </li>
+                                        <?php if (isset($item['sub_items'])): ?>
+                                            <?php foreach ($item['sub_items'] as $sub_page => $sub_item): ?>
+                                                <li>
+                                                    <a class="dropdown-item ps-4 <?php echo $current_page === $sub_page ? 'active' : ''; ?>"
+                                                       href="<?php echo $sub_page; ?>.php">
+                                                        <span class="nav-icon"><?php echo $sub_item['icon']; ?></span> <?php echo $sub_item['title']; ?>
+                                                    </a>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        <?php endif; ?>
+                    <?php endforeach; ?>
 
                     <div class="nav-item d-flex align-items-center me-3 ms-3">
                         <span class="connection-status connected" aria-label="Connection status"></span>

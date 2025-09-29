@@ -8,6 +8,7 @@ class PersonCredential extends BaseEntity {
         'id',
         'person_id',
         'username',
+        'email',
         'password_hash',
         'security_question_1',
         'security_answer_1_hash',
@@ -20,6 +21,7 @@ class PersonCredential extends BaseEntity {
         'locked_until',
         'password_reset_token',
         'password_reset_expires',
+        'password_changed_at',
         'is_active',
         'created_at',
         'updated_at'
@@ -185,6 +187,23 @@ class PersonCredential extends BaseEntity {
         return !empty($results) ? $results[0] : null;
     }
 
+    public static function findByEmail($email) {
+        // First find the person by email
+        require_once __DIR__ . '/Person.php';
+        $person = Person::findByEmail($email);
+        if (!$person) {
+            return null;
+        }
+
+        // Then find the credential by person_id
+        return static::findByPersonId($person->id);
+    }
+
+    public static function findByResetToken($token) {
+        $results = static::where('password_reset_token', '=', $token);
+        return !empty($results) ? $results[0] : null;
+    }
+
     public static function authenticate($username, $password) {
         $credential = static::findByUsername($username);
         if (!$credential) {
@@ -230,6 +249,7 @@ class PersonCredential extends BaseEntity {
                 locked_until DATETIME,
                 password_reset_token TEXT,
                 password_reset_expires DATETIME,
+                password_changed_at DATETIME,
                 is_active INTEGER DEFAULT 1,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
