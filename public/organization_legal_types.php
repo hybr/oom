@@ -1,87 +1,4 @@
 <?php
-// Additional styles for this page
-$additional_styles = '
-<style>
-    .legal-type-card {
-        transition: all 0.2s ease;
-        cursor: pointer;
-        border-left: 4px solid #dee2e6;
-    }
-
-    .legal-type-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-
-    .legal-type-card.selected {
-        border-left-color: var(--bs-primary);
-        background-color: var(--bs-primary-bg-subtle);
-    }
-
-    .country-flag {
-        font-size: 1.2em;
-        margin-right: 0.5rem;
-    }
-
-    .liability-badge {
-        font-size: 0.75em;
-    }
-
-    .details-panel {
-        position: sticky;
-        top: 20px;
-    }
-
-    .capital-amount {
-        font-family: "Courier New", monospace;
-        font-weight: bold;
-    }
-
-    .requirement-check {
-        color: var(--bs-success);
-    }
-
-    .requirement-cross {
-        color: var(--bs-danger);
-    }
-
-    .search-highlight {
-        background-color: yellow;
-        padding: 1px 2px;
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 1rem;
-        margin-bottom: 2rem;
-    }
-
-    .stat-card {
-        background: var(--bs-body-bg);
-        border: 1px solid var(--bs-border-color);
-        border-radius: 0.5rem;
-        padding: 1rem;
-        text-align: center;
-    }
-
-    .stat-number {
-        font-size: 2rem;
-        font-weight: bold;
-        color: var(--bs-primary);
-    }
-
-    .view-mode-tabs .nav-link {
-        border-radius: 0.25rem;
-        margin-right: 0.5rem;
-    }
-
-    .view-mode-tabs .nav-link.active {
-        background-color: var(--bs-primary);
-        color: white;
-    }
-</style>';
-
 require_once '../includes/header.php';
 ?>
 
@@ -90,92 +7,155 @@ require_once '../includes/header.php';
     <div class="row mb-4">
         <div class="col-md-8">
             <h1 class="h3 mb-0">🏢 Organization Legal Types</h1>
-            <p class="text-muted">Manage legal structures and organizational forms across jurisdictions</p>
+            <p class="text-muted">Manage legal entity types and corporate structures by jurisdiction</p>
         </div>
         <div class="col-md-4 text-end">
-            <button id="newLegalTypeBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#legalTypeModal">
+            <button id="newLegalTypeBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addLegalTypeModal">
                 ➕ Add Legal Type
             </button>
         </div>
     </div>
 
-    <!-- Quick Stats -->
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-number" id="totalTypes">0</div>
-            <div class="text-muted">Total Types</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" id="totalCountries">0</div>
-            <div class="text-muted">Countries</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" id="commonTypes">0</div>
-            <div class="text-muted">Common Types</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number" id="limitedLiability">0</div>
-            <div class="text-muted">Limited Liability</div>
-        </div>
-    </div>
-
-    <!-- Filters and Search -->
+    <!-- Statistics Cards -->
     <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="input-group">
-                <span class="input-group-text">🔍</span>
-                <input type="text" id="searchInput" class="form-control" placeholder="Search legal types, countries, or descriptions...">
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="d-flex gap-2">
-                <select id="countryFilter" class="form-select">
-                    <option value="">All Countries</option>
-                </select>
-                <select id="categoryFilter" class="form-select">
-                    <option value="">All Categories</option>
-                    <option value="Corporation">Corporation</option>
-                    <option value="Partnership">Partnership</option>
-                    <option value="Sole Proprietorship">Sole Proprietorship</option>
-                    <option value="Limited Liability">Limited Liability</option>
-                    <option value="Non-Profit">Non-Profit</option>
-                    <option value="Government">Government</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <!-- View Mode Tabs -->
-    <ul class="nav view-mode-tabs mb-3">
-        <li class="nav-item">
-            <button class="nav-link active" id="viewAll" onclick="setViewMode('all')">All Types</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link" id="viewCommon" onclick="setViewMode('common')">Common Only</button>
-        </li>
-        <li class="nav-item">
-            <button class="nav-link" id="viewByCountry" onclick="setViewMode('country')">By Country</button>
-        </li>
-    </ul>
-
-    <!-- Legal Types Content -->
-    <div class="row">
-        <div class="col-lg-8">
-            <div id="legalTypesContainer">
-                <div class="text-center py-5">
-                    <div class="loading-spinner"></div>
-                    <p class="mt-2 text-muted">Loading legal types...</p>
+        <div class="col-lg-2 col-md-4 col-6 mb-3 mb-lg-0">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-1 small">Total Types</h6>
+                            <h4 class="card-title mb-0" id="totalLegalTypes">0</h4>
+                        </div>
+                        <div class="stats-icon">🏢</div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-lg-4">
-            <div class="details-panel">
-                <div class="card">
-                    <div class="card-header">
-                        <h6 class="mb-0">📋 Details</h6>
+        <div class="col-lg-2 col-md-4 col-6 mb-3 mb-lg-0">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-1 small">Countries</h6>
+                            <h4 class="card-title mb-0" id="totalCountries">0</h4>
+                        </div>
+                        <div class="stats-icon">🌍</div>
                     </div>
-                    <div class="card-body" id="detailsContent">
-                        <p class="text-muted text-center">Select a legal type to view details</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6 mb-3 mb-md-0">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-1 small">Active</h6>
+                            <h4 class="card-title mb-0" id="activeLegalTypes">0</h4>
+                        </div>
+                        <div class="stats-icon">✅</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6 mb-3 mb-md-0">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-1 small">Commonly Used</h6>
+                            <h4 class="card-title mb-0" id="commonLegalTypes">0</h4>
+                        </div>
+                        <div class="stats-icon">⭐</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6 mb-3 mb-md-0">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-1 small">Public Types</h6>
+                            <h4 class="card-title mb-0" id="publicLegalTypes">0</h4>
+                        </div>
+                        <div class="stats-icon">📈</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-2 col-md-4 col-6">
+            <div class="card stats-card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="card-subtitle mb-1 small">Foreign Allowed</h6>
+                            <h4 class="card-title mb-0" id="foreignAllowed">0</h4>
+                        </div>
+                        <div class="stats-icon">🌐</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="row mb-3">
+        <div class="col-lg-4 col-12 mb-2 mb-lg-0">
+            <div class="input-group">
+                <span class="input-group-text">🔍</span>
+                <input type="text" id="searchLegalTypes" class="form-control" placeholder="Search legal types, abbreviations, descriptions...">
+            </div>
+        </div>
+        <div class="col-lg-8 col-12">
+            <div class="d-flex gap-2 flex-wrap">
+                <select id="countryFilter" class="form-select" style="max-width: 180px;">
+                    <option value="">All Countries</option>
+                </select>
+                <select id="categoryFilter" class="form-select" style="max-width: 150px;">
+                    <option value="">All Categories</option>
+                    <option value="corporation">Corporation</option>
+                    <option value="llc">LLC</option>
+                    <option value="partnership">Partnership</option>
+                    <option value="sole_proprietorship">Sole Proprietorship</option>
+                    <option value="cooperative">Cooperative</option>
+                    <option value="nonprofit">Nonprofit</option>
+                    <option value="trust">Trust</option>
+                    <option value="other">Other</option>
+                </select>
+                <select id="liabilityFilter" class="form-select" style="max-width: 140px;">
+                    <option value="">All Liability</option>
+                    <option value="limited">Limited</option>
+                    <option value="unlimited">Unlimited</option>
+                    <option value="mixed">Mixed</option>
+                </select>
+                <select id="statusFilter" class="form-select" style="max-width: 120px;">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+                <select id="usageFilter" class="form-select" style="max-width: 140px;">
+                    <option value="">All Usage</option>
+                    <option value="common">Commonly Used</option>
+                    <option value="uncommon">Uncommon</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Legal Types Display -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0">Organization Legal Types</h5>
+                    <small class="text-muted" id="legalTypeCount">0 legal types</small>
+                </div>
+                <div class="card-body">
+                    <div id="legalTypesDisplay">
+                        <div class="text-center py-4">
+                            <div class="loading-spinner"></div>
+                            <p class="mt-2 text-muted">Loading legal types...</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -183,47 +163,52 @@ require_once '../includes/header.php';
     </div>
 </div>
 
-<!-- Legal Type Modal -->
-<div class="modal fade" id="legalTypeModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+<!-- Add Legal Type Modal -->
+<div class="modal fade" id="addLegalTypeModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle">Add Legal Type</h5>
+                <h5 class="modal-title">Add New Organization Legal Type</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="legalTypeForm">
+            <form id="addLegalTypeForm">
                 <div class="modal-body">
-                    <input type="hidden" id="legalTypeId" name="id">
-
-                    <div class="row mb-3">
-                        <div class="col-md-8">
-                            <label for="name" class="form-label">Legal Type Name *</label>
-                            <input type="text" class="form-control" id="name" name="name" required>
+                    <!-- Basic Information -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Name *</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <label for="abbreviation" class="form-label">Abbreviation</label>
-                            <input type="text" class="form-control" id="abbreviation" name="abbreviation">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="abbreviation" class="form-label">Abbreviation</label>
+                                <input type="text" class="form-control" id="abbreviation" name="abbreviation" placeholder="e.g., LLC, Corp">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="sort_order" class="form-label">Sort Order</label>
+                                <input type="number" class="form-control" id="sort_order" name="sort_order" value="0" min="0">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="row mb-3">
+                    <div class="row">
                         <div class="col-md-6">
-                            <label for="country_id" class="form-label">Country *</label>
-                            <select class="form-select" id="country_id" name="country_id" required>
-                                <option value="">Select Country</option>
-                            </select>
+                            <div class="mb-3">
+                                <label for="country_id" class="form-label">Country *</label>
+                                <select class="form-select" id="country_id" name="country_id" required>
+                                    <option value="">Select Country</option>
+                                </select>
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <label for="category" class="form-label">Category *</label>
-                            <select class="form-select" id="category" name="category" required>
-                                <option value="">Select Category</option>
-                                <option value="Corporation">Corporation</option>
-                                <option value="Partnership">Partnership</option>
-                                <option value="Sole Proprietorship">Sole Proprietorship</option>
-                                <option value="Limited Liability">Limited Liability</option>
-                                <option value="Non-Profit">Non-Profit</option>
-                                <option value="Government">Government</option>
-                            </select>
+                            <div class="mb-3">
+                                <label for="jurisdiction" class="form-label">Jurisdiction</label>
+                                <input type="text" class="form-control" id="jurisdiction" name="jurisdiction">
+                            </div>
                         </div>
                     </div>
 
@@ -232,337 +217,739 @@ require_once '../includes/header.php';
                         <textarea class="form-control" id="description" name="description" rows="3"></textarea>
                     </div>
 
-                    <div class="row mb-3">
+                    <!-- Classification -->
+                    <h6 class="mb-3 mt-4">Classification</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="category" class="form-label">Category</label>
+                                <select class="form-select" id="category" name="category">
+                                    <option value="corporation">Corporation</option>
+                                    <option value="llc">LLC</option>
+                                    <option value="partnership">Partnership</option>
+                                    <option value="sole_proprietorship">Sole Proprietorship</option>
+                                    <option value="cooperative">Cooperative</option>
+                                    <option value="nonprofit">Nonprofit</option>
+                                    <option value="trust">Trust</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="liability_type" class="form-label">Liability Type</label>
+                                <select class="form-select" id="liability_type" name="liability_type">
+                                    <option value="limited">Limited</option>
+                                    <option value="unlimited">Unlimited</option>
+                                    <option value="mixed">Mixed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="tax_structure" class="form-label">Tax Structure</label>
+                                <select class="form-select" id="tax_structure" name="tax_structure">
+                                    <option value="corporate">Corporate</option>
+                                    <option value="pass_through">Pass Through</option>
+                                    <option value="hybrid">Hybrid</option>
+                                    <option value="exempt">Exempt</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ownership Structure -->
+                    <h6 class="mb-3 mt-4">Ownership Structure</h6>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="min_shareholders" class="form-label">Min Shareholders</label>
+                                <input type="number" class="form-control" id="min_shareholders" name="min_shareholders" value="1" min="1">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="max_shareholders" class="form-label">Max Shareholders</label>
+                                <input type="number" class="form-control" id="max_shareholders" name="max_shareholders" placeholder="Leave empty for unlimited">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="min_directors" class="form-label">Min Directors</label>
+                                <input type="number" class="form-control" id="min_directors" name="min_directors" value="1" min="1">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="max_directors" class="form-label">Max Directors</label>
+                                <input type="number" class="form-control" id="max_directors" name="max_directors" placeholder="Leave empty for unlimited">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Capital Requirements -->
+                    <h6 class="mb-3 mt-4">Capital Requirements</h6>
+                    <div class="row">
                         <div class="col-md-6">
-                            <label for="liability_type" class="form-label">Liability Type</label>
-                            <select class="form-select" id="liability_type" name="liability_type">
-                                <option value="">Select Type</option>
-                                <option value="Limited">Limited</option>
-                                <option value="Unlimited">Unlimited</option>
-                                <option value="Mixed">Mixed</option>
-                            </select>
+                            <div class="mb-3">
+                                <label for="min_capital_required" class="form-label">Minimum Capital Required</label>
+                                <input type="number" class="form-control" id="min_capital_required" name="min_capital_required" value="0" min="0">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="currency_code" class="form-label">Currency</label>
+                                <input type="text" class="form-control" id="currency_code" name="currency_code" placeholder="e.g., USD, EUR" maxlength="3">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="formation_time_days" class="form-label">Formation Time (Days)</label>
+                                <input type="number" class="form-control" id="formation_time_days" name="formation_time_days" value="0" min="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="formation_cost_range" class="form-label">Formation Cost Range</label>
+                        <input type="text" class="form-control" id="formation_cost_range" name="formation_cost_range" placeholder="e.g., $500-$1000">
+                    </div>
+
+                    <!-- Foreign Ownership -->
+                    <h6 class="mb-3 mt-4">Foreign Ownership</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="allows_foreign_ownership" name="allows_foreign_ownership" checked>
+                                <label class="form-check-label" for="allows_foreign_ownership">
+                                    Allows Foreign Ownership
+                                </label>
+                            </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-check mt-4">
-                                <input class="form-check-input" type="checkbox" id="is_common" name="is_common">
-                                <label class="form-check-label" for="is_common">
-                                    Common/Popular Type
+                            <div class="mb-3">
+                                <label for="foreign_ownership_limit" class="form-label">Foreign Ownership Limit (%)</label>
+                                <input type="number" class="form-control" id="foreign_ownership_limit" name="foreign_ownership_limit" value="100" min="0" max="100">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Requirements -->
+                    <h6 class="mb-3 mt-4">Requirements</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="requires_local_director" name="requires_local_director">
+                                <label class="form-check-label" for="requires_local_director">
+                                    Requires Local Director
                                 </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="requires_company_secretary" name="requires_company_secretary">
+                                <label class="form-check-label" for="requires_company_secretary">
+                                    Requires Company Secretary
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="requires_registered_office" name="requires_registered_office" checked>
+                                <label class="form-check-label" for="requires_registered_office">
+                                    Requires Registered Office
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="allows_single_director" name="allows_single_director" checked>
+                                <label class="form-check-label" for="allows_single_director">
+                                    Allows Single Director
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="allows_nominee_directors" name="allows_nominee_directors" checked>
+                                <label class="form-check-label" for="allows_nominee_directors">
+                                    Allows Nominee Directors
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="is_public_company" name="is_public_company">
+                                <label class="form-check-label" for="is_public_company">
+                                    Public Company Type
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <h6 class="mb-3 mt-4">Status</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                                <label class="form-check-label" for="is_active">
+                                    Active
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="is_commonly_used" name="is_commonly_used">
+                                <label class="form-check-label" for="is_commonly_used">
+                                    Commonly Used
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <h6 class="mb-3 mt-4">Additional Information</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="regulatory_authority" class="form-label">Regulatory Authority</label>
+                                <input type="text" class="form-control" id="regulatory_authority" name="regulatory_authority">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="legal_code" class="form-label">Legal Code</label>
+                                <input type="text" class="form-control" id="legal_code" name="legal_code">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="advantages" class="form-label">Advantages</label>
+                                <textarea class="form-control" id="advantages" name="advantages" rows="3" placeholder="List advantages, one per line"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="disadvantages" class="form-label">Disadvantages</label>
+                                <textarea class="form-control" id="disadvantages" name="disadvantages" rows="3" placeholder="List disadvantages, one per line"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="common_usage" class="form-label">Common Usage</label>
+                                <textarea class="form-control" id="common_usage" name="common_usage" rows="2"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="examples" class="form-label">Examples</label>
+                                <input type="text" class="form-control" id="examples" name="examples" placeholder="Company examples, separated by commas">
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Legal Type</button>
+                    <button type="submit" class="btn btn-primary">Add Legal Type</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<?php
-// Page-specific JavaScript
-$additional_scripts = '
-<script>
-    class LegalTypeManager {
-        constructor() {
-            this.legalTypes = [];
-            this.countries = [];
-            this.selectedType = null;
-            this.viewMode = "all";
-            this.filters = {
-                search: "",
-                country: "",
-                category: ""
-            };
-            this.init();
-        }
-
-        async init() {
-            await this.loadCountries();
-            await this.loadLegalTypes();
-            this.bindEvents();
-            this.updateStats();
-            window.legalTypeManager = this;
-        }
-
-        bindEvents() {
-            document.getElementById("searchInput").addEventListener("input", (e) => {
-                this.filters.search = e.target.value;
-                this.filterAndRender();
-            });
-
-            document.getElementById("countryFilter").addEventListener("change", (e) => {
-                this.filters.country = e.target.value;
-                this.filterAndRender();
-            });
-
-            document.getElementById("categoryFilter").addEventListener("change", (e) => {
-                this.filters.category = e.target.value;
-                this.filterAndRender();
-            });
-        }
-
-        async loadCountries() {
-            try {
-                const response = await fetch("/api/entity.php?entity=Country");
-                const result = await response.json();
-                if (result.success) {
-                    this.countries = result.data || [];
-                    this.populateCountryDropdowns();
-                }
-            } catch (error) {
-                console.error("Error loading countries:", error);
-            }
-        }
-
-        populateCountryDropdowns() {
-            const selects = ["countryFilter", "country_id"];
-            selects.forEach(selectId => {
-                const select = document.getElementById(selectId);
-                if (select && selectId === "countryFilter") {
-                    select.innerHTML = "<option value=\"\">All Countries</option>";
-                } else if (select) {
-                    select.innerHTML = "<option value=\"\">Select Country</option>";
-                }
-
-                this.countries.forEach(country => {
-                    const option = document.createElement("option");
-                    option.value = country.id;
-                    option.textContent = `${country.flag || ""} ${country.name}`;
-                    select.appendChild(option);
-                });
-            });
-        }
-
-        async loadLegalTypes() {
-            const refreshBtn = document.getElementById("refreshBtn");
-            setLoadingState(refreshBtn, true);
-
-            try {
-                const response = await fetch("/api/entity.php?entity=OrganizationLegalType");
-                const result = await response.json();
-
-                if (result.success) {
-                    this.legalTypes = result.data || [];
-                    this.filterAndRender();
-                    this.updateStats();
-                    showToast("Legal types loaded successfully", "success");
-                } else {
-                    throw new Error(result.message || "Failed to load legal types");
-                }
-            } catch (error) {
-                handleApiError(error, "loading legal types");
-            } finally {
-                setLoadingState(refreshBtn, false);
-            }
-        }
-
-        filterAndRender() {
-            let filtered = this.legalTypes;
-
-            // Apply filters
-            if (this.filters.search) {
-                const search = this.filters.search.toLowerCase();
-                filtered = filtered.filter(type =>
-                    type.name?.toLowerCase().includes(search) ||
-                    type.description?.toLowerCase().includes(search) ||
-                    type.category?.toLowerCase().includes(search)
-                );
-            }
-
-            if (this.filters.country) {
-                filtered = filtered.filter(type => type.country_id == this.filters.country);
-            }
-
-            if (this.filters.category) {
-                filtered = filtered.filter(type => type.category === this.filters.category);
-            }
-
-            // Apply view mode filter
-            if (this.viewMode === "common") {
-                filtered = filtered.filter(type => type.is_common);
-            }
-
-            this.renderLegalTypes(filtered);
-        }
-
-        renderLegalTypes(types) {
-            const container = document.getElementById("legalTypesContainer");
-
-            if (types.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-5">
-                        <p class="text-muted">No legal types found matching your criteria.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const html = types.map(type => {
-                const country = this.countries.find(c => c.id == type.country_id);
-                return `
-                    <div class="card legal-type-card mb-3" onclick="window.legalTypeManager.selectType(${type.id})">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="flex-grow-1">
-                                    <h6 class="card-title mb-1">
-                                        <span class="country-flag">${country?.flag || "🏴"}</span>
-                                        ${type.name}
-                                        ${type.abbreviation ? `<small class="text-muted">(${type.abbreviation})</small>` : ""}
-                                    </h6>
-                                    <p class="card-text text-muted small mb-2">${type.description || "No description available"}</p>
-                                    <div class="d-flex gap-2">
-                                        <span class="badge bg-secondary">${type.category}</span>
-                                        ${type.liability_type ? `<span class="badge liability-badge bg-info">${type.liability_type} Liability</span>` : ""}
-                                        ${type.is_common ? `<span class="badge bg-success">Common</span>` : ""}
-                                    </div>
-                                </div>
-                                <small class="text-muted">${country?.name || "Unknown"}</small>
+<!-- Edit Legal Type Modal -->
+<div class="modal fade" id="editLegalTypeModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Organization Legal Type</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editLegalTypeForm">
+                <input type="hidden" id="editLegalTypeId" name="id">
+                <div class="modal-body">
+                    <!-- Same structure as add modal but with edit prefixes -->
+                    <!-- Basic Information -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editName" class="form-label">Name *</label>
+                                <input type="text" class="form-control" id="editName" name="name" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="editAbbreviation" class="form-label">Abbreviation</label>
+                                <input type="text" class="form-control" id="editAbbreviation" name="abbreviation">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="editSort_order" class="form-label">Sort Order</label>
+                                <input type="number" class="form-control" id="editSort_order" name="sort_order" min="0">
                             </div>
                         </div>
                     </div>
-                `;
-            }).join("");
 
-            container.innerHTML = html;
-        }
-
-        selectType(id) {
-            const type = this.legalTypes.find(t => t.id == id);
-            if (!type) return;
-
-            this.selectedType = type;
-
-            // Update UI selection
-            document.querySelectorAll(".legal-type-card").forEach(card => {
-                card.classList.remove("selected");
-            });
-            event.currentTarget.classList.add("selected");
-
-            this.showTypeDetails(type);
-        }
-
-        showTypeDetails(type) {
-            const country = this.countries.find(c => c.id == type.country_id);
-            const content = document.getElementById("detailsContent");
-
-            content.innerHTML = `
-                <h6 class="mb-3">${type.name}</h6>
-                <dl class="row small">
-                    <dt class="col-5">Country:</dt>
-                    <dd class="col-7">${country?.flag || ""} ${country?.name || "Unknown"}</dd>
-
-                    <dt class="col-5">Category:</dt>
-                    <dd class="col-7">${type.category}</dd>
-
-                    ${type.liability_type ? `
-                        <dt class="col-5">Liability:</dt>
-                        <dd class="col-7">${type.liability_type}</dd>
-                    ` : ""}
-
-                    <dt class="col-5">Common:</dt>
-                    <dd class="col-7">${type.is_common ? "✅ Yes" : "❌ No"}</dd>
-                </dl>
-
-                ${type.description ? `
-                    <div class="mt-3">
-                        <strong>Description:</strong>
-                        <p class="small text-muted mt-1">${type.description}</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editCountry_id" class="form-label">Country *</label>
+                                <select class="form-select" id="editCountry_id" name="country_id" required>
+                                    <option value="">Select Country</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editJurisdiction" class="form-label">Jurisdiction</label>
+                                <input type="text" class="form-control" id="editJurisdiction" name="jurisdiction">
+                            </div>
+                        </div>
                     </div>
-                ` : ""}
 
-                <div class="mt-3 d-grid gap-2">
-                    <button class="btn btn-outline-primary btn-sm" onclick="window.legalTypeManager.editType(${type.id})">
-                        ✏️ Edit
-                    </button>
-                    <button class="btn btn-outline-danger btn-sm" onclick="window.legalTypeManager.deleteType(${type.id})">
-                        🗑️ Delete
-                    </button>
+                    <div class="mb-3">
+                        <label for="editDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editDescription" name="description" rows="3"></textarea>
+                    </div>
+
+                    <!-- Classification -->
+                    <h6 class="mb-3 mt-4">Classification</h6>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="editCategory" class="form-label">Category</label>
+                                <select class="form-select" id="editCategory" name="category">
+                                    <option value="corporation">Corporation</option>
+                                    <option value="llc">LLC</option>
+                                    <option value="partnership">Partnership</option>
+                                    <option value="sole_proprietorship">Sole Proprietorship</option>
+                                    <option value="cooperative">Cooperative</option>
+                                    <option value="nonprofit">Nonprofit</option>
+                                    <option value="trust">Trust</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="editLiability_type" class="form-label">Liability Type</label>
+                                <select class="form-select" id="editLiability_type" name="liability_type">
+                                    <option value="limited">Limited</option>
+                                    <option value="unlimited">Unlimited</option>
+                                    <option value="mixed">Mixed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="editTax_structure" class="form-label">Tax Structure</label>
+                                <select class="form-select" id="editTax_structure" name="tax_structure">
+                                    <option value="corporate">Corporate</option>
+                                    <option value="pass_through">Pass Through</option>
+                                    <option value="hybrid">Hybrid</option>
+                                    <option value="exempt">Exempt</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ownership Structure -->
+                    <h6 class="mb-3 mt-4">Ownership Structure</h6>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="editMin_shareholders" class="form-label">Min Shareholders</label>
+                                <input type="number" class="form-control" id="editMin_shareholders" name="min_shareholders" min="1">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="editMax_shareholders" class="form-label">Max Shareholders</label>
+                                <input type="number" class="form-control" id="editMax_shareholders" name="max_shareholders">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="editMin_directors" class="form-label">Min Directors</label>
+                                <input type="number" class="form-control" id="editMin_directors" name="min_directors" min="1">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="editMax_directors" class="form-label">Max Directors</label>
+                                <input type="number" class="form-control" id="editMax_directors" name="max_directors">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Capital Requirements -->
+                    <h6 class="mb-3 mt-4">Capital Requirements</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editMin_capital_required" class="form-label">Minimum Capital Required</label>
+                                <input type="number" class="form-control" id="editMin_capital_required" name="min_capital_required" min="0">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="editCurrency_code" class="form-label">Currency</label>
+                                <input type="text" class="form-control" id="editCurrency_code" name="currency_code" maxlength="3">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="mb-3">
+                                <label for="editFormation_time_days" class="form-label">Formation Time (Days)</label>
+                                <input type="number" class="form-control" id="editFormation_time_days" name="formation_time_days" min="0">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="editFormation_cost_range" class="form-label">Formation Cost Range</label>
+                        <input type="text" class="form-control" id="editFormation_cost_range" name="formation_cost_range">
+                    </div>
+
+                    <!-- Foreign Ownership -->
+                    <h6 class="mb-3 mt-4">Foreign Ownership</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="checkbox" id="editAllows_foreign_ownership" name="allows_foreign_ownership">
+                                <label class="form-check-label" for="editAllows_foreign_ownership">
+                                    Allows Foreign Ownership
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editForeign_ownership_limit" class="form-label">Foreign Ownership Limit (%)</label>
+                                <input type="number" class="form-control" id="editForeign_ownership_limit" name="foreign_ownership_limit" min="0" max="100">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Requirements -->
+                    <h6 class="mb-3 mt-4">Requirements</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="editRequires_local_director" name="requires_local_director">
+                                <label class="form-check-label" for="editRequires_local_director">
+                                    Requires Local Director
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="editRequires_company_secretary" name="requires_company_secretary">
+                                <label class="form-check-label" for="editRequires_company_secretary">
+                                    Requires Company Secretary
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="editRequires_registered_office" name="requires_registered_office">
+                                <label class="form-check-label" for="editRequires_registered_office">
+                                    Requires Registered Office
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="editAllows_single_director" name="allows_single_director">
+                                <label class="form-check-label" for="editAllows_single_director">
+                                    Allows Single Director
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="editAllows_nominee_directors" name="allows_nominee_directors">
+                                <label class="form-check-label" for="editAllows_nominee_directors">
+                                    Allows Nominee Directors
+                                </label>
+                            </div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" id="editIs_public_company" name="is_public_company">
+                                <label class="form-check-label" for="editIs_public_company">
+                                    Public Company Type
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <h6 class="mb-3 mt-4">Status</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="editIs_active" name="is_active">
+                                <label class="form-check-label" for="editIs_active">
+                                    Active
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="editIs_commonly_used" name="is_commonly_used">
+                                <label class="form-check-label" for="editIs_commonly_used">
+                                    Commonly Used
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <h6 class="mb-3 mt-4">Additional Information</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editRegulatory_authority" class="form-label">Regulatory Authority</label>
+                                <input type="text" class="form-control" id="editRegulatory_authority" name="regulatory_authority">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editLegal_code" class="form-label">Legal Code</label>
+                                <input type="text" class="form-control" id="editLegal_code" name="legal_code">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editAdvantages" class="form-label">Advantages</label>
+                                <textarea class="form-control" id="editAdvantages" name="advantages" rows="3"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editDisadvantages" class="form-label">Disadvantages</label>
+                                <textarea class="form-control" id="editDisadvantages" name="disadvantages" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editCommon_usage" class="form-label">Common Usage</label>
+                                <textarea class="form-control" id="editCommon_usage" name="common_usage" rows="2"></textarea>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="editExamples" class="form-label">Examples</label>
+                                <input type="text" class="form-control" id="editExamples" name="examples">
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            `;
-        }
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Legal Type</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-        updateStats() {
-            const total = this.legalTypes.length;
-            const countries = new Set(this.legalTypes.map(t => t.country_id)).size;
-            const common = this.legalTypes.filter(t => t.is_common).length;
-            const limitedLiability = this.legalTypes.filter(t => t.liability_type === "Limited").length;
+<!-- View Legal Type Modal -->
+<div class="modal fade" id="viewLegalTypeModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">🏢 Legal Type Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-lg-8 mb-3">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Basic Information</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <dl class="row">
+                                            <dt class="col-sm-5">Name:</dt>
+                                            <dd class="col-sm-7" id="viewName">-</dd>
 
-            document.getElementById("totalTypes").textContent = total;
-            document.getElementById("totalCountries").textContent = countries;
-            document.getElementById("commonTypes").textContent = common;
-            document.getElementById("limitedLiability").textContent = limitedLiability;
-        }
+                                            <dt class="col-sm-5">Abbreviation:</dt>
+                                            <dd class="col-sm-7" id="viewAbbreviation">-</dd>
 
-        editType(id) {
-            const type = this.legalTypes.find(t => t.id == id);
-            if (!type) return;
+                                            <dt class="col-sm-5">Country:</dt>
+                                            <dd class="col-sm-7" id="viewCountry">-</dd>
 
-            // Populate form
-            document.getElementById("legalTypeId").value = type.id;
-            document.getElementById("name").value = type.name || "";
-            document.getElementById("abbreviation").value = type.abbreviation || "";
-            document.getElementById("country_id").value = type.country_id || "";
-            document.getElementById("category").value = type.category || "";
-            document.getElementById("description").value = type.description || "";
-            document.getElementById("liability_type").value = type.liability_type || "";
-            document.getElementById("is_common").checked = type.is_common || false;
+                                            <dt class="col-sm-5">Jurisdiction:</dt>
+                                            <dd class="col-sm-7" id="viewJurisdiction">-</dd>
 
-            document.getElementById("modalTitle").textContent = "Edit Legal Type";
+                                            <dt class="col-sm-5">Category:</dt>
+                                            <dd class="col-sm-7" id="viewCategory">-</dd>
+                                        </dl>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <dl class="row">
+                                            <dt class="col-sm-5">Liability:</dt>
+                                            <dd class="col-sm-7" id="viewLiabilityType">-</dd>
 
-            const modal = new bootstrap.Modal(document.getElementById("legalTypeModal"));
-            modal.show();
-        }
+                                            <dt class="col-sm-5">Tax Structure:</dt>
+                                            <dd class="col-sm-7" id="viewTaxStructure">-</dd>
 
-        async deleteType(id) {
-            if (!confirm("Are you sure you want to delete this legal type?")) return;
+                                            <dt class="col-sm-5">Formation Time:</dt>
+                                            <dd class="col-sm-7" id="viewFormationTime">-</dd>
 
-            try {
-                const response = await fetch(`/api/entity.php?entity=OrganizationLegalType&id=${id}`, {
-                    method: "DELETE"
-                });
-                const result = await response.json();
+                                            <dt class="col-sm-5">Formation Cost:</dt>
+                                            <dd class="col-sm-7" id="viewFormationCost">-</dd>
 
-                if (result.success) {
-                    showToast("Legal type deleted successfully", "success");
-                    await this.loadLegalTypes();
-                    document.getElementById("detailsContent").innerHTML = `
-                        <p class="text-muted text-center">Select a legal type to view details</p>
-                    `;
-                } else {
-                    throw new Error(result.message || "Failed to delete legal type");
-                }
-            } catch (error) {
-                handleApiError(error, "deleting legal type");
-            }
-        }
-    }
+                                            <dt class="col-sm-5">Min Capital:</dt>
+                                            <dd class="col-sm-7" id="viewMinCapital">-</dd>
+                                        </dl>
+                                    </div>
+                                </div>
+                                <div class="mt-3">
+                                    <dt>Description:</dt>
+                                    <dd id="viewDescription">-</dd>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="card h-100">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Status & Ownership</h6>
+                            </div>
+                            <div class="card-body">
+                                <dl class="row">
+                                    <dt class="col-6">Status:</dt>
+                                    <dd class="col-6" id="viewStatus">-</dd>
 
-    function setViewMode(mode) {
-        // Update tab appearance
-        document.querySelectorAll(".view-mode-tabs .nav-link").forEach(link => {
-            link.classList.remove("active");
-        });
+                                    <dt class="col-6">Usage:</dt>
+                                    <dd class="col-6" id="viewUsage">-</dd>
 
-        if (mode === "all") document.getElementById("viewAll").classList.add("active");
-        else if (mode === "common") document.getElementById("viewCommon").classList.add("active");
-        else if (mode === "country") document.getElementById("viewByCountry").classList.add("active");
+                                    <dt class="col-6">Company Type:</dt>
+                                    <dd class="col-6" id="viewCompanyType">-</dd>
 
-        // Update manager
-        if (window.legalTypeManager) {
-            window.legalTypeManager.viewMode = mode;
-            window.legalTypeManager.filterAndRender();
-        }
-    }
+                                    <dt class="col-6">Foreign:</dt>
+                                    <dd class="col-6" id="viewForeignOwnership">-</dd>
 
-    // Initialize when DOM is ready
-    document.addEventListener("DOMContentLoaded", function() {
-        new LegalTypeManager();
-    });
-</script>';
+                                    <dt class="col-6">ID:</dt>
+                                    <dd class="col-6" id="viewLegalTypeId">-</dd>
 
+                                    <dt class="col-6">Created:</dt>
+                                    <dd class="col-6" id="viewCreatedAt">-</dd>
+
+                                    <dt class="col-6">Updated:</dt>
+                                    <dd class="col-6" id="viewUpdatedAt">-</dd>
+                                </dl>
+
+                                <div class="mt-3">
+                                    <div class="d-grid gap-2">
+                                        <button type="button" class="btn btn-primary btn-sm" id="viewEditBtn">
+                                            ✏️ Edit Legal Type
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" id="viewDeleteBtn">
+                                            🗑️ Delete Legal Type
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ownership Structure -->
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Ownership Structure</h6>
+                            </div>
+                            <div class="card-body">
+                                <dl class="row">
+                                    <dt class="col-6">Shareholders:</dt>
+                                    <dd class="col-6" id="viewShareholderRange">-</dd>
+
+                                    <dt class="col-6">Directors:</dt>
+                                    <dd class="col-6" id="viewDirectorRange">-</dd>
+                                </dl>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Requirements</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="viewRequirements">
+                                    <p class="text-muted">No specific requirements</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advantages & Disadvantages -->
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Advantages</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="viewAdvantages">
+                                    <p class="text-muted">No advantages listed</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Disadvantages</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="viewDisadvantages">
+                                    <p class="text-muted">No disadvantages listed</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Usage & Examples -->
+                <div class="row mt-3">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Common Usage</h6>
+                            </div>
+                            <div class="card-body">
+                                <p id="viewCommonUsage" class="mb-0">-</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="card-title mb-0">Examples</h6>
+                            </div>
+                            <div class="card-body">
+                                <div id="viewExamples">
+                                    <p class="text-muted">No examples provided</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php
 require_once '../includes/footer.php';
 require_once '../includes/scripts.php';
 ?>

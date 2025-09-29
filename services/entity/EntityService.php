@@ -1,7 +1,7 @@
 <?php
 
 class EntityService {
-    private $allowedEntities = ['Order', 'OrderItem', 'Person', 'PersonCredential', 'Continent', 'Language', 'Country', 'IndustryCategory', 'OrganizationLegalType'];
+    private $allowedEntities = ['Order', 'OrderItem', 'Person', 'PersonCredential', 'Continent', 'Language', 'Country', 'IndustryCategory', 'OrganizationLegalType', 'Organization'];
 
     public function create($entityType, $data) {
         $this->validateEntity($entityType);

@@ -38,8 +38,6 @@ Requirements
 
         A web page should be there to access the entity via Frontend. It is must requirement.
 
-        When showing the list of records provide one action of "View Details". When clicked on this the detail view of the record of that entity is shown. Also all the applicable actions at record level are also shown.
-
         Entities must be stored in SQLite tables.
 
         Auto-generate database schema from entity definitions.
@@ -62,7 +60,22 @@ Requirements
 
         Use Bootstrap for clean UI.
 
+        Use includes\header.php and includes\footer.php to show consistent theme on each web page.
+        
         Ajax (vanilla JS or jQuery) to call backend PHP endpoints.
+
+        Desktop (lg+): Traditional table view with optimized columns
+        Mobile (< lg): Card-based layout with dropdowns for actions
+
+        When showing the list of records provide one action of "View Details". 
+        When clicked on this the detail view of the record of that entity is shown. 
+        Also all the applicable actions at record level are also shown.
+
+        Touch-Friendly: Large touch targets and dropdowns
+        Information Hierarchy: Most important info (name, status) prominently displayed
+        Space Efficient: Data wraps naturally without horizontal scrolling
+        Accessible Actions: Easy-to-use dropdown menus instead of cramped button groups
+        Visual Clarity: Icons and badges for quick scanning
 
         WebSocket for real-time updates (status changes, new messages, notifications).
 

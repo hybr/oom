@@ -15,7 +15,8 @@ $page_titles = [
     'languages' => 'Language Management',
     'countries' => 'Country Management',
     'industry_categories' => 'Industry Categories',
-    'organization_legal_types' => 'Organization Legal Types'
+    'organization_legal_types' => 'Organization Legal Types',
+    'organizations' => 'Organizations'
 ];
 
 $page_icons = [
@@ -26,7 +27,8 @@ $page_icons = [
     'languages' => '🗣️',
     'countries' => '🏴',
     'industry_categories' => '🏭',
-    'organization_legal_types' => '🏢'
+    'organization_legal_types' => '🏢',
+    'organizations' => '🏛️'
 ];
 
 $page_title = $page_titles[$current_page] ?? 'V4L - Vocal 4 Local';
@@ -52,7 +54,7 @@ $page_icon = $page_icons[$current_page] ?? '🎙️';
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22><?php echo $page_icon; ?></text></svg>">
 
     <!-- Preload critical resources -->
-    <link rel="preload" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" as="script">
+    <!-- Bootstrap JS removed from preload as it's not critical for initial rendering -->
 
     <!-- Page-specific styles -->
     <?php if (isset($additional_styles)) echo $additional_styles; ?>
@@ -107,6 +109,10 @@ $page_icon = $page_icons[$current_page] ?? '🎙️';
                     <a class="nav-link <?php echo $current_page === 'organization_legal_types' ? 'active' : ''; ?>"
                        href="organization_legal_types.php" aria-label="Organization Legal Types">
                         <span class="nav-icon">🏢</span> Legal Types
+                    </a>
+                    <a class="nav-link <?php echo $current_page === 'organizations' ? 'active' : ''; ?>"
+                       href="organizations.php" aria-label="Organizations">
+                        <span class="nav-icon">🏛️</span> Organizations
                     </a>
 
                     <div class="nav-item d-flex align-items-center me-3 ms-3">

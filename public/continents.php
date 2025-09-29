@@ -6,12 +6,12 @@ require_once '../includes/header.php';
     <!-- Header -->
     <div class="row mb-4">
         <div class="col-md-8">
-            <h1 class="h3 mb-0">👤 Person Management</h1>
-            <p class="text-muted">Manage persons with real-time updates</p>
+            <h1 class="h3 mb-0">🌍 Continent Management</h1>
+            <p class="text-muted">Manage continents with real-time updates</p>
         </div>
         <div class="col-md-4 text-end">
-            <button id="newPersonBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPersonModal">
-                ➕ Add Person
+            <button id="newContinentBtn" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addContinentModal">
+                ➕ Add Continent
             </button>
         </div>
     </div>
@@ -23,10 +23,10 @@ require_once '../includes/header.php';
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="card-subtitle mb-1 small">Total Persons</h6>
-                            <h4 class="card-title mb-0" id="totalPersons">0</h4>
+                            <h6 class="card-subtitle mb-1 small">Total Continents</h6>
+                            <h4 class="card-title mb-0" id="totalContinents">0</h4>
                         </div>
-                        <div class="stats-icon">👥</div>
+                        <div class="stats-icon">🌍</div>
                     </div>
                 </div>
             </div>
@@ -37,7 +37,7 @@ require_once '../includes/header.php';
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="card-subtitle mb-1 small">Active</h6>
-                            <h4 class="card-title mb-0" id="activePersons">0</h4>
+                            <h4 class="card-title mb-0" id="activeContinents">0</h4>
                         </div>
                         <div class="stats-icon">✅</div>
                     </div>
@@ -50,7 +50,7 @@ require_once '../includes/header.php';
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <h6 class="card-subtitle mb-1 small">Inactive</h6>
-                            <h4 class="card-title mb-0" id="inactivePersons">0</h4>
+                            <h4 class="card-title mb-0" id="inactiveContinents">0</h4>
                         </div>
                         <div class="stats-icon">❌</div>
                     </div>
@@ -62,10 +62,10 @@ require_once '../includes/header.php';
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h6 class="card-subtitle mb-1 small">Recent</h6>
-                            <h4 class="card-title mb-0" id="recentPersons">0</h4>
+                            <h6 class="card-subtitle mb-1 small">Total Population</h6>
+                            <h4 class="card-title mb-0" id="totalPopulation">0</h4>
                         </div>
-                        <div class="stats-icon">🕐</div>
+                        <div class="stats-icon">👥</div>
                     </div>
                 </div>
             </div>
@@ -77,7 +77,7 @@ require_once '../includes/header.php';
         <div class="col-lg-6 col-12 mb-2 mb-lg-0">
             <div class="input-group">
                 <span class="input-group-text">🔍</span>
-                <input type="text" id="searchPersons" class="form-control" placeholder="Search persons...">
+                <input type="text" id="searchContinents" class="form-control" placeholder="Search continents...">
             </div>
         </div>
         <div class="col-lg-6 col-12 text-lg-end">
@@ -89,18 +89,18 @@ require_once '../includes/header.php';
         </div>
     </div>
 
-    <!-- Persons Table -->
+    <!-- Continents Table -->
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0">Person List</h5>
+                    <h5 class="card-title mb-0">Continent List</h5>
                 </div>
                 <div class="card-body">
-                    <div id="personsTable">
+                    <div id="continentsTable">
                         <div class="text-center py-4">
                             <div class="loading-spinner"></div>
-                            <p class="mt-2 text-muted">Loading persons...</p>
+                            <p class="mt-2 text-muted">Loading continents...</p>
                         </div>
                     </div>
                 </div>
@@ -109,156 +109,161 @@ require_once '../includes/header.php';
     </div>
 </div>
 
-<!-- Add Person Modal -->
-<div class="modal fade" id="addPersonModal" tabindex="-1">
+<!-- Add Continent Modal -->
+<div class="modal fade" id="addContinentModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Add New Person</h5>
+                <h5 class="modal-title">Add New Continent</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="addPersonForm">
+            <form id="addContinentForm">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="firstName" class="form-label">First Name *</label>
-                                <input type="text" class="form-control" id="firstName" name="first_name" required>
+                                <label for="name" class="form-label">Name *</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="lastName" class="form-label">Last Name *</label>
-                                <input type="text" class="form-control" id="lastName" name="last_name" required>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="email" name="email">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="phone" class="form-label">Phone</label>
-                                <input type="tel" class="form-control" id="phone" name="phone">
+                                <label for="code" class="form-label">Code *</label>
+                                <input type="text" class="form-control" id="code" name="code" required maxlength="3" placeholder="e.g., AS, EU">
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="dateOfBirth" class="form-label">Date of Birth</label>
-                                <input type="date" class="form-control" id="dateOfBirth" name="date_of_birth">
+                                <label for="area_km2" class="form-label">Area (km²)</label>
+                                <input type="number" class="form-control" id="area_km2" name="area_km2" min="0">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="gender" class="form-label">Gender</label>
-                                <select class="form-select" id="gender" name="gender">
-                                    <option value="">Select Gender</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                    <option value="Other">Other</option>
-                                </select>
+                                <label for="population" class="form-label">Population</label>
+                                <input type="number" class="form-control" id="population" name="population" min="0">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="countries_count" class="form-label">Countries Count</label>
+                                <input type="number" class="form-control" id="countries_count" name="countries_count" min="0">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="largest_country" class="form-label">Largest Country</label>
+                                <input type="text" class="form-control" id="largest_country" name="largest_country">
                             </div>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="address" class="form-label">Address</label>
-                        <textarea class="form-control" id="address" name="address" rows="3"></textarea>
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                            <label class="form-check-label" for="is_active">
+                                Active
+                            </label>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Person</button>
+                    <button type="submit" class="btn btn-primary">Add Continent</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- Edit Person Modal -->
-<div class="modal fade" id="editPersonModal" tabindex="-1">
+<!-- Edit Continent Modal -->
+<div class="modal fade" id="editContinentModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Edit Person</h5>
+                <h5 class="modal-title">Edit Continent</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form id="editPersonForm">
-                <input type="hidden" id="editPersonId" name="id">
+            <form id="editContinentForm">
+                <input type="hidden" id="editContinentId" name="id">
                 <div class="modal-body">
-                    <!-- Same form fields as add modal -->
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="editFirstName" class="form-label">First Name *</label>
-                                <input type="text" class="form-control" id="editFirstName" name="first_name" required>
+                                <label for="editName" class="form-label">Name *</label>
+                                <input type="text" class="form-control" id="editName" name="name" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="editLastName" class="form-label">Last Name *</label>
-                                <input type="text" class="form-control" id="editLastName" name="last_name" required>
+                                <label for="editCode" class="form-label">Code *</label>
+                                <input type="text" class="form-control" id="editCode" name="code" required maxlength="3">
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="editEmail" class="form-label">Email</label>
-                                <input type="email" class="form-control" id="editEmail" name="email">
+                                <label for="editArea_km2" class="form-label">Area (km²)</label>
+                                <input type="number" class="form-control" id="editArea_km2" name="area_km2" min="0">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="editPhone" class="form-label">Phone</label>
-                                <input type="tel" class="form-control" id="editPhone" name="phone">
+                                <label for="editPopulation" class="form-label">Population</label>
+                                <input type="number" class="form-control" id="editPopulation" name="population" min="0">
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="editDateOfBirth" class="form-label">Date of Birth</label>
-                                <input type="date" class="form-control" id="editDateOfBirth" name="date_of_birth">
+                                <label for="editCountries_count" class="form-label">Countries Count</label>
+                                <input type="number" class="form-control" id="editCountries_count" name="countries_count" min="0">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="editGender" class="form-label">Gender</label>
-                                <select class="form-select" id="editGender" name="gender">
-                                    <option value="">Select Gender</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                    <option value="Other">Other</option>
-                                </select>
+                                <label for="editLargest_country" class="form-label">Largest Country</label>
+                                <input type="text" class="form-control" id="editLargest_country" name="largest_country">
                             </div>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="editAddress" class="form-label">Address</label>
-                        <textarea class="form-control" id="editAddress" name="address" rows="3"></textarea>
+                        <label for="editDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="editDescription" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="editIs_active" name="is_active">
+                            <label class="form-check-label" for="editIs_active">
+                                Active
+                            </label>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Update Person</button>
+                    <button type="submit" class="btn btn-primary">Update Continent</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-<!-- View Person Detail Modal -->
-<div class="modal fade" id="viewPersonModal" tabindex="-1">
+<!-- View Continent Detail Modal -->
+<div class="modal fade" id="viewContinentModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">👤 Person Details</h5>
+                <h5 class="modal-title">🌍 Continent Details</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -266,30 +271,33 @@ require_once '../includes/header.php';
                     <div class="col-md-8 mb-3">
                         <div class="card h-100">
                             <div class="card-header">
-                                <h6 class="card-title mb-0">Personal Information</h6>
+                                <h6 class="card-title mb-0">Basic Information</h6>
                             </div>
                             <div class="card-body">
                                 <dl class="row">
-                                    <dt class="col-sm-4">Full Name:</dt>
-                                    <dd class="col-sm-8" id="viewFullName">-</dd>
+                                    <dt class="col-sm-4">Name:</dt>
+                                    <dd class="col-sm-8" id="viewName">-</dd>
 
-                                    <dt class="col-sm-4">Email:</dt>
-                                    <dd class="col-sm-8" id="viewEmail">-</dd>
+                                    <dt class="col-sm-4">Code:</dt>
+                                    <dd class="col-sm-8" id="viewCode">-</dd>
 
-                                    <dt class="col-sm-4">Phone:</dt>
-                                    <dd class="col-sm-8" id="viewPhone">-</dd>
+                                    <dt class="col-sm-4">Area:</dt>
+                                    <dd class="col-sm-8" id="viewArea">-</dd>
 
-                                    <dt class="col-sm-4">Date of Birth:</dt>
-                                    <dd class="col-sm-8" id="viewDateOfBirth">-</dd>
+                                    <dt class="col-sm-4">Population:</dt>
+                                    <dd class="col-sm-8" id="viewPopulation">-</dd>
 
-                                    <dt class="col-sm-4">Age:</dt>
-                                    <dd class="col-sm-8" id="viewAge">-</dd>
+                                    <dt class="col-sm-4">Pop. Density:</dt>
+                                    <dd class="col-sm-8" id="viewDensity">-</dd>
 
-                                    <dt class="col-sm-4">Gender:</dt>
-                                    <dd class="col-sm-8" id="viewGender">-</dd>
+                                    <dt class="col-sm-4">Countries:</dt>
+                                    <dd class="col-sm-8" id="viewCountriesCount">-</dd>
 
-                                    <dt class="col-sm-4">Address:</dt>
-                                    <dd class="col-sm-8" id="viewAddress">-</dd>
+                                    <dt class="col-sm-4">Largest Country:</dt>
+                                    <dd class="col-sm-8" id="viewLargestCountry">-</dd>
+
+                                    <dt class="col-sm-4">Description:</dt>
+                                    <dd class="col-sm-8" id="viewDescription">-</dd>
                                 </dl>
                             </div>
                         </div>
@@ -305,7 +313,7 @@ require_once '../includes/header.php';
                                     <dd class="col-6 col-md-7" id="viewStatus">-</dd>
 
                                     <dt class="col-6 col-md-5">ID:</dt>
-                                    <dd class="col-6 col-md-7" id="viewPersonId">-</dd>
+                                    <dd class="col-6 col-md-7" id="viewContinentId">-</dd>
 
                                     <dt class="col-6 col-md-5">Created:</dt>
                                     <dd class="col-6 col-md-7" id="viewCreatedAt">-</dd>
@@ -317,10 +325,10 @@ require_once '../includes/header.php';
                                 <div class="mt-3">
                                     <div class="d-grid gap-2">
                                         <button type="button" class="btn btn-primary btn-sm" id="viewEditBtn">
-                                            ✏️ Edit Person
+                                            ✏️ Edit Continent
                                         </button>
                                         <button type="button" class="btn btn-outline-danger btn-sm" id="viewDeleteBtn">
-                                            🗑️ Delete Person
+                                            🗑️ Delete Continent
                                         </button>
                                     </div>
                                 </div>
