@@ -1,0 +1,21 @@
+Dashboard
+My
+	Persons
+	Addresses
+	User Management
+        Login
+        Logout
+        Sign Up
+        Forgot Password
+        Reset Password
+        Change Password
+Common
+	Continents
+	Languages
+	Countries
+	Industry Categories
+	Legal Types
+Organizations
+	Branches
+		Buildings
+	Addresses
