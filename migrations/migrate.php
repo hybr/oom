@@ -13,6 +13,8 @@ require_once 'entities/OrganizationLegalType.php';
 require_once 'entities/PostalAddress.php';
 require_once 'entities/OrganizationBranch.php';
 require_once 'entities/OrganizationBuilding.php';
+require_once 'entities/OrganizationWorkstation.php';
+require_once 'entities/PopularOrganizationDepartment.php';
 require_once 'process/BaseProcess.php';
 
 class DatabaseMigration {
@@ -58,6 +60,8 @@ class DatabaseMigration {
         PostalAddress::createTable();
         OrganizationBranch::createTable();
         OrganizationBuilding::createTable();
+        OrganizationWorkstation::createTable();
+        PopularOrganizationDepartment::createTable();
     }
 
     public function seed() {
@@ -68,6 +72,7 @@ class DatabaseMigration {
         $this->seedCountries();
         $this->seedIndustryCategories();
         $this->seedOrganizationLegalTypes();
+        $this->seedPopularOrganizationDepartments();
         $this->seedOrders();
     }
 
@@ -690,6 +695,129 @@ class DatabaseMigration {
         }
 
         OrganizationLegalType::seedOrganizationLegalTypes();
+    }
+
+    private function seedPopularOrganizationDepartments() {
+        echo "Seeding popular organization departments...\n";
+
+        // Check if already seeded
+        $existing = PopularOrganizationDepartment::all();
+        if (!empty($existing)) {
+            echo "Popular organization departments already exist, skipping seeding...\n";
+            return;
+        }
+
+        // Popular organizational departments
+        $departments = [
+            // Executive Leadership
+            ['name' => 'Executive Office', 'code' => 'EXEC', 'department_type' => 'Functional', 'function_category' => 'Leadership', 'description' => 'Chief Executive Officer and executive leadership team', 'priority_level' => 'Critical'],
+            ['name' => 'Board of Directors', 'code' => 'BOD', 'department_type' => 'Functional', 'function_category' => 'Governance', 'description' => 'Corporate governance and strategic oversight', 'priority_level' => 'Critical'],
+
+            // Finance & Accounting
+            ['name' => 'Finance', 'code' => 'FIN', 'department_type' => 'Functional', 'function_category' => 'Finance', 'description' => 'Financial planning, analysis, and treasury management', 'priority_level' => 'Critical'],
+            ['name' => 'Accounting', 'code' => 'ACC', 'department_type' => 'Functional', 'function_category' => 'Finance', 'description' => 'Financial reporting, bookkeeping, and compliance', 'priority_level' => 'High'],
+            ['name' => 'Audit', 'code' => 'AUD', 'department_type' => 'Functional', 'function_category' => 'Finance', 'description' => 'Internal audit and risk assessment', 'priority_level' => 'High'],
+            ['name' => 'Tax', 'code' => 'TAX', 'department_type' => 'Functional', 'function_category' => 'Finance', 'description' => 'Tax planning, compliance, and reporting', 'priority_level' => 'Medium'],
+            ['name' => 'Treasury', 'code' => 'TRES', 'department_type' => 'Functional', 'function_category' => 'Finance', 'description' => 'Cash management and investment oversight', 'priority_level' => 'High'],
+
+            // Human Resources
+            ['name' => 'Human Resources', 'code' => 'HR', 'department_type' => 'Functional', 'function_category' => 'People', 'description' => 'Employee relations, benefits, and HR strategy', 'priority_level' => 'High'],
+            ['name' => 'Talent Acquisition', 'code' => 'TA', 'department_type' => 'Functional', 'function_category' => 'People', 'description' => 'Recruitment and hiring processes', 'priority_level' => 'High'],
+            ['name' => 'Learning & Development', 'code' => 'L&D', 'department_type' => 'Functional', 'function_category' => 'People', 'description' => 'Employee training and career development', 'priority_level' => 'Medium'],
+            ['name' => 'Compensation & Benefits', 'code' => 'C&B', 'department_type' => 'Functional', 'function_category' => 'People', 'description' => 'Salary administration and benefits management', 'priority_level' => 'High'],
+            ['name' => 'Employee Relations', 'code' => 'ER', 'department_type' => 'Functional', 'function_category' => 'People', 'description' => 'Workplace culture and employee engagement', 'priority_level' => 'Medium'],
+
+            // Technology & IT
+            ['name' => 'Information Technology', 'code' => 'IT', 'department_type' => 'Functional', 'function_category' => 'Technology', 'description' => 'IT infrastructure, systems, and support', 'priority_level' => 'Critical'],
+            ['name' => 'Software Development', 'code' => 'DEV', 'department_type' => 'Functional', 'function_category' => 'Technology', 'description' => 'Application development and programming', 'priority_level' => 'High'],
+            ['name' => 'Data & Analytics', 'code' => 'DATA', 'department_type' => 'Functional', 'function_category' => 'Technology', 'description' => 'Data management, analysis, and business intelligence', 'priority_level' => 'High'],
+            ['name' => 'Cybersecurity', 'code' => 'SEC', 'department_type' => 'Functional', 'function_category' => 'Technology', 'description' => 'Information security and risk management', 'priority_level' => 'Critical'],
+            ['name' => 'DevOps', 'code' => 'OPS', 'department_type' => 'Functional', 'function_category' => 'Technology', 'description' => 'Development operations and infrastructure automation', 'priority_level' => 'High'],
+            ['name' => 'Quality Assurance', 'code' => 'QA', 'department_type' => 'Functional', 'function_category' => 'Technology', 'description' => 'Software testing and quality control', 'priority_level' => 'Medium'],
+
+            // Operations
+            ['name' => 'Operations', 'code' => 'OPS', 'department_type' => 'Functional', 'function_category' => 'Operations', 'description' => 'Daily business operations and process management', 'priority_level' => 'Critical'],
+            ['name' => 'Supply Chain', 'code' => 'SCM', 'department_type' => 'Functional', 'function_category' => 'Operations', 'description' => 'Procurement, logistics, and vendor management', 'priority_level' => 'High'],
+            ['name' => 'Manufacturing', 'code' => 'MFG', 'department_type' => 'Functional', 'function_category' => 'Operations', 'description' => 'Production and manufacturing operations', 'priority_level' => 'High'],
+            ['name' => 'Quality Control', 'code' => 'QC', 'department_type' => 'Functional', 'function_category' => 'Operations', 'description' => 'Product quality assurance and testing', 'priority_level' => 'High'],
+            ['name' => 'Logistics', 'code' => 'LOG', 'department_type' => 'Functional', 'function_category' => 'Operations', 'description' => 'Transportation and distribution management', 'priority_level' => 'Medium'],
+            ['name' => 'Facilities', 'code' => 'FAC', 'department_type' => 'Functional', 'function_category' => 'Operations', 'description' => 'Building maintenance and workplace management', 'priority_level' => 'Medium'],
+
+            // Sales & Marketing
+            ['name' => 'Sales', 'code' => 'SAL', 'department_type' => 'Functional', 'function_category' => 'Revenue', 'description' => 'Sales strategy, execution, and customer acquisition', 'priority_level' => 'Critical'],
+            ['name' => 'Marketing', 'code' => 'MKT', 'department_type' => 'Functional', 'function_category' => 'Revenue', 'description' => 'Brand management, advertising, and market research', 'priority_level' => 'High'],
+            ['name' => 'Business Development', 'code' => 'BD', 'department_type' => 'Functional', 'function_category' => 'Revenue', 'description' => 'Partnership development and strategic growth', 'priority_level' => 'High'],
+            ['name' => 'Customer Success', 'code' => 'CS', 'department_type' => 'Functional', 'function_category' => 'Revenue', 'description' => 'Customer retention and satisfaction', 'priority_level' => 'High'],
+            ['name' => 'Digital Marketing', 'code' => 'DMK', 'department_type' => 'Functional', 'function_category' => 'Revenue', 'description' => 'Online marketing and digital campaigns', 'priority_level' => 'Medium'],
+            ['name' => 'Product Marketing', 'code' => 'PMK', 'department_type' => 'Functional', 'function_category' => 'Revenue', 'description' => 'Product positioning and go-to-market strategy', 'priority_level' => 'Medium'],
+
+            // Customer Service
+            ['name' => 'Customer Service', 'code' => 'CS', 'department_type' => 'Functional', 'function_category' => 'Customer', 'description' => 'Customer support and service delivery', 'priority_level' => 'High'],
+            ['name' => 'Technical Support', 'code' => 'TS', 'department_type' => 'Functional', 'function_category' => 'Customer', 'description' => 'Technical assistance and troubleshooting', 'priority_level' => 'Medium'],
+            ['name' => 'Customer Experience', 'code' => 'CX', 'department_type' => 'Functional', 'function_category' => 'Customer', 'description' => 'Customer journey optimization and experience design', 'priority_level' => 'Medium'],
+
+            // Product & Engineering
+            ['name' => 'Product Management', 'code' => 'PM', 'department_type' => 'Functional', 'function_category' => 'Product', 'description' => 'Product strategy, roadmap, and lifecycle management', 'priority_level' => 'High'],
+            ['name' => 'Engineering', 'code' => 'ENG', 'department_type' => 'Functional', 'function_category' => 'Product', 'description' => 'Technical product development and engineering', 'priority_level' => 'High'],
+            ['name' => 'Research & Development', 'code' => 'R&D', 'department_type' => 'Functional', 'function_category' => 'Product', 'description' => 'Innovation, research, and new product development', 'priority_level' => 'Medium'],
+            ['name' => 'Design', 'code' => 'DES', 'department_type' => 'Functional', 'function_category' => 'Product', 'description' => 'User experience and product design', 'priority_level' => 'Medium'],
+
+            // Legal & Compliance
+            ['name' => 'Legal', 'code' => 'LEG', 'department_type' => 'Functional', 'function_category' => 'Legal', 'description' => 'Legal counsel, contracts, and corporate law', 'priority_level' => 'High'],
+            ['name' => 'Compliance', 'code' => 'COM', 'department_type' => 'Functional', 'function_category' => 'Legal', 'description' => 'Regulatory compliance and risk management', 'priority_level' => 'High'],
+            ['name' => 'Risk Management', 'code' => 'RISK', 'department_type' => 'Functional', 'function_category' => 'Legal', 'description' => 'Enterprise risk assessment and mitigation', 'priority_level' => 'Medium'],
+
+            // Communications & PR
+            ['name' => 'Communications', 'code' => 'COMM', 'department_type' => 'Functional', 'function_category' => 'Communications', 'description' => 'Internal and external communications', 'priority_level' => 'Medium'],
+            ['name' => 'Public Relations', 'code' => 'PR', 'department_type' => 'Functional', 'function_category' => 'Communications', 'description' => 'Media relations and public messaging', 'priority_level' => 'Medium'],
+            ['name' => 'Investor Relations', 'code' => 'IR', 'department_type' => 'Functional', 'function_category' => 'Communications', 'description' => 'Shareholder communications and financial disclosure', 'priority_level' => 'Medium'],
+
+            // Strategy & Planning
+            ['name' => 'Strategy', 'code' => 'STRAT', 'department_type' => 'Functional', 'function_category' => 'Strategy', 'description' => 'Corporate strategy and business planning', 'priority_level' => 'High'],
+            ['name' => 'Business Analysis', 'code' => 'BA', 'department_type' => 'Functional', 'function_category' => 'Strategy', 'description' => 'Business process analysis and optimization', 'priority_level' => 'Medium'],
+            ['name' => 'Project Management Office', 'code' => 'PMO', 'department_type' => 'Functional', 'function_category' => 'Strategy', 'description' => 'Project governance and portfolio management', 'priority_level' => 'Medium'],
+
+            // Specialized Functions
+            ['name' => 'Procurement', 'code' => 'PROC', 'department_type' => 'Functional', 'function_category' => 'Operations', 'description' => 'Vendor management and purchasing', 'priority_level' => 'Medium'],
+            ['name' => 'Real Estate', 'code' => 'RE', 'department_type' => 'Functional', 'function_category' => 'Operations', 'description' => 'Property management and real estate operations', 'priority_level' => 'Low'],
+            ['name' => 'Environmental Health & Safety', 'code' => 'EHS', 'department_type' => 'Functional', 'function_category' => 'Operations', 'description' => 'Workplace safety and environmental compliance', 'priority_level' => 'Medium'],
+            ['name' => 'Sustainability', 'code' => 'SUST', 'department_type' => 'Functional', 'function_category' => 'Operations', 'description' => 'Environmental sustainability and corporate responsibility', 'priority_level' => 'Low'],
+
+            // Industry-Specific Examples
+            ['name' => 'Clinical Research', 'code' => 'CR', 'department_type' => 'Functional', 'function_category' => 'Research', 'description' => 'Medical and pharmaceutical research operations', 'priority_level' => 'Medium'],
+            ['name' => 'Regulatory Affairs', 'code' => 'RA', 'department_type' => 'Functional', 'function_category' => 'Legal', 'description' => 'Industry-specific regulatory compliance', 'priority_level' => 'Medium'],
+            ['name' => 'Medical Affairs', 'code' => 'MA', 'department_type' => 'Functional', 'function_category' => 'Research', 'description' => 'Medical science and clinical strategy', 'priority_level' => 'Medium'],
+            ['name' => 'Pharmacovigilance', 'code' => 'PV', 'department_type' => 'Functional', 'function_category' => 'Research', 'description' => 'Drug safety monitoring and reporting', 'priority_level' => 'Medium'],
+
+            // Financial Services
+            ['name' => 'Credit Risk', 'code' => 'CRED', 'department_type' => 'Functional', 'function_category' => 'Finance', 'description' => 'Credit analysis and risk assessment', 'priority_level' => 'Medium'],
+            ['name' => 'Investment Management', 'code' => 'IM', 'department_type' => 'Functional', 'function_category' => 'Finance', 'description' => 'Portfolio management and investment strategy', 'priority_level' => 'Medium'],
+            ['name' => 'Wealth Management', 'code' => 'WM', 'department_type' => 'Functional', 'function_category' => 'Finance', 'description' => 'Private client services and wealth advisory', 'priority_level' => 'Medium'],
+
+            // Technology Companies
+            ['name' => 'Platform Engineering', 'code' => 'PE', 'department_type' => 'Functional', 'function_category' => 'Technology', 'description' => 'Infrastructure platforms and developer tools', 'priority_level' => 'Medium'],
+            ['name' => 'Machine Learning', 'code' => 'ML', 'department_type' => 'Functional', 'function_category' => 'Technology', 'description' => 'AI and machine learning development', 'priority_level' => 'Medium'],
+            ['name' => 'Site Reliability Engineering', 'code' => 'SRE', 'department_type' => 'Functional', 'function_category' => 'Technology', 'description' => 'System reliability and performance optimization', 'priority_level' => 'Medium'],
+
+            // Regional/Geographic Departments
+            ['name' => 'North America Operations', 'code' => 'NAO', 'department_type' => 'Divisional', 'function_category' => 'Regional', 'description' => 'North American regional operations', 'priority_level' => 'Medium'],
+            ['name' => 'Europe Operations', 'code' => 'EUR', 'department_type' => 'Divisional', 'function_category' => 'Regional', 'description' => 'European regional operations', 'priority_level' => 'Medium'],
+            ['name' => 'Asia Pacific Operations', 'code' => 'APAC', 'department_type' => 'Divisional', 'function_category' => 'Regional', 'description' => 'Asia Pacific regional operations', 'priority_level' => 'Medium'],
+
+            // Support Functions
+            ['name' => 'Administrative Services', 'code' => 'ADMIN', 'department_type' => 'Functional', 'function_category' => 'Support', 'description' => 'General administrative support and office management', 'priority_level' => 'Low'],
+            ['name' => 'Travel & Expense', 'code' => 'T&E', 'department_type' => 'Functional', 'function_category' => 'Support', 'description' => 'Travel coordination and expense management', 'priority_level' => 'Low'],
+            ['name' => 'Records Management', 'code' => 'RM', 'department_type' => 'Functional', 'function_category' => 'Support', 'description' => 'Document and information management', 'priority_level' => 'Low']
+        ];
+
+        foreach ($departments as $deptData) {
+            $department = new PopularOrganizationDepartment();
+            $department->fill($deptData);
+            $department->save();
+            echo "Created popular department: {$department->name} ({$department->code})\n";
+        }
+
+        echo "Successfully seeded " . count($departments) . " departments.\n";
     }
 
     private function seedOrders() {

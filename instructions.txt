@@ -31,10 +31,10 @@ Architecture & Tech Stack
 Requirements
 
     Entity Definition
-
         Each Entity is a PHP class with attributes and CRUD methods.
+        
         Define as many as possible attributes. 
-
+        
         Add as many as methods for entity actions
 
         A web page should be there to access the entity via Frontend. It is must requirement.
@@ -68,7 +68,7 @@ Requirements
         Desktop (lg+): Traditional table view with optimized columns
         Mobile (< lg): Card-based layout with dropdowns for actions
 
-        In each web page show the sub menus using the @menu.txt file. 
+        In web page show the sub menus using the @menu.txt file. 
         The top toolbar only has level one menus from @menu.txt 
 
         When showing the list of records provide one action of "View Details". 

@@ -45,7 +45,12 @@ $menu_structure = [
         'items' => [
             'organizations' => ['title' => 'Organizations', 'icon' => '🏛️'],
             'organization_branches' => ['title' => 'Branches', 'icon' => '🏢', 'sub_items' => [
-                'organization_buildings' => ['title' => 'Buildings', 'icon' => '🏗️']
+                'organization_buildings' => ['title' => 'Buildings', 'icon' => '🏗️', 'sub_items' => [
+                    'organization_workstations' => ['title' => 'Workstations', 'icon' => '💻']
+                ]]
+            ]],
+            'popular_organization_departments' => ['title' => 'Popular Departments', 'icon' => '🏢', 'sub_items' => [
+                'teams' => ['title' => 'Teams', 'icon' => '👥']
             ]],
             'postal_addresses' => ['title' => 'Addresses', 'icon' => '📍']
         ]
@@ -67,6 +72,20 @@ function getCurrentMenuContext($current_page, $menu_structure) {
                     foreach ($item['sub_items'] as $sub_page => $sub_item) {
                         if ($sub_page === $current_page) {
                             return ['section' => $section_name, 'parent' => $page, 'page' => $sub_page, 'level' => 3];
+                        }
+                        // Check for level 4 (sub-sub-items)
+                        if (isset($sub_item['sub_items'])) {
+                            foreach ($sub_item['sub_items'] as $sub_sub_page => $sub_sub_item) {
+                                if ($sub_sub_page === $current_page) {
+                                    return [
+                                        'section' => $section_name,
+                                        'parent' => $page,
+                                        'grandparent' => $sub_page,
+                                        'page' => $sub_sub_page,
+                                        'level' => 4
+                                    ];
+                                }
+                            }
                         }
                     }
                 }
@@ -144,6 +163,10 @@ $page_icon = $page_details['icon'];
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
 
+    <!-- Font Awesome CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"
+          integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous">
+
     <!-- Custom CSS -->
     <link href="<?php echo $current_page === 'index' ? '../css/styles.css' : 'styles.css'; ?>" rel="stylesheet">
 
@@ -206,6 +229,16 @@ $page_icon = $page_details['icon'];
                                                         <span class="nav-icon"><?php echo $sub_item['icon']; ?></span> <?php echo $sub_item['title']; ?>
                                                     </a>
                                                 </li>
+                                                <?php if (isset($sub_item['sub_items'])): ?>
+                                                    <?php foreach ($sub_item['sub_items'] as $sub_sub_page => $sub_sub_item): ?>
+                                                        <li>
+                                                            <a class="dropdown-item ps-5 <?php echo $current_page === $sub_sub_page ? 'active' : ''; ?>"
+                                                               href="<?php echo $sub_sub_page; ?>.php">
+                                                                <span class="nav-icon"><?php echo $sub_sub_item['icon']; ?></span> <?php echo $sub_sub_item['title']; ?>
+                                                            </a>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     <?php endforeach; ?>
