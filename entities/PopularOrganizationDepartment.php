@@ -891,6 +891,12 @@ class PopularOrganizationDepartment extends BaseEntity {
         return $hierarchy;
     }
 
+    // Relationship with PopularOrganizationTeam
+    public function getTeams() {
+        require_once __DIR__ . '/PopularOrganizationTeam.php';
+        return PopularOrganizationTeam::getTeamsByDepartment($this->id);
+    }
+
     public function assignHead($employeeId) {
         $this->head_employee_id = $employeeId;
         return $this->save();

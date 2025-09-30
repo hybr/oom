@@ -15,6 +15,9 @@ require_once 'entities/OrganizationBranch.php';
 require_once 'entities/OrganizationBuilding.php';
 require_once 'entities/OrganizationWorkstation.php';
 require_once 'entities/PopularOrganizationDepartment.php';
+require_once 'entities/PopularOrganizationTeam.php';
+require_once 'entities/PopularOrganizationDesignation.php';
+require_once 'entities/PopularSkills.php';
 require_once 'process/BaseProcess.php';
 
 class DatabaseMigration {
@@ -62,6 +65,9 @@ class DatabaseMigration {
         OrganizationBuilding::createTable();
         OrganizationWorkstation::createTable();
         PopularOrganizationDepartment::createTable();
+        PopularOrganizationTeam::createTable();
+        PopularOrganizationDesignation::createTable();
+        PopularSkills::createTable();
     }
 
     public function seed() {

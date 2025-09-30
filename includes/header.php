@@ -37,7 +37,8 @@ $menu_structure = [
             'languages' => ['title' => 'Languages', 'icon' => '🗣️'],
             'countries' => ['title' => 'Countries', 'icon' => '🏴'],
             'industry_categories' => ['title' => 'Industry Categories', 'icon' => '🏭'],
-            'organization_legal_types' => ['title' => 'Legal Types', 'icon' => '🏢']
+            'organization_legal_types' => ['title' => 'Legal Types', 'icon' => '🏢'],
+            'popular_skills' => ['title' => 'Popular Skills', 'icon' => '🎓']
         ]
     ],
     'Organizations' => [
@@ -50,8 +51,9 @@ $menu_structure = [
                 ]]
             ]],
             'popular_organization_departments' => ['title' => 'Popular Departments', 'icon' => '🏢', 'sub_items' => [
-                'teams' => ['title' => 'Teams', 'icon' => '👥']
+                'popular_organization_teams' => ['title' => 'Popular Teams', 'icon' => '👥']
             ]],
+            'popular_organization_designations' => ['title' => 'Popular Designations', 'icon' => '🎯'],
             'postal_addresses' => ['title' => 'Addresses', 'icon' => '📍']
         ]
     ]
@@ -110,7 +112,8 @@ $page_titles = [
     'organizations' => 'Organizations',
     'organization_branches' => 'Organization Branches',
     'organization_buildings' => 'Organization Buildings',
-    'postal_addresses' => 'Postal Addresses'
+    'postal_addresses' => 'Postal Addresses',
+    'popular_skills' => 'Popular Skills'
 ];
 
 // Get page title and icon

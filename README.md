@@ -35,6 +35,7 @@ A modern, responsive web application built with PHP core (no framework), featuri
 ## ⚡ Quick Start
 
 1. **Check PHP extensions:**
+   npx @anthropic-ai/claude-code
    ```bash
    php check_extensions.php
    ```
@@ -228,3 +229,7 @@ Open source - feel free to modify and distribute.
 ---
 
 **Built with ❤️ using PHP Core, Bootstrap 5, and modern web standards**
+
+Commsnd to remove file
+cmd /c del "\\?\C:\Users\Faber\b\oom\nul"
+Get-Item "\\?\C:\Users\Faber\b\oom\nul" 
