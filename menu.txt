@@ -1,6 +1,8 @@
 Dashboard
 My
 	Persons
+	Person Education
+	Person Skill
 	Addresses
 	User Management
         Login
@@ -15,6 +17,7 @@ Common
 	Countries
 	Industry Categories
 	Legal Types
+	Popular Education Subjects
 Organizations
 	Branches
 		Buildings

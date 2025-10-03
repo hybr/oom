@@ -19,6 +19,8 @@ $menu_structure = [
         'icon' => '👤',
         'items' => [
             'persons' => ['title' => 'Persons', 'icon' => '👤'],
+            'person_education' => ['title' => 'Person Education', 'icon' => '🎓'],
+            'person_skill' => ['title' => 'Person Skills', 'icon' => '💼'],
             'postal_addresses' => ['title' => 'Addresses', 'icon' => '📍'],
             'personcredentials' => ['title' => 'User Management', 'icon' => '🔐', 'sub_items' => [
                 'login' => ['title' => 'Login', 'icon' => '🔑'],
@@ -38,6 +40,7 @@ $menu_structure = [
             'countries' => ['title' => 'Countries', 'icon' => '🏴'],
             'industry_categories' => ['title' => 'Industry Categories', 'icon' => '🏭'],
             'organization_legal_types' => ['title' => 'Legal Types', 'icon' => '🏢'],
+            'popular_education_subjects' => ['title' => 'Popular Education Subjects', 'icon' => '📚'],
             'popular_skills' => ['title' => 'Popular Skills', 'icon' => '🎓']
         ]
     ],
@@ -103,6 +106,8 @@ $menu_context = getCurrentMenuContext($current_page, $menu_structure);
 $page_titles = [
     'index' => 'Dashboard',
     'persons' => 'Person Management',
+    'person_education' => 'Person Education Management',
+    'person_skill' => 'Person Skills Management',
     'personcredentials' => 'User Management',
     'continents' => 'Continent Management',
     'languages' => 'Language Management',
@@ -113,6 +118,7 @@ $page_titles = [
     'organization_branches' => 'Organization Branches',
     'organization_buildings' => 'Organization Buildings',
     'postal_addresses' => 'Postal Addresses',
+    'popular_education_subjects' => 'Popular Education Subjects',
     'popular_skills' => 'Popular Skills'
 ];
 
