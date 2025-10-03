@@ -57,6 +57,8 @@ $menu_structure = [
                 'popular_organization_teams' => ['title' => 'Popular Teams', 'icon' => '👥']
             ]],
             'popular_organization_designations' => ['title' => 'Popular Designations', 'icon' => '🎯'],
+            'organization_positions' => ['title' => 'Position', 'icon' => '💼'],
+            'organization_vacancies' => ['title' => 'Vacancy', 'icon' => '📢'],
             'postal_addresses' => ['title' => 'Addresses', 'icon' => '📍']
         ]
     ]
@@ -117,6 +119,8 @@ $page_titles = [
     'organizations' => 'Organizations',
     'organization_branches' => 'Organization Branches',
     'organization_buildings' => 'Organization Buildings',
+    'organization_positions' => 'Organization Positions',
+    'organization_vacancies' => 'Organization Vacancies',
     'postal_addresses' => 'Postal Addresses',
     'popular_education_subjects' => 'Popular Education Subjects',
     'popular_skills' => 'Popular Skills'

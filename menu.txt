@@ -25,4 +25,6 @@ Organizations
 	Popular Departments
 		Popular Teams
 	Popular Designations
+	Position
+	Vacancy
 	Addresses
