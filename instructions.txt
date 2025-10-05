@@ -1,107 +1,607 @@
-You are an expert PHP system architect and developer.  
-You are also an excellent UI/UX designers to ensure quality, security, and scalability.
-Finally, you are ERP functional consultants and business analysts, who is essential to align business processes with the system.
+Enhanced PHP Enterprise Application System Architecture Specification
+Executive Summary
+Build a modern, scalable, server-side web application using PHP (no framework) with microservices architecture, featuring real-time capabilities, comprehensive workflow management, and responsive UI across all devices.
 
-Generate clean, documented, modular PHP code following this architecture. Use OOP principles. Ensure extensibility (easy to add new entities and processes).
+1. Team Roles & Expertise
+You are serving as:
 
-Implement the full responsiveness across mobile, tablet, web, and desktop platforms, following 2025 Responsive Web Design (RWD) standards.
+PHP System Architect & Developer: Design scalable, maintainable architecture
+UI/UX Designer: Ensure intuitive, accessible, responsive interfaces
+ERP Functional Consultant: Align business processes with technical implementation
+Security Specialist: Implement industry-standard security practices
+QA Engineer: Ensure quality through comprehensive testing
 
-Setup unit test case framework
 
-Provide both dark mode and light mode themes.
+2. Architecture & Technology Stack
+2.1 Backend
 
-Build a server-side web application with the following architecture and technologies:
+Language: PHP 8.1+ (Core, no frameworks)
+Architecture: Microservices-based, modular design
+Patterns: OOP, MVC separation, SOLID principles, Repository pattern
+Database: SQLite (file-based, with migration path to PostgreSQL/MySQL)
+API: RESTful JSON endpoints
 
-Architecture & Tech Stack
+2.2 Frontend
 
-    Backend: PHP Core (no framework).
+Markup: Semantic HTML5
+Styling: Bootstrap 5.3+ with custom CSS variables for theming
+JavaScript: Vanilla JS (ES6+) with Ajax for async operations
+Real-time: WebSocket (native or library like Ratchet)
+Icons: Bootstrap Icons or Font Awesome
+Charts: Chart.js or ApexCharts for data visualization
 
-    Entities: Each entity is a PHP Class with attributes (fields) and actions (methods).
+2.3 Infrastructure
 
-    Process: A separate PHP Class as State Machine that manages entity workflows (states, transitions, roles, conditions).
+Web Server: Apache/Nginx with PHP-FPM
+WebSocket Server: Standalone PHP process or Node.js bridge
+Session Management: PHP sessions with secure configuration
+Caching: APCu or file-based caching where appropriate
 
-    Database: SQLite (lightweight, file-based).
 
-    Frontend: HTML, CSS (Bootstrap for UI), JavaScript with Ajax for requests.
+3. Core Requirements
+3.1 Entity Management
+Entity Class Structure
+phpabstract class BaseEntity {
+    // Core attributes (all entities)
+    protected $id;
+    protected $created_at;
+    protected $created_by;
+    protected $updated_at;
+    protected $updated_by;
+    protected $deleted_at;  // Soft delete
+    protected $version;     // Optimistic locking
+    
+    // CRUD methods
+    // Validation methods
+    // Relationship methods
+    // Audit methods
+}
+Entity Requirements
 
-    Real-time: WebSocket for pushing live updates (e.g., status changes, notifications).
+Rich Attributes: Define comprehensive fields (20-30+ attributes per entity)
+Data Types: Support string, int, float, boolean, date, datetime, JSON, enum
+Validation: Built-in validation rules (required, format, length, range, custom)
+Relationships:
 
-    Microservices: Backend should be modular and designed as microservices (separate modules for entities, workflow, notifications, reports, etc.).
+One-to-One (User → Profile)
+One-to-Many (Customer → Orders)
+Many-to-Many via junction entities (Product ↔ Category via ProductCategory)
 
-Requirements
 
-    Entity Definition
-        Each Entity is a PHP class with attributes and CRUD methods.
-        
-        Define as many as possible attributes. 
-        
-        Add as many as methods for entity actions
+Methods: Minimum 10-15 action methods per entity
 
-        A web page should be there to access the entity via Frontend. It is must requirement.
+CRUD operations
+Business logic methods
+State transition methods
+Calculation methods
+Search/filter methods
 
-        Entities must be stored in SQLite tables.
 
-        Auto-generate database schema from entity definitions.
+Web Interface: Each entity MUST have:
 
-        Where ever possible include one to one or one to many  relationships with other entities. Many to many relationships must be done using the another Entity. 
+List view with pagination, sorting, filtering
+Detail view with tabbed/categorized sections
+Create form with validation
+Edit form with change tracking
+Delete confirmation (soft delete preferred)
 
-        Do not polulate the records for entity until asked in the prompt.
-        
-    Process (Workflow Engine)
 
-        A PHP State Machine class (Process) to manage entity lifecycles.
+Database: Auto-generate schema from entity definitions
+Timestamps: Automatic created_at, updated_at tracking
+Soft Delete: Implement deleted_at for data preservation
+Versioning: Track record versions for audit trail
 
-        Store workflows in SQLite (tables for process, states, transitions).
+3.2 Process & Workflow Engine
+State Machine Architecture
+phpclass Process {
+    protected $entity_type;
+    protected $states = [];
+    protected $transitions = [];
+    protected $current_state;
+    
+    // Workflow methods
+    public function canTransition($from, $to, $user, $context) {}
+    public function executeTransition($transition, $user, $context) {}
+    public function getAvailableActions($state, $user) {}
+    public function rollback($to_version) {}
+}
+Workflow Requirements
 
-        Each transition has rules (allowed roles, conditions, actions).
+State Definition: Name, type (start/intermediate/end), display properties
+Transitions:
 
-        Support rollback, audit logs, and history tracking.
+Source and target states
+Trigger conditions (role-based, data-based, time-based)
+Pre-actions (validations, calculations)
+Post-actions (notifications, side effects)
+Rollback capability
 
-    Frontend Integration
 
-        Use Bootstrap for clean UI.
+Role-Based Access: Each transition checks user roles/permissions
+Audit Trail: Complete history of state changes with:
 
-        Use includes\header.php and includes\footer.php to show consistent theme on each web page.
-        
-        Ajax (vanilla JS or jQuery) to call backend PHP endpoints.
+Who made the change
+When (timestamp)
+From/to states
+Reason/comments
+Changed fields (diff)
 
-        Desktop (lg+): Traditional table view with optimized columns
-        Mobile (< lg): Card-based layout with dropdowns for actions
 
-        In web page show the sub menus using the @menu.txt file. 
-        The top toolbar only has level one menus from @menu.txt 
+Database Tables:
 
-        When showing the list of records provide one action of "View Details". 
-        When clicked on this the detail view of the record of that entity is shown. 
-        Also all the applicable actions at record level are also shown.
-        Categorise the attributtes of the entity in the View Detail/Add/Update forms.
+processes: Process definitions
+process_states: State configurations
+process_transitions: Transition rules
+process_history: Audit log
+process_instances: Active workflow instances
 
-        Touch-Friendly: Large touch targets and dropdowns
-        Information Hierarchy: Most important info (name, status) prominently displayed
-        Space Efficient: Data wraps naturally without horizontal scrolling
-        Accessible Actions: Easy-to-use dropdown menus instead of cramped button groups
-        Visual Clarity: Icons and badges for quick scanning
 
-        WebSocket for real-time updates (status changes, new messages, notifications).
 
-    Microservices
+3.3 Security Implementation
+Authentication & Authorization
 
-        Separate services/modules for:
+User Authentication:
 
-            Entity management (CRUD)
+Secure password hashing (password_hash with bcrypt/argon2)
+Session management with regeneration
+Remember me functionality (secure tokens)
+Password reset with time-limited tokens
+Account lockout after failed attempts
 
-            Process/workflow engine
 
-            Notifications (WebSocket events)
+Authorization:
 
-            Reports (text, tables, charts)
+Role-Based Access Control (RBAC)
+Permission-based actions
+Entity-level permissions
+Field-level security (sensitive data masking)
 
-Deliverables
 
-    Folder structure (clear separation of entities/, process/, services/, public/).
+Security Headers:
 
-    PHP scripts for database migrations (create tables automatically).
+Content Security Policy (CSP)
+X-Frame-Options
+X-Content-Type-Options
+Strict-Transport-Security
 
-    Frontend page: show list, allow actions, update status in real-time.
 
-Generate clean, documented, modular PHP code following this architecture. Use OOP principles. Ensure extensibility (easy to add new entities and processes).
+
+Data Protection
+
+Input Validation: Server-side validation for all inputs
+SQL Injection Prevention: Prepared statements (PDO) exclusively
+XSS Prevention: Output escaping (htmlspecialchars)
+CSRF Protection: Token validation for state-changing operations
+File Upload Security: Type validation, size limits, secure storage
+Sensitive Data: Encryption for passwords, API keys, PII
+
+3.4 Frontend & Responsive Design
+2025 RWD Standards
+css/* Breakpoint Strategy */
+- Mobile-first approach
+- xs: < 576px (phones)
+- sm: 576px - 767px (large phones)
+- md: 768px - 991px (tablets)
+- lg: 992px - 1199px (desktops)
+- xl: 1200px - 1399px (large desktops)
+- xxl: 1400px+ (extra large screens)
+Layout Patterns
+
+Desktop (lg+):
+
+Traditional table views with sortable columns
+Sidebar navigation
+Multi-column forms
+Inline editing capabilities
+Hover states and tooltips
+
+
+Tablet (md):
+
+Collapsible sidebar
+Responsive tables (horizontal scroll or stacked)
+2-column forms
+Touch-optimized controls (min 44x44px)
+
+
+Mobile (< md):
+
+Card-based layouts
+Bottom navigation or hamburger menu
+Single-column forms
+Dropdowns for bulk actions
+Swipe gestures for actions
+Pull-to-refresh
+
+
+
+UI Components
+
+Navigation:
+
+Top-level menus from @menu.txt (level 1 only)
+Sub-menus in dropdown or sidebar
+Breadcrumbs for context
+Responsive hamburger menu
+
+
+List Views:
+
+Pagination (configurable: 10/25/50/100 per page)
+Sorting (column headers)
+Filtering (search box + advanced filters)
+Bulk actions (checkboxes + action dropdown)
+Export options (CSV, PDF, Excel)
+"View Details" action for each record
+
+
+Detail Views:
+
+Categorized sections (tabs or accordions)
+Related entity sections
+Action buttons contextual to state
+Change history timeline
+Attachment viewer
+Comment/note section
+
+
+Forms:
+
+Categorized fields (logical grouping)
+Inline validation with clear error messages
+Required field indicators
+Help text and tooltips
+Auto-save drafts
+Cancel confirmation for unsaved changes
+
+
+
+Theming
+
+Dual Theme Support:
+
+Light mode (default)
+Dark mode (WCAG AA compliant contrast)
+Theme toggle with persistence (localStorage)
+CSS variables for easy customization
+Smooth transitions between themes
+
+
+Consistent Components:
+
+includes/header.php: Site header, navigation, user menu
+includes/footer.php: Footer, copyright, version info
+includes/sidebar.php: Side navigation (optional)
+Shared CSS and JS files
+
+
+
+Accessibility (WCAG 2.1 AA)
+
+Semantic HTML elements
+ARIA labels and roles
+Keyboard navigation support
+Focus indicators
+Color contrast ratios (4.5:1 minimum)
+Alt text for images
+Form label associations
+Skip navigation links
+
+3.5 Real-Time Features
+WebSocket Implementation
+
+Server: Dedicated WebSocket server process
+Events:
+
+Entity state changes
+New notifications
+System alerts
+User actions (typing indicators, presence)
+Collaborative editing conflicts
+
+
+Client Reconnection: Auto-reconnect with exponential backoff
+Message Format: JSON with event type and payload
+Authentication: Token-based WebSocket authentication
+Fallback: Long polling for browsers without WebSocket support
+
+3.6 Microservices Architecture
+Service Modules
+services/
+├── entity/           # Entity CRUD operations
+├── workflow/         # Process engine
+├── auth/            # Authentication & authorization
+├── notification/    # Email, SMS, push, WebSocket
+├── reporting/       # Report generation
+├── search/          # Full-text search
+├── integration/     # External API integrations
+├── audit/           # Logging and audit trails
+└── storage/         # File upload and storage
+Service Communication
+
+Internal: Direct PHP class calls (same process)
+External: REST API with JSON
+Async Tasks: Queue-based processing (file uploads, emails, reports)
+Error Handling: Graceful degradation, circuit breaker pattern
+
+3.7 Testing Framework
+Unit Testing
+
+Framework: PHPUnit 10+
+Coverage: Minimum 80% code coverage
+Tests For:
+
+Entity validation logic
+Business logic methods
+Workflow transitions
+Utility functions
+API endpoints
+
+
+
+Integration Testing
+
+Database operations with test fixtures
+API endpoint testing
+WebSocket connection testing
+Authentication flows
+
+Test Organization
+tests/
+├── Unit/
+│   ├── Entity/
+│   ├── Process/
+│   └── Service/
+├── Integration/
+│   ├── API/
+│   └── Database/
+├── fixtures/
+└── bootstrap.php
+
+4. Database Schema
+4.1 Auto-Generation
+
+Migration System: PHP classes that generate schema
+Versioning: Track schema version in database
+Rollback: Support for down migrations
+Seeding: Optional data seeders (not auto-populated)
+
+4.2 Core Tables
+sql-- System tables
+system_config
+migrations
+sessions
+
+-- Auth tables
+users
+roles
+permissions
+role_permissions
+user_roles
+
+-- Audit tables
+audit_log
+entity_history
+
+-- Process tables
+processes
+process_states
+process_transitions
+process_instances
+process_history
+4.3 Schema Requirements
+
+Primary Keys: Auto-incrementing integers
+Foreign Keys: With ON DELETE/UPDATE rules
+Indexes: On frequently queried columns
+Timestamps: created_at, updated_at (automatic)
+JSON Fields: For flexible metadata storage
+Full-Text Search: Where applicable (SQLite FTS5)
+
+
+5. API Design
+5.1 RESTful Endpoints
+GET    /api/entities          # List entities
+GET    /api/entities/{id}     # Get single entity
+POST   /api/entities          # Create entity
+PUT    /api/entities/{id}     # Update entity
+DELETE /api/entities/{id}     # Delete entity
+POST   /api/entities/{id}/action  # Execute action
+GET    /api/entities/{id}/history # Get history
+5.2 Response Format
+json{
+  "success": true,
+  "data": {},
+  "message": "Operation successful",
+  "errors": [],
+  "meta": {
+    "timestamp": "2025-10-05T10:30:00Z",
+    "version": "1.0",
+    "pagination": {}
+  }
+}
+5.3 Error Handling
+
+HTTP status codes (200, 201, 400, 401, 403, 404, 422, 500)
+Structured error messages
+Validation errors with field-level details
+Logging all errors with context
+
+
+6. Configuration & Deployment
+6.1 Configuration Management
+
+Environment Files: .env for environment-specific settings
+Config Classes: Type-safe configuration access
+Secrets: Never commit to version control
+Defaults: Sensible defaults with override capability
+
+6.2 Logging
+
+PSR-3 Compatible: Standard logging interface
+Levels: Emergency, Alert, Critical, Error, Warning, Notice, Info, Debug
+Destinations: Files, database, external services
+Rotation: Daily/size-based log rotation
+Context: Include user, IP, request ID
+
+6.3 Error Handling
+
+Custom error handlers
+Exception handling with try-catch
+User-friendly error pages
+Detailed logs for debugging (development)
+Generic messages (production)
+
+6.4 Performance
+
+Caching:
+
+Query result caching
+Page fragment caching
+Static asset caching
+
+
+Optimization:
+
+Lazy loading relationships
+Database query optimization
+Asset minification and bundling
+Image optimization
+
+
+Monitoring:
+
+Slow query logging
+Performance metrics
+Memory usage tracking
+
+
+
+
+7. Deliverables
+7.1 Folder Structure
+project-root/
+├── config/                 # Configuration files
+│   ├── app.php
+│   ├── database.php
+│   └── websocket.php
+├── database/
+│   ├── migrations/        # Schema migrations
+│   ├── seeders/          # Optional data seeders
+│   └── database.sqlite   # SQLite file
+├── entities/             # Entity classes
+│   ├── BaseEntity.php
+│   ├── User.php
+│   ├── Customer.php
+│   └── ...
+├── processes/            # Workflow classes
+│   ├── BaseProcess.php
+│   └── OrderProcess.php
+├── services/             # Microservice modules
+│   ├── entity/
+│   ├── workflow/
+│   ├── auth/
+│   ├── notification/
+│   └── reporting/
+├── includes/             # Shared includes
+│   ├── header.php
+│   ├── footer.php
+│   └── sidebar.php
+├── public/               # Web root
+│   ├── index.php
+│   ├── api/             # API endpoints
+│   ├── assets/
+│   │   ├── css/
+│   │   ├── js/
+│   │   └── images/
+│   ├── entities/        # Entity pages
+│   │   ├── users/
+│   │   └── customers/
+│   └── .htaccess
+├── lib/                  # Core libraries
+│   ├── Router.php
+│   ├── Database.php
+│   ├── Validator.php
+│   └── WebSocket.php
+├── tests/                # Test suite
+│   ├── Unit/
+│   └── Integration/
+├── logs/                 # Application logs
+├── uploads/              # User uploads
+├── @menu.txt            # Menu structure
+├── .env.example         # Environment template
+├── composer.json        # PHP dependencies
+├── README.md            # Documentation
+└── phpunit.xml          # PHPUnit configuration
+7.2 Documentation
+
+README.md: Installation, setup, usage instructions
+API Documentation: Endpoint reference with examples
+Entity Documentation: Attribute and method descriptions
+Process Documentation: Workflow diagrams and state machines
+Deployment Guide: Server requirements, configuration
+Developer Guide: Code standards, contribution guidelines
+
+7.3 Code Quality
+
+Documentation: PHPDoc blocks for all classes and methods
+Code Standards: PSR-12 coding style
+Comments: Inline comments for complex logic
+Type Hints: Use PHP type declarations
+Return Types: Declare return types for methods
+Naming: Clear, descriptive variable and method names
+
+
+8. Best Practices & Principles
+8.1 SOLID Principles
+
+Single Responsibility: One class, one purpose
+Open/Closed: Open for extension, closed for modification
+Liskov Substitution: Derived classes must be substitutable
+Interface Segregation: Many specific interfaces over one general
+Dependency Inversion: Depend on abstractions, not concretions
+
+8.2 Design Patterns
+
+Repository Pattern: Data access abstraction
+Factory Pattern: Object creation
+Observer Pattern: Event handling
+Strategy Pattern: Workflow actions
+Singleton Pattern: Database connections (carefully)
+
+8.3 Code Organization
+
+DRY: Don't Repeat Yourself
+KISS: Keep It Simple, Stupid
+YAGNI: You Aren't Gonna Need It
+Separation of Concerns: Clear boundaries between layers
+Dependency Injection: Constructor injection for dependencies
+
+
+9. Success Criteria
+
+✅ Clean, modular, well-documented code
+✅ Fully responsive UI across all devices
+✅ Complete entity CRUD with web interfaces
+✅ Working workflow engine with audit trail
+✅ Real-time updates via WebSocket
+✅ Comprehensive security implementation
+✅ Unit test coverage > 80%
+✅ Auto-generated database schema
+✅ Dark and light theme support
+✅ RESTful API with proper error handling
+✅ Performance optimized and scalable
+✅ Production-ready deployment configuration
+
+
+10. Important Notes
+
+No Data Population: Do NOT auto-populate entity records unless explicitly requested
+Extensibility: Architecture must support easy addition of new entities and processes
+Scalability: Design with growth in mind (handle thousands of records efficiently)
+Maintainability: Code should be easy to understand, modify, and debug
+Security First: Never compromise on security for convenience
+User Experience: Prioritize intuitive, fast, accessible interfaces
+
+
+This specification provides a comprehensive blueprint for building a modern, enterprise-grade PHP application with professional standards and best practices.

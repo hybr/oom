@@ -1,30 +1,225 @@
+V4L (Vocal 4 Local) - Geo-Intelligent Marketplace Platform Specification
+Executive Overview
+V4L (Vocal 4 Local) is a location-based marketplace platform connecting people, organizations, goods, and services through intelligent geographic discovery. Users can find, offer, and manage resources based on proximity, relevance, and community needs.
+
+1. Platform Architecture
+1.1 Core Modules
+
+My Profile: Personal management (profile, education, skills, preferences)
+Organization: Business/institutional management (branches, teams, positions)
+Market: Goods & services marketplace with geo-intelligence
+Common: Shared reference data and utilities
+
+
+2. Enhanced Menu Structure
+2.1 Hierarchical Menu (@menu.txt)
 Dashboard
+├── My Dashboard
+├── Quick Stats
+└── Recent Activity
+
 My
-	Persons
-	Person Education
-	Person Skill
-	Addresses
-	User Management
-        Login
-        Logout
-        Sign Up
-        Forgot Password
-        Reset Password
-        Change Password
+├── My Profile
+│   ├── Personal Information
+│   ├── Contact Details
+│   └── Profile Settings
+├── Education
+│   ├── Academic History
+│   ├── Certifications
+│   └── Training Programs
+├── Skills & Expertise
+│   ├── Technical Skills
+│   ├── Soft Skills
+│   └── Skill Endorsements
+├── Addresses
+│   ├── Primary Address
+│   ├── Secondary Addresses
+│   └── Location Preferences
+├── My Listings
+│   ├── Goods for Sale
+│   ├── Services Offered
+│   └── Requests
+└── My Transactions
+    ├── Purchase History
+    ├── Sales History
+    └── Pending Orders
+
+Organization
+├── My Organizations
+│   ├── Owned Organizations
+│   ├── Member Organizations
+│   └── Following
+├── Organization Management
+│   ├── Basic Information
+│   ├── Legal Details
+│   └── Industry Classification
+├── Locations
+│   ├── Branches
+│   │   ├── Branch List
+│   │   ├── Add Branch
+│   │   └── Branch Map
+│   ├── Buildings
+│   │   ├── Building Directory
+│   │   ├── Floor Plans
+│   │   └── Facilities
+│   └── Workstations
+│       ├── Desk Allocation
+│       ├── Hot Desking
+│       └── Booking System
+├── Structure
+│   ├── Departments
+│   │   ├── Department List
+│   │   ├── Department Hierarchy
+│   │   └── Popular Departments
+│   ├── Teams
+│   │   ├── Team Directory
+│   │   ├── Team Members
+│   │   └── Popular Teams
+│   └── Designations
+│       ├── Job Titles
+│       ├── Role Hierarchy
+│       └── Popular Designations
+├── Human Resources
+│   ├── Employees
+│   │   ├── Employee Directory
+│   │   ├── Onboarding
+│   │   └── Offboarding
+│   ├── Positions
+│   │   ├── Active Positions
+│   │   ├── Position Structure
+│   │   └── Position History
+│   └── Recruitment
+│       ├── Vacancies
+│       │   ├── Active Vacancies
+│       │   ├── Post New Vacancy
+│       │   └── Applications
+│       ├── Candidates
+│       └── Interview Scheduling
+└── Organization Listings
+    ├── Products & Services
+    ├── Service Areas
+    └── Business Hours
+
+Market
+├── Discover
+│   ├── Near Me (Geo Search)
+│   ├── Browse Categories
+│   ├── Featured Listings
+│   └── Trending Now
+├── Goods
+│   ├── Search Goods
+│   ├── Categories
+│   │   ├── Electronics
+│   │   ├── Furniture
+│   │   ├── Vehicles
+│   │   ├── Real Estate
+│   │   └── [Dynamic Categories]
+│   ├── Price Ranges
+│   └── Condition Filters
+├── Services
+│   ├── Search Services
+│   ├── Categories
+│   │   ├── Professional Services
+│   │   ├── Home Services
+│   │   ├── Health & Wellness
+│   │   ├── Education & Training
+│   │   └── [Dynamic Categories]
+│   ├── Service Providers
+│   └── Ratings & Reviews
+├── Map View
+│   ├── Interactive Map
+│   ├── Cluster View
+│   ├── Heat Map
+│   └── Route Planning
+├── Requests
+│   ├── Post a Request
+│   ├── Active Requests
+│   ├── My Responses
+│   └── Request Categories
+├── Bookings
+│   ├── Upcoming Bookings
+│   ├── Past Bookings
+│   └── Cancellations
+└── Reviews
+    ├── Write Review
+    ├── My Reviews
+    └── Received Reviews
+
 Common
-	Continents
-	Languages
-	Countries
-	Industry Categories
-	Legal Types
-	Popular Education Subjects
-Organizations
-	Branches
-		Buildings
-			Workstations
-	Popular Departments
-		Popular Teams
-	Popular Designations
-	Position
-	Vacancy
-	Addresses
+├── Reference Data
+│   ├── Geography
+│   │   ├── Continents
+│   │   ├── Countries
+│   │   ├── States/Regions
+│   │   ├── Cities
+│   │   └── Postal Codes
+│   ├── Languages
+│   │   ├── Language List
+│   │   ├── Language Proficiency
+│   │   └── Translation Services
+│   ├── Industries
+│   │   ├── Industry Categories
+│   │   ├── Sub-Industries
+│   │   └── Industry Trends
+│   ├── Education
+│   │   ├── Education Levels
+│   │   ├── Popular Subjects
+│   │   ├── Institutions
+│   │   └── Degrees & Certifications
+│   └── Business
+│       ├── Legal Types
+│       ├── Business Sizes
+│       └── Registration Types
+├── Categories & Tags
+│   ├── Product Categories
+│   ├── Service Categories
+│   ├── Skill Tags
+│   └── Industry Tags
+└── System Settings
+    ├── Platform Configuration
+    ├── Notification Preferences
+    └── Privacy Settings
+
+Administration
+├── User Management
+│   ├── All Users
+│   ├── User Roles
+│   ├── Permissions
+│   ├── User Activity
+│   └── Blocked Users
+├── Content Moderation
+│   ├── Pending Approvals
+│   ├── Reported Content
+│   ├── Flagged Users
+│   └── Moderation Log
+├── System Health
+│   ├── Performance Metrics
+│   ├── Error Logs
+│   ├── Database Status
+│   └── WebSocket Status
+└── Reports
+    ├── Analytics Dashboard
+    ├── User Statistics
+    ├── Transaction Reports
+    └── Geographic Reports
+
+Account
+├── Login
+├── Sign Up
+├── Logout
+├── Forgot Password
+├── Reset Password
+└── Change Password
+2.2 Responsive Navigation
+Desktop (lg+)
+[Logo] Dashboard | My ▼ | Organization ▼ | Market ▼ | Common ▼ | [Search] [Notifications] [Profile ▼]
+Mobile (< lg)
+[☰ Menu] [Logo] [🔍] [🔔] [👤]
+
+Slide-out Navigation:
+├── Dashboard
+├── My
+├── Organization  
+├── Market
+├── Common
+└── Account

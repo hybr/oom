@@ -5,7 +5,9 @@
       "Bash(php:*)",
       "Read(//c/php/**)",
       "Bash(curl:*)",
-      "Bash(sqlite3:*)"
+      "Bash(sqlite3:*)",
+      "Bash(cat:*)",
+      "Bash(chmod:*)"
     ],
     "deny": [],
     "ask": []

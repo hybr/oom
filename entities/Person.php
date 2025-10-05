@@ -1,70 +1,144 @@
 <?php
 
-require_once __DIR__ . '/BaseEntity.php';
+namespace Entities;
 
-class Person extends BaseEntity {
-    protected $table = 'persons';
-    protected $fillable = ['first_name', 'last_name', 'email', 'phone', 'date_of_birth', 'status', 'created_at', 'updated_at'];
+/**
+ * Person Entity
+ * Represents an individual with personal information
+ */
+class Person extends BaseEntity
+{
+    protected ?string $first_name = null;
+    protected ?string $middle_name = null;
+    protected ?string $last_name = null;
+    protected ?string $date_of_birth = null;
 
-    public function __construct() {
-        parent::__construct();
-        $this->attributes['status'] = 'active';
-        $this->attributes['created_at'] = date('Y-m-d H:i:s');
-        $this->attributes['updated_at'] = date('Y-m-d H:i:s');
+    public static function getTableName(): string
+    {
+        return 'person';
     }
 
-    public function getFullName() {
-        return trim($this->first_name . ' ' . $this->last_name);
+    protected function getFillableAttributes(): array
+    {
+        return ['first_name', 'middle_name', 'last_name', 'date_of_birth'];
     }
 
-    public function updateStatus($status) {
-        $this->status = $status;
-        $this->updated_at = date('Y-m-d H:i:s');
-        return $this->save();
+    protected function getValidationRules(): array
+    {
+        return [
+            'first_name' => ['required', 'min:2', 'max:100'],
+            'last_name' => ['required', 'min:2', 'max:100'],
+        ];
     }
 
-    public function getAge() {
-        if ($this->date_of_birth) {
-            $birthDate = new DateTime($this->date_of_birth);
-            $today = new DateTime();
-            return $today->diff($birthDate)->y;
+    /**
+     * Get full name
+     */
+    public function getFullName(): string
+    {
+        $parts = array_filter([
+            $this->first_name,
+            $this->middle_name,
+            $this->last_name,
+        ]);
+
+        return implode(' ', $parts);
+    }
+
+    /**
+     * Get initials
+     */
+    public function getInitials(): string
+    {
+        $initials = substr($this->first_name, 0, 1);
+
+        if ($this->middle_name) {
+            $initials .= substr($this->middle_name, 0, 1);
         }
-        return null;
+
+        if ($this->last_name) {
+            $initials .= substr($this->last_name, 0, 1);
+        }
+
+        return strtoupper($initials);
     }
 
-    public function isActive() {
-        return $this->status === 'active';
+    /**
+     * Get age
+     */
+    public function getAge(): ?int
+    {
+        if (!$this->date_of_birth) {
+            return null;
+        }
+
+        $dob = new \DateTime($this->date_of_birth);
+        $now = new \DateTime();
+        $diff = $now->diff($dob);
+
+        return $diff->y;
     }
 
-    public function deactivate() {
-        return $this->updateStatus('inactive');
+    /**
+     * Get credential for this person
+     */
+    public function getCredential(): ?Credential
+    {
+        $credentials = Credential::where('person_id = :person_id', ['person_id' => $this->id], 1);
+        return $credentials[0] ?? null;
     }
 
-    public function activate() {
-        return $this->updateStatus('active');
+    /**
+     * Get all education records
+     */
+    public function getEducation(): array
+    {
+        return PersonEducation::where('person_id = :person_id', ['person_id' => $this->id]);
     }
 
-    public static function findByEmail($email) {
-        return static::where('email', '=', $email);
+    /**
+     * Get all skills
+     */
+    public function getSkills(): array
+    {
+        return PersonSkill::where('person_id = :person_id', ['person_id' => $this->id]);
     }
 
-    public static function findByPhone($phone) {
-        return static::where('phone', '=', $phone);
+    /**
+     * Check if person has credential
+     */
+    public function hasCredential(): bool
+    {
+        return $this->getCredential() !== null;
     }
 
-    protected function getSchema() {
-        return "
-            CREATE TABLE IF NOT EXISTS persons (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                first_name TEXT NOT NULL,
-                last_name TEXT NOT NULL,
-                email TEXT UNIQUE NOT NULL,
-                phone TEXT,
-                date_of_birth DATE,
-                status TEXT DEFAULT 'active',
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            )
-        ";
+    /**
+     * Search persons by name
+     */
+    public static function searchByName(string $query): array
+    {
+        return static::search($query, ['first_name', 'middle_name', 'last_name']);
+    }
+
+    /**
+     * Get persons by birth year
+     */
+    public static function getByBirthYear(int $year): array
+    {
+        return static::where('strftime("%Y", date_of_birth) = :year', ['year' => (string)$year]);
+    }
+
+    /**
+     * Get persons by age range
+     */
+    public static function getByAgeRange(int $minAge, int $maxAge): array
+    {
+        $maxDate = date('Y-m-d', strtotime("-{$minAge} years"));
+        $minDate = date('Y-m-d', strtotime("-{$maxAge} years"));
+
+        return static::where(
+            'date_of_birth BETWEEN :min_date AND :max_date',
+            ['min_date' => $minDate, 'max_date' => $maxDate]
+        );
     }
 }

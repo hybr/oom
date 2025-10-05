@@ -1,0 +1,596 @@
+ER Diagram
+
+🌍 GEOGRAPHY DOMAIN
+CONTINENT
+id (PK)
+
+
+name
+
+
+COUNTRY
+id (PK)
+
+
+name
+
+
+continent_id → CONTINENT.id (FK)
+
+
+LANGUAGE
+id (PK)
+
+
+name
+
+
+country_id → COUNTRY.id (FK)
+
+
+POSTAL_ADDRESS
+id (PK)
+
+
+first_street
+
+
+second_street
+
+
+area
+
+
+city
+
+
+state
+
+
+pin
+
+
+latitude
+
+
+longitude
+
+
+country_id → COUNTRY.id (FK)
+
+
+
+👤 PERSON DOMAIN
+PERSON
+id (PK)
+
+
+first_name
+
+
+middle_name
+
+
+last_name
+
+
+date_of_birth
+ Methods:
+
+
+getFullName()
+
+
+CREDENTIAL
+id (PK)
+
+
+username (Unique)
+
+
+password_hash
+
+
+person_id → PERSON.id (FK)
+ Methods:
+
+
+login(username, password)
+
+
+signUp()
+
+
+forgotPassword()
+
+
+resetPassword()
+
+
+changePassword()
+
+
+
+🎓 EDUCATION & SKILL DOMAIN
+ENUM_EDUCATION_LEVELS
+EDUCATION_NONE,
+EDUCATION_PRIMARY,
+EDUCATION_SECONDARY,
+EDUCATION_BACHELOR,
+EDUCATION_MASTER,
+EDUCATION_DOCTORATE,
+EDUCATION_VOCATIONAL,
+EDUCATION_CERTIFICATION
+
+POPULAR_EDUCATION_SUBJECT
+id (PK)
+
+
+name
+
+
+POPULAR_SKILL
+id (PK)
+
+
+name
+
+
+PERSON_EDUCATION
+id (PK)
+
+
+person_id → PERSON.id (FK)
+
+
+institution
+
+
+start_date
+
+
+complete_date
+
+
+education_level ENUM_EDUCATION_LEVELS
+
+
+PERSON_EDUCATION_SUBJECT
+id (PK)
+
+
+person_education_id → PERSON_EDUCATION.id (FK)
+
+
+subject_id → POPULAR_EDUCATION_SUBJECT.id (FK)
+
+
+marks_type
+
+
+marks
+
+
+PERSON_SKILL
+id (PK)
+
+
+person_id → PERSON.id (FK)
+
+
+subject_id → POPULAR_SKILL.id (FK)
+
+
+institution
+
+
+level
+
+
+start_date
+
+
+complete_date
+
+
+marks_type
+
+
+marks
+
+
+
+🏢 ORGANIZATION DOMAIN
+INDUSTRY_CATEGORY
+id (PK)
+
+
+name
+
+
+parent_category_id → INDUSTRY_CATEGORY.id (FK, self)
+
+
+POPULAR_ORGANIZATION_DEPARTMENT
+id (PK)
+
+
+name
+
+
+POPULAR_ORGANIZATION_TEAM
+id (PK)
+
+
+name
+
+
+department_id → POPULAR_ORGANIZATION_DEPARTMENT.id (FK)
+
+
+POPULAR_ORGANIZATION_DESIGNATION
+id (PK)
+
+
+name
+
+
+
+🧩 POPULAR_ORGANIZATION_POSITION (NEW – replaces ORGANIZATION_POSITION)
+Standardized global position templates usable across organizations
+POPULAR_ORGANIZATION_POSITION
+id (PK)
+
+
+name
+
+
+department_id → POPULAR_ORGANIZATION_DEPARTMENT.id (FK)
+
+
+team_id → POPULAR_ORGANIZATION_TEAM.id (FK)
+
+
+designation_id → POPULAR_ORGANIZATION_DESIGNATION.id (FK)
+
+
+minimum_education_level ENUM_EDUCATION_LEVELS
+
+
+minimum_subject_id → POPULAR_EDUCATION_SUBJECT.id (FK)
+
+
+description
+
+
+
+ORGANIZATION_LEGAL_CATEGORY
+id (PK)
+
+
+name
+
+
+parent_category_id → ORGANIZATION_LEGAL_CATEGORY.id (FK, self)
+ Methods:
+
+
+getFullCategoryName()
+
+
+ORGANIZATION
+id (PK)
+
+
+short_name
+
+
+tag_line
+
+
+website
+
+
+subdomain (Unique, to V4L.app)
+
+
+admin_id → PERSON.id (FK)
+
+
+industry_id → INDUSTRY_CATEGORY.id (FK)
+
+
+legal_category_id → ORGANIZATION_LEGAL_CATEGORY.id (FK)
+ Unique: (short_name, legal_category_id)
+ Methods:
+
+
+getOrganizationFullName()
+
+
+ORGANIZATION_BRANCH
+id (PK)
+
+
+organization_id → ORGANIZATION.id (FK)
+
+
+name
+
+
+code
+
+
+ORGANIZATION_BUILDING
+id (PK)
+
+
+organization_branch_id → ORGANIZATION_BRANCH.id (FK)
+
+
+postal_address_id → POSTAL_ADDRESS.id (FK)
+
+
+name
+
+
+WORKSTATION
+id (PK)
+
+
+organization_building_id → ORGANIZATION_BUILDING.id (FK)
+
+
+floor
+
+
+room
+
+
+workstation_number
+
+
+
+💼 HIRING DOMAIN
+ORGANIZATION_VACANCY
+id (PK)
+
+
+organization_id → ORGANIZATION.id (FK)
+
+
+popular_position_id → POPULAR_ORGANIZATION_POSITION.id (FK)
+
+
+opening_date
+
+
+closing_date
+
+
+status (Open / Closed / On Hold)
+
+
+created_by → PERSON.id (FK)
+
+
+ORGANIZATION_VACANCY_WORKSTATION
+id (PK)
+
+
+organization_vacancy_id → ORGANIZATION_VACANCY.id (FK)
+
+
+organization_workstation_id → WORKSTATION.id (FK)
+
+
+
+VACANCY_APPLICATION
+id (PK)
+
+
+vacancy_id → ORGANIZATION_VACANCY.id (FK)
+
+
+applicant_id → PERSON.id (FK)
+
+
+application_date
+
+
+status (Applied / Shortlisted / Rejected / Selected / Withdrawn)
+
+
+resume_url
+
+
+cover_letter
+
+
+
+APPLICATION_REVIEW
+id (PK)
+
+
+application_id → VACANCY_APPLICATION.id (FK)
+
+
+reviewed_by → PERSON.id (FK)
+
+
+review_date
+
+
+review_notes
+
+
+status (Pending / Approved / Rejected)
+
+
+
+INTERVIEW_STAGE
+id (PK)
+
+
+organization_id → ORGANIZATION.id (FK)
+
+
+name
+
+
+order_number
+
+
+APPLICATION_INTERVIEW
+id (PK)
+
+
+application_id → VACANCY_APPLICATION.id (FK)
+
+
+stage_id → INTERVIEW_STAGE.id (FK)
+
+
+interviewer_id → PERSON.id (FK)
+
+
+scheduled_date
+
+
+actual_date
+
+
+feedback_notes
+
+
+rating (1–10)
+
+
+status (Scheduled / Completed / Cancelled)
+
+
+
+JOB_OFFER
+id (PK)
+
+
+application_id → VACANCY_APPLICATION.id (FK)
+
+
+offered_by → PERSON.id (FK)
+
+
+offer_date
+
+
+position_title
+
+
+salary_offered
+
+
+joining_date
+
+
+status (Offered / Accepted / Declined / Expired)
+
+
+
+EMPLOYMENT_CONTRACT
+id (PK)
+
+
+job_offer_id → JOB_OFFER.id (FK)
+
+
+organization_id → ORGANIZATION.id (FK)
+
+
+employee_id → PERSON.id (FK)
+
+
+start_date
+
+
+end_date (nullable)
+
+
+contract_terms
+
+
+status (Active / Completed / Terminated)
+
+
+
+🔒 PROCESS AUTHORIZATION DOMAIN
+ENUM_PROCESS_ACTIONS
+REQUEST
+FEASIBILITY_ANALYSIS
+APPROVE
+DESIGN
+DEVELOP
+TEST
+IMPLEMENT
+SUPPORT
+
+
+ENTITY_DEFINITION
+id (PK)
+
+
+name (e.g., 'ORGANIZATION_VACANCY', 'JOB_OFFER', 'EMPLOYMENT_CONTRACT')
+
+
+description
+
+
+
+ENTITY_PROCESS_AUTHORIZATION
+Defines what standard position (role) can perform which action on which entity type.
+ENTITY_PROCESS_AUTHORIZATION
+id (PK)
+
+
+entity_id → ENTITY_DEFINITION.id (FK)
+
+
+action ENUM_PROCESS_ACTIONS
+
+
+popular_position_id → POPULAR_ORGANIZATION_POSITION.id (FK)
+
+
+remarks
+
+
+Methods:
+canPerform(entity_name, action, person_id)
+
+
+
+ENTITY_INSTANCE_AUTHORIZATION (optional per-record override)
+id (PK)
+
+
+entity_id → ENTITY_DEFINITION.id (FK)
+
+
+entity_record_id (UUID / FK reference)
+
+
+action ENUM_PROCESS_ACTIONS
+
+
+assigned_position_id → POPULAR_ORGANIZATION_POSITION.id (FK)
+
+
+assigned_person_id → PERSON.id (FK, nullable)
+
+
+valid_from
+
+
+valid_to
+
+
+status (Active / Revoked)
