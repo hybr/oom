@@ -98,51 +98,6 @@ Timestamps: Automatic created_at, updated_at tracking
 Soft Delete: Implement deleted_at for data preservation
 Versioning: Track record versions for audit trail
 
-3.2 Process & Workflow Engine
-State Machine Architecture
-phpclass Process {
-    protected $entity_type;
-    protected $states = [];
-    protected $transitions = [];
-    protected $current_state;
-    
-    // Workflow methods
-    public function canTransition($from, $to, $user, $context) {}
-    public function executeTransition($transition, $user, $context) {}
-    public function getAvailableActions($state, $user) {}
-    public function rollback($to_version) {}
-}
-Workflow Requirements
-
-State Definition: Name, type (start/intermediate/end), display properties
-Transitions:
-
-Source and target states
-Trigger conditions (role-based, data-based, time-based)
-Pre-actions (validations, calculations)
-Post-actions (notifications, side effects)
-Rollback capability
-
-
-Role-Based Access: Each transition checks user roles/permissions
-Audit Trail: Complete history of state changes with:
-
-Who made the change
-When (timestamp)
-From/to states
-Reason/comments
-Changed fields (diff)
-
-
-Database Tables:
-
-processes: Process definitions
-process_states: State configurations
-process_transitions: Transition rules
-process_history: Audit log
-process_instances: Active workflow instances
-
-
 
 3.3 Security Implementation
 Authentication & Authorization
@@ -226,7 +181,7 @@ UI Components
 
 Navigation:
 
-Top-level menus from @menu.txt (level 1 only)
+Top-level menus are My, Organization, Market, Common
 Sub-menus in dropdown or sidebar
 Breadcrumbs for context
 Responsive hamburger menu

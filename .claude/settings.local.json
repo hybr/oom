@@ -14,7 +14,10 @@
       "Bash(fi)",
       "Bash(done)",
       "Bash(do if [ ! -f \"$dirstore.php\" ])",
-      "Bash(xargs:*)"
+      "Bash(xargs:*)",
+      "Bash(for:*)",
+      "Bash(do echo \"=== $dir ===\")",
+      "Bash(ls public/pages/entities/$dir)"
     ],
     "deny": [],
     "ask": []
