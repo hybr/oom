@@ -37,11 +37,18 @@ WebSocket Server: Standalone PHP process or Node.js bridge
 Session Management: PHP sessions with secure configuration
 Caching: APCu or file-based caching where appropriate
 
+2.4 Task
+    This document aims to accomplish the following tasks for a given entity:
 
-3. Core Requirements
-3.1 Entity Management
-Entity Class Structure
-phpabstract class BaseEntity {
+    2.4.1 Define the entity as a PHP Class.
+    2.4.2 Include all relevant attributes within the class definition.
+    2.4.3 Implement all necessary methods for the class.
+    2.4.4 Develop a web page to perform CRUD (Create, Read, Update, Delete) operations on the entity.
+    2.4.5 Add action buttons on the web page corresponding to the public methods of the class.
+    2.4.6 While displaying the Add/Update form, provide links or selection options for related entities (foreign key fields).
+    2.4.7 Display related entities at the bottom of the web page for better context and navigation.
+  
+  Class BaseEntity {
     // Core attributes (all entities)
     protected $id;
     protected $created_at;
