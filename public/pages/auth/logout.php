@@ -3,6 +3,8 @@
  * Logout Handler
  */
 
+require_once __DIR__ . '/../../../bootstrap.php';
+
 // Clear session
 session_destroy();
 

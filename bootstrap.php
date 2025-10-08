@@ -4,6 +4,9 @@
  * Bootstrap file - Initialize the application
  */
 
+// Set flag to indicate bootstrap has been loaded
+$BOOTSTRAP_LOADED = true;
+
 // Start session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

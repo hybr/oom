@@ -3,6 +3,8 @@
  * Signup Process Handler
  */
 
+require_once __DIR__ . '/../../../bootstrap.php';
+
 use Entities\Person;
 use Entities\Credential;
 

@@ -18,17 +18,17 @@ class Router
     /**
      * Add a GET route
      */
-    public function get(string $path, callable $handler): void
+    public function get(string $path, callable $handler, array $middleware = []): void
     {
-        $this->addRoute('GET', $path, $handler);
+        $this->addRoute('GET', $path, $handler, $middleware);
     }
 
     /**
      * Add a POST route
      */
-    public function post(string $path, callable $handler): void
+    public function post(string $path, callable $handler, array $middleware = []): void
     {
-        $this->addRoute('POST', $path, $handler);
+        $this->addRoute('POST', $path, $handler, $middleware);
     }
 
     /**
@@ -58,7 +58,7 @@ class Router
     /**
      * Add a route
      */
-    private function addRoute(string $method, string $path, callable $handler): void
+    private function addRoute(string $method, string $path, callable $handler, array $middleware = []): void
     {
         $pattern = $this->convertToRegex($path);
         $this->routes[] = [
@@ -66,6 +66,7 @@ class Router
             'path' => $path,
             'pattern' => $pattern,
             'handler' => $handler,
+            'middleware' => $middleware,
         ];
     }
 
@@ -96,6 +97,15 @@ class Router
             if (preg_match($route['pattern'], $uri, $matches)) {
                 // Extract named parameters
                 $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
+
+                // Run middleware
+                if (isset($route['middleware'])) {
+                    foreach ($route['middleware'] as $middleware) {
+                        if (is_callable($middleware)) {
+                            $middleware();
+                        }
+                    }
+                }
 
                 // Call the handler
                 call_user_func_array($route['handler'], [$params]);

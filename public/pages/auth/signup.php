@@ -3,6 +3,8 @@
  * Signup Page
  */
 
+require_once __DIR__ . '/../../../bootstrap.php';
+
 // Redirect if already logged in
 if (auth()) {
     redirect('/');
@@ -38,6 +40,7 @@ include __DIR__ . '/../../../includes/header.php';
                                        id="first_name"
                                        name="first_name"
                                        value="<?= old('first_name') ?>"
+                                       autocomplete="given-name"
                                        required>
                                 <?php $field = 'first_name'; include __DIR__ . '/../../../views/components/form-errors.php'; ?>
                             </div>
@@ -49,6 +52,7 @@ include __DIR__ . '/../../../includes/header.php';
                                        id="last_name"
                                        name="last_name"
                                        value="<?= old('last_name') ?>"
+                                       autocomplete="family-name"
                                        required>
                                 <?php $field = 'last_name'; include __DIR__ . '/../../../views/components/form-errors.php'; ?>
                             </div>
@@ -60,7 +64,8 @@ include __DIR__ . '/../../../includes/header.php';
                                    class="form-control"
                                    id="middle_name"
                                    name="middle_name"
-                                   value="<?= old('middle_name') ?>">
+                                   value="<?= old('middle_name') ?>"
+                                   autocomplete="additional-name">
                         </div>
 
                         <div class="mb-3">
@@ -69,7 +74,8 @@ include __DIR__ . '/../../../includes/header.php';
                                    class="form-control <?= errors('date_of_birth') ? 'is-invalid' : '' ?>"
                                    id="date_of_birth"
                                    name="date_of_birth"
-                                   value="<?= old('date_of_birth') ?>">
+                                   value="<?= old('date_of_birth') ?>"
+                                   autocomplete="bday">
                             <?php $field = 'date_of_birth'; include __DIR__ . '/../../../views/components/form-errors.php'; ?>
                         </div>
 
@@ -84,6 +90,7 @@ include __DIR__ . '/../../../includes/header.php';
                                        id="username"
                                        name="username"
                                        value="<?= old('username') ?>"
+                                       autocomplete="username"
                                        required>
                             </div>
                             <?php $field = 'username'; include __DIR__ . '/../../../views/components/form-errors.php'; ?>
@@ -99,6 +106,7 @@ include __DIR__ . '/../../../includes/header.php';
                                            class="form-control <?= errors('password') ? 'is-invalid' : '' ?>"
                                            id="password"
                                            name="password"
+                                           autocomplete="new-password"
                                            required>
                                 </div>
                                 <?php $field = 'password'; include __DIR__ . '/../../../views/components/form-errors.php'; ?>
@@ -112,6 +120,7 @@ include __DIR__ . '/../../../includes/header.php';
                                            class="form-control <?= errors('password_confirmation') ? 'is-invalid' : '' ?>"
                                            id="password_confirmation"
                                            name="password_confirmation"
+                                           autocomplete="new-password"
                                            required>
                                 </div>
                                 <?php $field = 'password_confirmation'; include __DIR__ . '/../../../views/components/form-errors.php'; ?>

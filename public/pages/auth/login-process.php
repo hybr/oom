@@ -3,6 +3,8 @@
  * Login Process Handler
  */
 
+require_once __DIR__ . '/../../../bootstrap.php';
+
 use Entities\Credential;
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -55,4 +57,8 @@ if ($remember) {
 }
 
 $_SESSION['success'] = 'Welcome back!';
-redirect('/');
+
+// Redirect to intended page or home
+$redirectTo = $_SESSION['redirect_after_login'] ?? '/';
+unset($_SESSION['redirect_after_login']);
+redirect($redirectTo);

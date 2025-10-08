@@ -91,7 +91,13 @@ include __DIR__ . '/../../../../includes/header.php';
                         </div>
 
                         <div class="mb-3">
-                            <label for="admin_id" class="form-label">Administrator</label>
+                            <?php
+                            $fk_label = 'Administrator';
+                            $fk_for = 'admin_id';
+                            $fk_entity = 'persons';
+                            $fk_icon = 'bi-person-badge';
+                            include __DIR__ . '/../../../../views/components/fk-label.php';
+                            ?>
                             <select class="form-select <?= errors('admin_id') ? 'is-invalid' : '' ?>"
                                     id="admin_id"
                                     name="admin_id">
@@ -107,7 +113,13 @@ include __DIR__ . '/../../../../includes/header.php';
                         </div>
 
                         <div class="mb-3">
-                            <label for="industry_id" class="form-label">Industry</label>
+                            <?php
+                            $fk_label = 'Industry';
+                            $fk_for = 'industry_id';
+                            $fk_entity = 'industry_categories';
+                            $fk_icon = 'bi-diagram-3';
+                            include __DIR__ . '/../../../../views/components/fk-label.php';
+                            ?>
                             <select class="form-select <?= errors('industry_id') ? 'is-invalid' : '' ?>"
                                     id="industry_id"
                                     name="industry_id">
@@ -123,7 +135,13 @@ include __DIR__ . '/../../../../includes/header.php';
                         </div>
 
                         <div class="mb-3">
-                            <label for="legal_category_id" class="form-label">Legal Category</label>
+                            <?php
+                            $fk_label = 'Legal Category';
+                            $fk_for = 'legal_category_id';
+                            $fk_entity = 'organization_legal_categories';
+                            $fk_icon = 'bi-file-earmark-ruled';
+                            include __DIR__ . '/../../../../views/components/fk-label.php';
+                            ?>
                             <select class="form-select <?= errors('legal_category_id') ? 'is-invalid' : '' ?>"
                                     id="legal_category_id"
                                     name="legal_category_id">

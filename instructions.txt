@@ -113,6 +113,13 @@ Account lockout after failed attempts
 
 Authorization:
 
+Only the Home Dashboard and Marketplace pages — which display the catalog and items available for shopping — will be publicly accessible.
+All other features, including item ordering and access to other entities, will require user login.
+
+If a user has created multiple organizations, provide a mechanism to select a default organization for active use.
+
+All organization-specific entities must include an organization_id foreign key to ensure that only records related to the selected organization are displayed.
+
 Role-Based Access Control (RBAC)
 Permission-based actions
 Entity-level permissions
@@ -189,6 +196,8 @@ Responsive hamburger menu
 
 List Views:
 
+The list view should present all essential fields that provide a meaningful summary of each record.
+
 Pagination (configurable: 10/25/50/100 per page)
 Sorting (column headers)
 Filtering (search box + advanced filters)
@@ -216,7 +225,7 @@ Help text and tooltips
 Auto-save drafts
 Cancel confirmation for unsaved changes
 
-
+In all forms, the label for any foreign key field should function as a hyperlink to the corresponding foreign entity’s detail page.
 
 Theming
 

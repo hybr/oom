@@ -1,3 +1,9 @@
+<?php
+// Ensure bootstrap is loaded
+if (!isset($BOOTSTRAP_LOADED)) {
+    require_once __DIR__ . '/../bootstrap.php';
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,10 +34,23 @@
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
                         <a class="nav-link" href="/">
-                            <i class="bi bi-house-door"></i> Dashboard
+                            <i class="bi bi-house-door"></i> Home
                         </a>
                     </li>
 
+                    <!-- Public Marketplace -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="/organization_vacancies">
+                            <i class="bi bi-megaphone"></i> Jobs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/catalog_categories">
+                            <i class="bi bi-cart"></i> Marketplace
+                        </a>
+                    </li>
+
+                    <?php if (auth()): ?>
                     <!-- My Menu -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="myDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -129,6 +148,7 @@
                             <li><a class="dropdown-item" href="/pages/entities/entity_instance_authorizations/list.php"><i class="bi bi-shield-check"></i> Instance Authorization</a></li>
                         </ul>
                     </li>
+                    <?php endif; ?>
                 </ul>
                 <ul class="navbar-nav">
                     <?php if (auth()): ?>

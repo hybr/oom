@@ -41,7 +41,14 @@ include __DIR__ . '/../../../../includes/header.php';
                         <?= csrf_field() ?>
 
                         <div class="mb-3">
-                            <label for="person_id" class="form-label">Person <span class="text-danger">*</span></label>
+                            <?php
+                            $fk_label = 'Person';
+                            $fk_for = 'person_id';
+                            $fk_entity = 'persons';
+                            $fk_required = true;
+                            $fk_icon = 'bi-person';
+                            include __DIR__ . '/../../../../views/components/fk-label.php';
+                            ?>
                             <select class="form-select <?= errors('person_id') ? 'is-invalid' : '' ?>"
                                     id="person_id"
                                     name="person_id"
@@ -59,7 +66,14 @@ include __DIR__ . '/../../../../includes/header.php';
                         </div>
 
                         <div class="mb-3">
-                            <label for="subject_id" class="form-label">Skill <span class="text-danger">*</span></label>
+                            <?php
+                            $fk_label = 'Skill';
+                            $fk_for = 'subject_id';
+                            $fk_entity = 'popular_skills';
+                            $fk_required = true;
+                            $fk_icon = 'bi-lightbulb';
+                            include __DIR__ . '/../../../../views/components/fk-label.php';
+                            ?>
                             <select class="form-select <?= errors('subject_id') ? 'is-invalid' : '' ?>"
                                     id="subject_id"
                                     name="subject_id"

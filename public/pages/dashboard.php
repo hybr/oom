@@ -1,6 +1,6 @@
 <?php
 /**
- * Dashboard page
+ * Dashboard page - Public
  */
 $pageTitle = 'Dashboard';
 include __DIR__ . '/../../includes/header.php';

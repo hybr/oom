@@ -75,7 +75,32 @@ abstract class BaseEntity
 
         foreach ($data as $key => $value) {
             if (in_array($key, $fillable) && property_exists($this, $key)) {
-                $this->$key = $value;
+                // Get property type using reflection
+                $reflection = new \ReflectionProperty($this, $key);
+                $type = $reflection->getType();
+
+                // Convert value to appropriate type
+                if ($type && !$type->allowsNull() && $value === '') {
+                    // Don't set empty string for non-nullable types
+                    continue;
+                } elseif ($type && $type->allowsNull() && $value === '') {
+                    // Convert empty string to null for nullable types
+                    $this->$key = null;
+                } elseif ($type) {
+                    $typeName = $type->getName();
+                    // Type conversion based on property type
+                    if ($typeName === 'int' && $value !== null && $value !== '') {
+                        $this->$key = (int)$value;
+                    } elseif ($typeName === 'float' && $value !== null && $value !== '') {
+                        $this->$key = (float)$value;
+                    } elseif ($typeName === 'bool' && $value !== null) {
+                        $this->$key = (bool)$value;
+                    } else {
+                        $this->$key = $value;
+                    }
+                } else {
+                    $this->$key = $value;
+                }
             }
         }
 
@@ -156,7 +181,7 @@ abstract class BaseEntity
         $this->updated_at = $this->created_at;
         $this->updated_by = $userId;
 
-        $data = $this->toArray(true);
+        $data = $this->toArrayForDatabase(true);
         unset($data['id']); // Don't include ID in insert
 
         $this->id = Database::insert(static::getTableName(), $data);
@@ -182,7 +207,7 @@ abstract class BaseEntity
         $this->updated_by = $userId;
         $this->version++;
 
-        $data = $this->toArray(true);
+        $data = $this->toArrayForDatabase(true);
         unset($data['id'], $data['created_at'], $data['created_by']);
 
         Database::update(
@@ -255,6 +280,30 @@ abstract class BaseEntity
      * Convert entity to array
      */
     public function toArray(bool $excludeNull = false): array
+    {
+        $data = [];
+        $reflection = new \ReflectionClass($this);
+
+        foreach ($reflection->getProperties() as $property) {
+            $property->setAccessible(true);
+            $value = $property->getValue($this);
+
+            if ($excludeNull && $value === null) {
+                continue;
+            }
+
+            $data[$property->getName()] = $value;
+        }
+
+        unset($data['errors']);
+        return $data;
+    }
+
+    /**
+     * Convert entity to array for database operations (includes sensitive fields)
+     * Override this method in child classes if needed, but default behavior is same as toArray
+     */
+    protected function toArrayForDatabase(bool $excludeNull = false): array
     {
         $data = [];
         $reflection = new \ReflectionClass($this);

@@ -5,7 +5,10 @@
       "Bash(then sed -i '1 a\\\\nrequire_once __DIR__ . '\"''''\"'/../../../../bootstrap.php'\"''''\"';\\n' \"$file\" fi done)",
       "Bash(do echo -n \"$entity: \")",
       "Bash(sqlite3:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(chmod:*)",
+      "Bash(php:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

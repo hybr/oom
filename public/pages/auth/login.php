@@ -3,6 +3,8 @@
  * Login Page
  */
 
+require_once __DIR__ . '/../../../bootstrap.php';
+
 // Redirect if already logged in
 if (auth()) {
     redirect('/');
@@ -39,6 +41,7 @@ include __DIR__ . '/../../../includes/header.php';
                                        id="username"
                                        name="username"
                                        value="<?= old('username') ?>"
+                                       autocomplete="username"
                                        required
                                        autofocus>
                             </div>
@@ -53,6 +56,7 @@ include __DIR__ . '/../../../includes/header.php';
                                        class="form-control <?= errors('password') ? 'is-invalid' : '' ?>"
                                        id="password"
                                        name="password"
+                                       autocomplete="current-password"
                                        required>
                             </div>
                             <?php $field = 'password'; include __DIR__ . '/../../../views/components/form-errors.php'; ?>

@@ -52,7 +52,14 @@ include __DIR__ . '/../../../../includes/header.php';
                         </div>
 
                         <div class="mb-3">
-                            <label for="continent_id" class="form-label">Continent <span class="text-danger">*</span></label>
+                            <?php
+                            $fk_label = 'Continent';
+                            $fk_for = 'continent_id';
+                            $fk_entity = 'continents';
+                            $fk_required = true;
+                            $fk_icon = 'bi-globe-americas';
+                            include __DIR__ . '/../../../../views/components/fk-label.php';
+                            ?>
                             <select class="form-select <?= errors('continent_id') ? 'is-invalid' : '' ?>"
                                     id="continent_id"
                                     name="continent_id"
