@@ -3,6 +3,8 @@
  * Vacancy Applications List Page
  */
 
+require_once __DIR__ . '/../../../../bootstrap.php';
+
 use Entities\VacancyApplication;
 
 $pageTitle = 'Vacancy Applications';

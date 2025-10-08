@@ -3,6 +3,8 @@
  * Popular Skills List Page
  */
 
+require_once __DIR__ . '/../../../../bootstrap.php';
+
 use Entities\PopularSkill;
 
 $pageTitle = 'Popular Skills';

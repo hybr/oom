@@ -3,6 +3,8 @@
  * Education Subjects List Page
  */
 
+require_once __DIR__ . '/../../../../bootstrap.php';
+
 use Entities\PersonEducationSubject;
 
 $pageTitle = 'Education Subjects';

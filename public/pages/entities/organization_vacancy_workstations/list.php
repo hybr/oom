@@ -3,6 +3,8 @@
  * Organization Vacancy Workstations List Page
  */
 
+require_once __DIR__ . '/../../../../bootstrap.php';
+
 use Entities\OrganizationVacancyWorkstation;
 
 $pageTitle = 'Vacancy Workstations';

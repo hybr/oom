@@ -3,6 +3,8 @@
  * Person Skills List Page
  */
 
+require_once __DIR__ . '/../../../../bootstrap.php';
+
 use Entities\PersonSkill;
 
 $pageTitle = 'Person Skills';

@@ -3,6 +3,8 @@
  * Employment Contracts List Page
  */
 
+require_once __DIR__ . '/../../../../bootstrap.php';
+
 use Entities\EmploymentContract;
 
 $pageTitle = 'Employment Contracts';

@@ -3,6 +3,8 @@
  * Entity Process Authorizations List Page
  */
 
+require_once __DIR__ . '/../../../../bootstrap.php';
+
 use Entities\EntityProcessAuthorization;
 
 $pageTitle = 'Entity Process Authorizations';

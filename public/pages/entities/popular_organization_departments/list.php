@@ -3,6 +3,8 @@
  * Departments List Page
  */
 
+require_once __DIR__ . '/../../../../bootstrap.php';
+
 use Entities\PopularOrganizationDepartment;
 
 $pageTitle = 'Departments';

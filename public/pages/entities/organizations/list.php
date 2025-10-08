@@ -3,6 +3,8 @@
  * Organizations List Page
  */
 
+require_once __DIR__ . '/../../../../bootstrap.php';
+
 use Entities\Organization;
 
 $pageTitle = 'Organizations';

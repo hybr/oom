@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../../../../bootstrap.php';
+
 use Entities\ApplicationInterview;
 $pageTitle = 'Application Interviews';
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;

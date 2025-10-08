@@ -1,23 +1,11 @@
 {
   "permissions": {
     "allow": [
-      "Bash(mkdir:*)",
-      "Bash(php:*)",
-      "Read(//c/php/**)",
-      "Bash(curl:*)",
+      "Bash(do if head -5 \"$file\")",
+      "Bash(then sed -i '1 a\\\\nrequire_once __DIR__ . '\"''''\"'/../../../../bootstrap.php'\"''''\"';\\n' \"$file\" fi done)",
+      "Bash(do echo -n \"$entity: \")",
       "Bash(sqlite3:*)",
-      "Bash(cat:*)",
-      "Bash(chmod:*)",
-      "Bash(for dir in public/pages/entities/*/)",
-      "Bash(do if [ ! -f \"$dircreate.php\" ])",
-      "Bash(then echo \"$dir\")",
-      "Bash(fi)",
-      "Bash(done)",
-      "Bash(do if [ ! -f \"$dirstore.php\" ])",
-      "Bash(xargs:*)",
-      "Bash(for:*)",
-      "Bash(do echo \"=== $dir ===\")",
-      "Bash(ls public/pages/entities/$dir)"
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

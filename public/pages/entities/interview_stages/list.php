@@ -3,6 +3,8 @@
  * Interview Stages List Page
  */
 
+require_once __DIR__ . '/../../../../bootstrap.php';
+
 use Entities\InterviewStage;
 
 $pageTitle = 'Interview Stages';

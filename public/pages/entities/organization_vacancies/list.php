@@ -3,6 +3,8 @@
  * Organization Vacancies List Page
  */
 
+require_once __DIR__ . '/../../../../bootstrap.php';
+
 use Entities\OrganizationVacancy;
 
 $pageTitle = 'Organization Vacancies';

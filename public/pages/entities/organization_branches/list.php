@@ -3,6 +3,8 @@
  * Branches List Page
  */
 
+require_once __DIR__ . '/../../../../bootstrap.php';
+
 use Entities\OrganizationBranch;
 
 $pageTitle = 'Branches';

@@ -3,6 +3,8 @@
  * Countries List Page
  */
 
+require_once __DIR__ . '/../../../../bootstrap.php';
+
 use Entities\Country;
 
 $pageTitle = 'Countries';

@@ -3,6 +3,8 @@
  * Entity Instance Authorizations List Page
  */
 
+require_once __DIR__ . '/../../../../bootstrap.php';
+
 use Entities\EntityInstanceAuthorization;
 
 $pageTitle = 'Entity Instance Authorizations';

@@ -3,6 +3,8 @@
  * Popular Organization Positions List Page
  */
 
+require_once __DIR__ . '/../../../../bootstrap.php';
+
 use Entities\PopularOrganizationPosition;
 
 $pageTitle = 'Popular Organization Positions';

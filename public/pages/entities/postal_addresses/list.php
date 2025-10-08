@@ -3,6 +3,8 @@
  * Postal Addresses List Page
  */
 
+require_once __DIR__ . '/../../../../bootstrap.php';
+
 use Entities\PostalAddress;
 
 $pageTitle = 'Postal Addresses';
