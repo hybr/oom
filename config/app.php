@@ -1,26 +1,22 @@
 <?php
 
 return [
-    'name' => $_ENV['APP_NAME'] ?? 'V4L - Vocal 4 Local',
-    'env' => $_ENV['APP_ENV'] ?? 'development',
-    'debug' => filter_var($_ENV['APP_DEBUG'] ?? true, FILTER_VALIDATE_BOOLEAN),
-    'url' => $_ENV['APP_URL'] ?? 'http://localhost',
-
+    'name' => getenv('APP_NAME') ?: 'V4L - Vocal 4 Local',
+    'tagline' => 'Your Community, Your Marketplace.',
+    'env' => getenv('APP_ENV') ?: 'production',
+    'debug' => filter_var(getenv('APP_DEBUG'), FILTER_VALIDATE_BOOLEAN),
+    'url' => getenv('APP_URL') ?: 'http://localhost',
     'timezone' => 'UTC',
 
     'session' => [
-        'lifetime' => (int)($_ENV['SESSION_LIFETIME'] ?? 120),
-        'secure' => filter_var($_ENV['SESSION_SECURE'] ?? false, FILTER_VALIDATE_BOOLEAN),
-        'http_only' => filter_var($_ENV['SESSION_HTTP_ONLY'] ?? true, FILTER_VALIDATE_BOOLEAN),
+        'lifetime' => (int) getenv('SESSION_LIFETIME') ?: 120,
+        'secure' => filter_var(getenv('SESSION_SECURE'), FILTER_VALIDATE_BOOLEAN),
+        'http_only' => filter_var(getenv('SESSION_HTTP_ONLY'), FILTER_VALIDATE_BOOLEAN),
+        'name' => 'V4L_SESSION',
     ],
 
-    'log' => [
-        'level' => $_ENV['LOG_LEVEL'] ?? 'debug',
-        'path' => $_ENV['LOG_PATH'] ?? './logs',
-    ],
-
-    'upload' => [
-        'max_size' => (int)($_ENV['UPLOAD_MAX_SIZE'] ?? 10485760), // 10MB
-        'path' => $_ENV['UPLOAD_PATH'] ?? './uploads',
+    'pagination' => [
+        'default_per_page' => 25,
+        'options' => [10, 25, 50, 100],
     ],
 ];

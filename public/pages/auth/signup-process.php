@@ -1,94 +1,61 @@
 <?php
-/**
- * Signup Process Handler
- */
-
 require_once __DIR__ . '/../../../bootstrap.php';
 
-use Entities\Person;
-use Entities\Credential;
-
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    redirect('/signup');
+    header('Location: signup.php');
     exit;
 }
 
-// CSRF verification
-if (!verify_csrf()) {
-    $_SESSION['error'] = 'Invalid request';
-    redirect('/signup');
+// Validate input
+$validator = Validator::make($_POST);
+$valid = $validator->validate([
+    'first_name' => 'required|min:2|max:100',
+    'last_name' => 'required|min:2|max:100',
+    'username' => 'required|min:3|max:50|unique:credentials,username',
+    'password' => 'required|min:8|confirmed',
+]);
+
+if (!$valid) {
+    $_SESSION['errors'] = $validator->errors();
+    $_SESSION['old'] = $_POST;
+    header('Location: signup.php');
     exit;
 }
 
-// Store old input
-$_SESSION['_old'] = $_POST;
+try {
+    $db = db();
+    $db->beginTransaction();
 
-$errors = [];
+    // Create person record
+    $personId = $db->insert(
+        "INSERT INTO persons (first_name, middle_name, last_name, date_of_birth, created_at, updated_at)
+         VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))",
+        [
+            $_POST['first_name'],
+            $_POST['middle_name'] ?? null,
+            $_POST['last_name'],
+            $_POST['date_of_birth'] ?? null,
+        ]
+    );
 
-// Validate person data
-if (empty($_POST['first_name'])) {
-    $errors['first_name'] = ['First name is required'];
-}
-if (empty($_POST['last_name'])) {
-    $errors['last_name'] = ['Last name is required'];
-}
+    // Create credential record
+    if (!auth()->register($_POST['username'], $_POST['password'], $personId)) {
+        throw new Exception('Failed to create credentials');
+    }
 
-// Validate credentials
-if (empty($_POST['username'])) {
-    $errors['username'] = ['Username is required'];
-} elseif (strlen($_POST['username']) < 3) {
-    $errors['username'] = ['Username must be at least 3 characters'];
-} elseif (Credential::usernameExists($_POST['username'])) {
-    $errors['username'] = ['Username already exists'];
-}
+    $db->commit();
 
-if (empty($_POST['password'])) {
-    $errors['password'] = ['Password is required'];
-} elseif (strlen($_POST['password']) < 6) {
-    $errors['password'] = ['Password must be at least 6 characters'];
-}
+    // Auto-login after signup
+    auth()->login($_POST['username'], $_POST['password']);
 
-if (empty($_POST['password_confirmation'])) {
-    $errors['password_confirmation'] = ['Please confirm your password'];
-} elseif ($_POST['password'] !== $_POST['password_confirmation']) {
-    $errors['password_confirmation'] = ['Passwords do not match'];
-}
+    success('Account created successfully! Welcome to V4L.');
+    redirect('/pages/dashboard.php');
 
-if (!isset($_POST['terms'])) {
-    $errors['terms'] = ['You must accept the terms and conditions'];
-}
-
-// If errors, redirect back
-if (!empty($errors)) {
-    $_SESSION['_errors'] = $errors;
-    redirect('/signup');
+} catch (Exception $e) {
+    $db->rollBack();
+    error_log('Signup error: ' . $e->getMessage());
+    $_SESSION['errors'] = ['general' => 'An error occurred during signup. Please try again.'];
+    $_SESSION['old'] = $_POST;
+    header('Location: signup.php');
     exit;
 }
-
-// Create person
-$person = new Person();
-$person->fill($_POST);
-
-if (!$person->save()) {
-    $_SESSION['_errors'] = $person->getErrors();
-    redirect('/signup');
-    exit;
-}
-
-// Create credential
-$credential = Credential::signUp($person->id, $_POST['username'], $_POST['password']);
-
-if (!$credential) {
-    // Rollback - delete person
-    $person->forceDelete();
-    $_SESSION['error'] = 'Failed to create account. Please try again.';
-    redirect('/signup');
-    exit;
-}
-
-// Auto-login
-$_SESSION['user_id'] = $person->id;
-$_SESSION['credential_id'] = $credential->id;
-
-$_SESSION['success'] = 'Account created successfully! Welcome to V4L.';
-redirect('/');

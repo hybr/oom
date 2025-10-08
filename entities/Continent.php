@@ -1,53 +1,39 @@
 <?php
 
-namespace Entities;
+require_once __DIR__ . '/BaseEntity.php';
 
 /**
  * Continent Entity
- * Represents global continents
  */
-class Continent extends BaseEntity
-{
-    protected ?string $name = null;
-
-    public static function getTableName(): string
-    {
-        return 'continent';
-    }
-
-    protected function getFillableAttributes(): array
-    {
-        return ['name'];
-    }
-
-    protected function getValidationRules(): array
-    {
-        return [
-            'name' => ['required', 'min:2', 'max:100'],
-        ];
-    }
+class Continent extends BaseEntity {
+    protected $table = 'continents';
+    protected $fillable = ['name'];
 
     /**
      * Get all countries in this continent
      */
-    public function getCountries(): array
-    {
-        return Country::where('continent_id = :continent_id', ['continent_id' => $this->id]);
+    public function getCountries($continentId) {
+        $sql = "SELECT * FROM countries WHERE continent_id = ? AND deleted_at IS NULL ORDER BY name";
+        return $this->query($sql, [$continentId]);
     }
 
     /**
-     * Count countries in this continent
+     * Get country count for this continent
      */
-    public function countCountries(): int
-    {
-        return Country::count('continent_id = :continent_id', ['continent_id' => $this->id]);
+    public function getCountryCount($continentId) {
+        $sql = "SELECT COUNT(*) as count FROM countries WHERE continent_id = ? AND deleted_at IS NULL";
+        $result = $this->queryOne($sql, [$continentId]);
+        return $result['count'] ?? 0;
     }
 
     /**
-     * Search continents by name
+     * Validate continent data
      */
-    public static function searchByName(string $query): array
-    {
-        return static::search($query, ['name']);
+    public function validateData($data, $id = null) {
+        $rules = [
+            'name' => 'required|min:2|max:100' . ($id ? "|unique:continents,name,$id" : '|unique:continents,name'),
+        ];
+
+        return $this->validate($data, $rules);
     }
 }

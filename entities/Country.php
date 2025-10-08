@@ -1,79 +1,48 @@
 <?php
 
-namespace Entities;
+require_once __DIR__ . '/BaseEntity.php';
 
 /**
  * Country Entity
- * Represents countries with continent association
  */
-class Country extends BaseEntity
-{
-    protected ?string $name = null;
-    protected ?int $continent_id = null;
+class Country extends BaseEntity {
+    protected $table = 'countries';
+    protected $fillable = ['name', 'continent_id'];
 
-    public static function getTableName(): string
-    {
-        return 'country';
-    }
-
-    protected function getFillableAttributes(): array
-    {
-        return ['name', 'continent_id'];
-    }
-
-    protected function getValidationRules(): array
-    {
-        return [
-            'name' => ['required', 'min:2', 'max:100'],
-            'continent_id' => ['required', 'numeric'],
-        ];
+    /**
+     * Get continent for this country
+     */
+    public function getContinent($countryId) {
+        $sql = "SELECT c.* FROM continents c
+                JOIN countries co ON co.continent_id = c.id
+                WHERE co.id = ? AND c.deleted_at IS NULL";
+        return $this->queryOne($sql, [$countryId]);
     }
 
     /**
-     * Get the continent this country belongs to
+     * Get all languages in this country
      */
-    public function getContinent(): ?Continent
-    {
-        return Continent::find($this->continent_id);
-    }
-
-    /**
-     * Get all languages spoken in this country
-     */
-    public function getLanguages(): array
-    {
-        return Language::where('country_id = :country_id', ['country_id' => $this->id]);
-    }
-
-    /**
-     * Get all postal addresses in this country
-     */
-    public function getPostalAddresses(): array
-    {
-        return PostalAddress::where('country_id = :country_id', ['country_id' => $this->id]);
-    }
-
-    /**
-     * Count languages in this country
-     */
-    public function countLanguages(): int
-    {
-        return Language::count('country_id = :country_id', ['country_id' => $this->id]);
-    }
-
-    /**
-     * Search countries by name
-     */
-    public static function searchByName(string $query): array
-    {
-        return static::search($query, ['name']);
+    public function getLanguages($countryId) {
+        $sql = "SELECT * FROM languages WHERE country_id = ? AND deleted_at IS NULL ORDER BY name";
+        return $this->query($sql, [$countryId]);
     }
 
     /**
      * Get countries by continent
      */
-    public static function getByContinent(int $continentId): array
-    {
-        return static::where('continent_id = :continent_id', ['continent_id' => $continentId]);
+    public function getByContinent($continentId) {
+        return $this->all(['continent_id' => $continentId], 'name ASC');
+    }
+
+    /**
+     * Validate country data
+     */
+    public function validateData($data, $id = null) {
+        $rules = [
+            'name' => 'required|min:2|max:100',
+            'continent_id' => 'required|integer',
+        ];
+
+        return $this->validate($data, $rules);
     }
 }

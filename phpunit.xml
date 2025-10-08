@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.0/phpunit.xsd"
-         bootstrap="tests/bootstrap.php"
-         colors="true"
-         cacheDirectory=".phpunit.cache">
+         bootstrap="bootstrap.php"
+         colors="true">
     <testsuites>
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
@@ -13,16 +12,10 @@
         </testsuite>
     </testsuites>
     <coverage>
-        <report>
-            <html outputDirectory="tests/coverage"/>
-        </report>
-    </coverage>
-    <source>
         <include>
-            <directory suffix=".php">lib</directory>
-            <directory suffix=".php">entities</directory>
-            <directory suffix=".php">processes</directory>
-            <directory suffix=".php">services</directory>
+            <directory>lib</directory>
+            <directory>entities</directory>
+            <directory>services</directory>
         </include>
-    </source>
+    </coverage>
 </phpunit>

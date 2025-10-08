@@ -1,6 +1,6 @@
 {
-    "name": "v4l/Vocal 4 Local",
-    "description": "V4L - Vocal 4 Local Geo-Intelligent Marketplace Platform",
+    "name": "v4l/vocal-4-local",
+    "description": "V4L - Your Community, Your Marketplace",
     "type": "project",
     "require": {
         "php": ">=8.1"
@@ -12,7 +12,6 @@
         "psr-4": {
             "App\\": "lib/",
             "Entities\\": "entities/",
-            "Processes\\": "processes/",
             "Services\\": "services/"
         }
     },

@@ -1,194 +1,119 @@
 <?php
 
-namespace App;
-
-use PDO;
-use PDOException;
-
 /**
- * Database connection and query builder class
+ * Database class - handles database connections and queries
  */
-class Database
-{
-    private static ?PDO $connection = null;
-    private static array $config = [];
+class Database {
+    private static $instance = null;
+    private $pdo;
+    private $config;
 
-    /**
-     * Initialize database configuration
-     */
-    public static function init(array $config): void
-    {
-        self::$config = $config;
+    public function __construct() {
+        $this->config = config('database');
+        $this->connect();
     }
 
-    /**
-     * Get PDO connection instance (Singleton pattern)
-     */
-    public static function getConnection(): PDO
-    {
-        if (self::$connection === null) {
-            self::connect();
+    public static function getInstance() {
+        if (self::$instance === null) {
+            self::$instance = new self();
         }
-        return self::$connection;
+        return self::$instance;
     }
 
-    /**
-     * Establish database connection
-     */
-    private static function connect(): void
-    {
-        $driver = self::$config['connection'] ?? 'sqlite';
-        $config = self::$config[$driver] ?? [];
+    private function connect() {
+        $connection = $this->config['connection'];
+        $config = $this->config['connections'][$connection];
 
         try {
-            switch ($driver) {
-                case 'sqlite':
-                    $dsn = "sqlite:{$config['database']}";
-                    self::$connection = new PDO($dsn);
-                    // Enable foreign keys for SQLite
-                    self::$connection->exec('PRAGMA foreign_keys = ON');
-                    break;
-
-                case 'mysql':
-                    $dsn = "mysql:host={$config['host']};port={$config['port']};dbname={$config['database']};charset={$config['charset']}";
-                    self::$connection = new PDO($dsn, $config['username'], $config['password']);
-                    break;
-
-                case 'pgsql':
-                    $dsn = "pgsql:host={$config['host']};port={$config['port']};dbname={$config['database']}";
-                    self::$connection = new PDO($dsn, $config['username'], $config['password']);
-                    break;
-
-                default:
-                    throw new PDOException("Unsupported database driver: {$driver}");
+            if ($connection === 'sqlite') {
+                $this->pdo = new PDO(
+                    'sqlite:' . $config['database'],
+                    null,
+                    null,
+                    $config['options']
+                );
+                // Enable foreign keys for SQLite
+                $this->pdo->exec('PRAGMA foreign_keys = ON');
+            } else if ($connection === 'mysql') {
+                $dsn = sprintf(
+                    'mysql:host=%s;port=%s;dbname=%s;charset=%s',
+                    $config['host'],
+                    $config['port'],
+                    $config['database'],
+                    $config['charset']
+                );
+                $this->pdo = new PDO(
+                    $dsn,
+                    $config['username'],
+                    $config['password'],
+                    $config['options']
+                );
             }
-
-            // Set PDO attributes
-            self::$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            self::$connection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-            self::$connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-
         } catch (PDOException $e) {
-            throw new PDOException("Database connection failed: " . $e->getMessage());
+            error_log('Database connection failed: ' . $e->getMessage());
+            throw new Exception('Database connection failed');
         }
     }
 
-    /**
-     * Execute a query with parameters
-     */
-    public static function query(string $sql, array $params = []): \PDOStatement
-    {
-        $stmt = self::getConnection()->prepare($sql);
-        $stmt->execute($params);
-        return $stmt;
+    public function getPDO() {
+        return $this->pdo;
     }
 
-    /**
-     * Fetch all rows
-     */
-    public static function fetchAll(string $sql, array $params = []): array
-    {
-        return self::query($sql, $params)->fetchAll();
-    }
-
-    /**
-     * Fetch single row
-     */
-    public static function fetchOne(string $sql, array $params = []): ?array
-    {
-        $result = self::query($sql, $params)->fetch();
-        return $result ?: null;
-    }
-
-    /**
-     * Insert record and return last insert ID
-     */
-    public static function insert(string $table, array $data): int
-    {
-        $columns = implode(', ', array_keys($data));
-        $placeholders = ':' . implode(', :', array_keys($data));
-
-        $sql = "INSERT INTO {$table} ({$columns}) VALUES ({$placeholders})";
-        self::query($sql, $data);
-
-        return (int)self::getConnection()->lastInsertId();
-    }
-
-    /**
-     * Update records
-     */
-    public static function update(string $table, array $data, string $where, array $params = []): int
-    {
-        $set = [];
-        foreach (array_keys($data) as $key) {
-            $set[] = "{$key} = :{$key}";
+    public function query($sql, $params = []) {
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute($params);
+            return $stmt;
+        } catch (PDOException $e) {
+            error_log('Query failed: ' . $e->getMessage() . ' | SQL: ' . $sql);
+            throw $e;
         }
-        $setClause = implode(', ', $set);
+    }
 
-        $sql = "UPDATE {$table} SET {$setClause} WHERE {$where}";
-        $stmt = self::query($sql, array_merge($data, $params));
+    public function select($sql, $params = []) {
+        $stmt = $this->query($sql, $params);
+        return $stmt->fetchAll();
+    }
 
+    public function selectOne($sql, $params = []) {
+        $stmt = $this->query($sql, $params);
+        return $stmt->fetch();
+    }
+
+    public function insert($sql, $params = []) {
+        $this->query($sql, $params);
+        return $this->pdo->lastInsertId();
+    }
+
+    public function update($sql, $params = []) {
+        $stmt = $this->query($sql, $params);
         return $stmt->rowCount();
     }
 
-    /**
-     * Delete records
-     */
-    public static function delete(string $table, string $where, array $params = []): int
-    {
-        $sql = "DELETE FROM {$table} WHERE {$where}";
-        $stmt = self::query($sql, $params);
+    public function delete($sql, $params = []) {
+        $stmt = $this->query($sql, $params);
         return $stmt->rowCount();
     }
 
-    /**
-     * Begin transaction
-     */
-    public static function beginTransaction(): bool
-    {
-        return self::getConnection()->beginTransaction();
+    public function beginTransaction() {
+        return $this->pdo->beginTransaction();
     }
 
-    /**
-     * Commit transaction
-     */
-    public static function commit(): bool
-    {
-        return self::getConnection()->commit();
+    public function commit() {
+        return $this->pdo->commit();
     }
 
-    /**
-     * Rollback transaction
-     */
-    public static function rollback(): bool
-    {
-        return self::getConnection()->rollBack();
+    public function rollBack() {
+        return $this->pdo->rollBack();
     }
 
-    /**
-     * Check if table exists
-     */
-    public static function tableExists(string $table): bool
-    {
-        $driver = self::$config['connection'] ?? 'sqlite';
-
-        if ($driver === 'sqlite') {
-            $sql = "SELECT name FROM sqlite_master WHERE type='table' AND name=:table";
-        } else if ($driver === 'mysql') {
-            $sql = "SHOW TABLES LIKE :table";
-        } else {
-            $sql = "SELECT table_name FROM information_schema.tables WHERE table_name=:table";
-        }
-
-        $result = self::fetchOne($sql, ['table' => $table]);
-        return $result !== null;
+    public function tableExists($tableName) {
+        $sql = "SELECT name FROM sqlite_master WHERE type='table' AND name=?";
+        $result = $this->selectOne($sql, [$tableName]);
+        return !empty($result);
     }
 
-    /**
-     * Execute raw SQL
-     */
-    public static function exec(string $sql): int
-    {
-        return self::getConnection()->exec($sql);
+    public function createTable($sql) {
+        return $this->pdo->exec($sql);
     }
 }

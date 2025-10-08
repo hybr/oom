@@ -1,165 +1,87 @@
 <?php
 
-namespace App;
-
 /**
- * Router class for handling URL routing
+ * Router class - handles URL routing
  */
-class Router
-{
-    private array $routes = [];
-    private string $basePath = '';
+class Router {
+    private $routes = [];
+    private $baseUrl;
 
-    public function __construct(string $basePath = '')
-    {
-        $this->basePath = rtrim($basePath, '/');
+    public function __construct() {
+        $this->baseUrl = config('app.url');
     }
 
-    /**
-     * Add a GET route
-     */
-    public function get(string $path, callable $handler, array $middleware = []): void
-    {
-        $this->addRoute('GET', $path, $handler, $middleware);
+    public function get($path, $handler) {
+        $this->addRoute('GET', $path, $handler);
     }
 
-    /**
-     * Add a POST route
-     */
-    public function post(string $path, callable $handler, array $middleware = []): void
-    {
-        $this->addRoute('POST', $path, $handler, $middleware);
+    public function post($path, $handler) {
+        $this->addRoute('POST', $path, $handler);
     }
 
-    /**
-     * Add a PUT route
-     */
-    public function put(string $path, callable $handler): void
-    {
+    public function put($path, $handler) {
         $this->addRoute('PUT', $path, $handler);
     }
 
-    /**
-     * Add a DELETE route
-     */
-    public function delete(string $path, callable $handler): void
-    {
+    public function delete($path, $handler) {
         $this->addRoute('DELETE', $path, $handler);
     }
 
-    /**
-     * Add a route for any method
-     */
-    public function any(string $path, callable $handler): void
-    {
-        $this->addRoute('*', $path, $handler);
-    }
-
-    /**
-     * Add a route
-     */
-    private function addRoute(string $method, string $path, callable $handler, array $middleware = []): void
-    {
-        $pattern = $this->convertToRegex($path);
+    private function addRoute($method, $path, $handler) {
         $this->routes[] = [
             'method' => $method,
             'path' => $path,
-            'pattern' => $pattern,
             'handler' => $handler,
-            'middleware' => $middleware,
         ];
     }
 
-    /**
-     * Convert route path to regex pattern
-     */
-    private function convertToRegex(string $path): string
-    {
-        // Convert {param} to named capture groups
-        $pattern = preg_replace('/\{([a-zA-Z0-9_]+)\}/', '(?P<$1>[^/]+)', $path);
-        $pattern = '#^' . $this->basePath . $pattern . '$#';
-        return $pattern;
-    }
+    public function dispatch() {
+        $requestMethod = $_SERVER['REQUEST_METHOD'];
+        $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-    /**
-     * Dispatch the request
-     */
-    public function dispatch(): void
-    {
-        $method = $_SERVER['REQUEST_METHOD'];
-        $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+        // Remove base path if present
+        $scriptName = dirname($_SERVER['SCRIPT_NAME']);
+        if ($scriptName !== '/') {
+            $requestUri = substr($requestUri, strlen($scriptName));
+        }
+        $requestUri = '/' . trim($requestUri, '/');
 
         foreach ($this->routes as $route) {
-            if ($route['method'] !== '*' && $route['method'] !== $method) {
+            if ($route['method'] !== $requestMethod) {
                 continue;
             }
 
-            if (preg_match($route['pattern'], $uri, $matches)) {
-                // Extract named parameters
-                $params = array_filter($matches, 'is_string', ARRAY_FILTER_USE_KEY);
-
-                // Run middleware
-                if (isset($route['middleware'])) {
-                    foreach ($route['middleware'] as $middleware) {
-                        if (is_callable($middleware)) {
-                            $middleware();
-                        }
-                    }
-                }
-
-                // Call the handler
-                call_user_func_array($route['handler'], [$params]);
-                return;
+            $pattern = $this->convertPathToRegex($route['path']);
+            if (preg_match($pattern, $requestUri, $matches)) {
+                array_shift($matches); // Remove full match
+                return $this->callHandler($route['handler'], $matches);
             }
         }
 
-        // No route found - 404
+        // No route matched
         http_response_code(404);
-        $this->render404();
-    }
-
-    /**
-     * Render 404 page
-     */
-    private function render404(): void
-    {
-        echo '<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Page Not Found</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-    <div class="container mt-5">
-        <div class="row justify-content-center">
-            <div class="col-md-6 text-center">
-                <h1 class="display-1">404</h1>
-                <h2>Page Not Found</h2>
-                <p class="text-muted">The page you are looking for does not exist.</p>
-                <a href="/" class="btn btn-primary">Go Home</a>
-            </div>
-        </div>
-    </div>
-</body>
-</html>';
-    }
-
-    /**
-     * Redirect to URL
-     */
-    public static function redirect(string $url, int $code = 302): void
-    {
-        header("Location: {$url}", true, $code);
+        require __DIR__ . '/../public/pages/errors/404.php';
         exit;
     }
 
-    /**
-     * Generate URL from path
-     */
-    public function url(string $path): string
-    {
-        return $this->basePath . $path;
+    private function convertPathToRegex($path) {
+        // Convert {id} to named capture group
+        $pattern = preg_replace('/\{([a-zA-Z0-9_]+)\}/', '(?P<$1>[^/]+)', $path);
+        return '#^' . $pattern . '$#';
+    }
+
+    private function callHandler($handler, $params) {
+        if (is_callable($handler)) {
+            return call_user_func_array($handler, $params);
+        }
+
+        if (is_string($handler)) {
+            require $handler;
+            return;
+        }
+    }
+
+    public function url($path) {
+        return $this->baseUrl . '/' . ltrim($path, '/');
     }
 }

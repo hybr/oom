@@ -1,37 +1,33 @@
 <?php
-/**
- * Delete Continent Action
- */
+require_once __DIR__ . '/../../../../bootstrap.php';
 
-use Entities\Continent;
+auth()->requireAuth();
 
-$id = $_POST['id'] ?? $_GET['id'] ?? null;
+require_once ENTITIES_PATH . '/Continent.php';
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !$id) {
-    redirect('/continents');
-    exit;
+$id = $_GET['id'] ?? null;
+
+if (!$id) {
+    redirect('/pages/entities/continents/list.php');
 }
 
-// CSRF verification
-if (!verify_csrf()) {
-    $_SESSION['error'] = 'Invalid request';
-    redirect('/continents');
-    exit;
+$continent = new Continent();
+$record = $continent->find($id);
+
+if (!$record) {
+    $_SESSION['error'] = 'Continent not found.';
+    redirect('/pages/entities/continents/list.php');
 }
 
-$continent = Continent::find($id);
+try {
+    // Soft delete
+    $continent->delete($id);
 
-if (!$continent) {
-    $_SESSION['error'] = 'Continent not found';
-    redirect('/continents');
-    exit;
+    success('Continent "' . $record['name'] . '" deleted successfully!');
+    redirect('/pages/entities/continents/list.php');
+
+} catch (Exception $e) {
+    error_log('Error deleting continent: ' . $e->getMessage());
+    $_SESSION['error'] = 'An error occurred while deleting the continent. It may have related records.';
+    redirect('/pages/entities/continents/detail.php?id=' . $id);
 }
-
-// Soft delete
-if ($continent->delete()) {
-    $_SESSION['success'] = 'Continent deleted successfully!';
-} else {
-    $_SESSION['error'] = 'Failed to delete continent';
-}
-
-redirect('/continents');

@@ -1,182 +1,164 @@
 <?php
 
-/**
- * Bootstrap file - Initialize the application
- */
+// Bootstrap file - initializes the application
 
-// Set flag to indicate bootstrap has been loaded
-$BOOTSTRAP_LOADED = true;
+// Error reporting
+error_reporting(E_ALL);
+ini_set('display_errors', '1');
 
-// Start session
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+// Define paths
+define('ROOT_PATH', __DIR__);
+define('CONFIG_PATH', ROOT_PATH . '/config');
+define('ENTITIES_PATH', ROOT_PATH . '/entities');
+define('LIB_PATH', ROOT_PATH . '/lib');
+define('SERVICES_PATH', ROOT_PATH . '/services');
+define('PUBLIC_PATH', ROOT_PATH . '/public');
+define('LOGS_PATH', ROOT_PATH . '/logs');
+define('UPLOADS_PATH', ROOT_PATH . '/uploads');
 
 // Load environment variables from .env file
-if (file_exists(__DIR__ . '/.env')) {
-    $lines = file(__DIR__ . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+if (file_exists(ROOT_PATH . '/.env')) {
+    $lines = file(ROOT_PATH . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     foreach ($lines as $line) {
         if (strpos(trim($line), '#') === 0) {
             continue;
         }
-
         list($name, $value) = explode('=', $line, 2);
         $name = trim($name);
         $value = trim($value);
-
-        if (!array_key_exists($name, $_ENV)) {
-            $_ENV[$name] = $value;
-            putenv("{$name}={$value}");
+        if (!getenv($name)) {
+            putenv("$name=$value");
         }
     }
 }
 
-// Composer autoloader
-if (file_exists(__DIR__ . '/vendor/autoload.php')) {
-    require_once __DIR__ . '/vendor/autoload.php';
-}
+// Load configuration
+function config($key, $default = null) {
+    static $config = [];
 
-// Manual autoloader for entities and lib
-spl_autoload_register(function ($class) {
-    $prefixes = [
-        'App\\' => __DIR__ . '/lib/',
-        'Entities\\' => __DIR__ . '/entities/',
-        'Processes\\' => __DIR__ . '/processes/',
-        'Services\\' => __DIR__ . '/services/',
-    ];
+    $parts = explode('.', $key);
+    $file = array_shift($parts);
 
-    foreach ($prefixes as $prefix => $baseDir) {
-        $len = strlen($prefix);
-        if (strncmp($prefix, $class, $len) !== 0) {
-            continue;
-        }
-
-        $relativeClass = substr($class, $len);
-        $file = $baseDir . str_replace('\\', '/', $relativeClass) . '.php';
-
-        if (file_exists($file)) {
-            require $file;
-            return;
-        }
-    }
-});
-
-// Load configuration files
-$config = [];
-$config['app'] = require __DIR__ . '/config/app.php';
-$config['database'] = require __DIR__ . '/config/database.php';
-$config['websocket'] = require __DIR__ . '/config/websocket.php';
-
-// Initialize Database
-\App\Database::init($config['database']);
-
-// Error handling based on environment
-if ($config['app']['debug']) {
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
-} else {
-    error_reporting(0);
-    ini_set('display_errors', 0);
-}
-
-// Set timezone
-date_default_timezone_set($config['app']['timezone'] ?? 'UTC');
-
-// Helper functions
-function view(string $file, array $data = []): void
-{
-    extract($data);
-    require __DIR__ . '/views/' . $file . '.php';
-}
-
-function config(string $key, $default = null)
-{
-    global $config;
-    $keys = explode('.', $key);
-    $value = $config;
-
-    foreach ($keys as $k) {
-        if (!isset($value[$k])) {
+    if (!isset($config[$file])) {
+        $configFile = CONFIG_PATH . '/' . $file . '.php';
+        if (file_exists($configFile)) {
+            $config[$file] = require $configFile;
+        } else {
             return $default;
         }
-        $value = $value[$k];
+    }
+
+    $value = $config[$file];
+    foreach ($parts as $part) {
+        if (isset($value[$part])) {
+            $value = $value[$part];
+        } else {
+            return $default;
+        }
     }
 
     return $value;
 }
 
-function redirect(string $url, int $code = 302): void
-{
-    header("Location: {$url}", true, $code);
+// Autoloader
+spl_autoload_register(function ($class) {
+    $paths = [
+        LIB_PATH,
+        ENTITIES_PATH,
+        SERVICES_PATH,
+    ];
+
+    foreach ($paths as $path) {
+        $file = $path . '/' . $class . '.php';
+        if (file_exists($file)) {
+            require_once $file;
+            return;
+        }
+    }
+});
+
+// Session configuration
+ini_set('session.cookie_httponly', config('app.session.http_only', true));
+ini_set('session.use_strict_mode', 1);
+ini_set('session.cookie_samesite', 'Lax');
+
+if (!session_id()) {
+    session_name(config('app.session.name', 'V4L_SESSION'));
+    session_start();
+}
+
+// Timezone
+date_default_timezone_set(config('app.timezone', 'UTC'));
+
+// Helper functions
+function escape($string) {
+    return htmlspecialchars($string ?? '', ENT_QUOTES, 'UTF-8');
+}
+
+function old($key, $default = '') {
+    return $_SESSION['old'][$key] ?? $default;
+}
+
+function error($key) {
+    return $_SESSION['errors'][$key] ?? null;
+}
+
+function clearOldInput() {
+    unset($_SESSION['old'], $_SESSION['errors']);
+}
+
+function redirect($url) {
+    header("Location: $url");
     exit;
 }
 
-function asset(string $path): string
-{
-    return '/assets/' . ltrim($path, '/');
-}
-
-function url(string $path = ''): string
-{
-    $baseUrl = config('app.url', 'http://localhost');
-    return rtrim($baseUrl, '/') . '/' . ltrim($path, '/');
-}
-
-function old(string $key, $default = ''): string
-{
-    return $_SESSION['_old'][$key] ?? $default;
-}
-
-function errors(string $key = null)
-{
-    if ($key === null) {
-        return $_SESSION['_errors'] ?? [];
+function auth() {
+    static $auth = null;
+    if ($auth === null) {
+        $auth = new Auth();
     }
-    return $_SESSION['_errors'][$key] ?? null;
+    return $auth;
 }
 
-function session(string $key, $default = null)
-{
-    return $_SESSION[$key] ?? $default;
-}
-
-function auth(): ?object
-{
-    if (!isset($_SESSION['user_id'])) {
-        return null;
+function db() {
+    static $db = null;
+    if ($db === null) {
+        $db = new Database();
     }
-
-    static $user = null;
-    if ($user === null) {
-        $user = \Entities\Person::find($_SESSION['user_id']);
-    }
-
-    return $user;
+    return $db;
 }
 
-function csrf_token(): string
-{
-    if (!isset($_SESSION['_csrf_token'])) {
-        $_SESSION['_csrf_token'] = bin2hex(random_bytes(32));
-    }
-    return $_SESSION['_csrf_token'];
+function success($message) {
+    $_SESSION['success'] = $message;
 }
 
-function csrf_field(): string
-{
-    return '<input type="hidden" name="_csrf_token" value="' . csrf_token() . '">';
+function flash($key) {
+    $value = $_SESSION[$key] ?? null;
+    unset($_SESSION[$key]);
+    return $value;
 }
 
-function verify_csrf(): bool
-{
-    $token = $_POST['_csrf_token'] ?? $_GET['_csrf_token'] ?? '';
-    return hash_equals($_SESSION['_csrf_token'] ?? '', $token);
+function asset($path) {
+    // Auto-detect the base URL from the current request
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost:8000';
+    $baseUrl = $protocol . '://' . $host;
+
+    return $baseUrl . '/assets/' . ltrim($path, '/');
 }
 
-// Clear old input and errors after use
-if (isset($_SESSION['_old'])) {
-    unset($_SESSION['_old']);
+function url($path = '') {
+    // Auto-detect the base URL from the current request
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost:8000';
+    $baseUrl = $protocol . '://' . $host;
+
+    return $baseUrl . '/' . ltrim($path, '/');
 }
-if (isset($_SESSION['_errors'])) {
-    unset($_SESSION['_errors']);
+
+function json_response($data, $statusCode = 200) {
+    http_response_code($statusCode);
+    header('Content-Type: application/json');
+    echo json_encode($data);
+    exit;
 }

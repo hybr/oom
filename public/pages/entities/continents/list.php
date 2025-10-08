@@ -1,150 +1,148 @@
 <?php
-/**
- * Continents List Page
- */
-
 require_once __DIR__ . '/../../../../bootstrap.php';
 
-use Entities\Continent;
+auth()->requireAuth();
 
-$pageTitle = 'Continents';
+require_once ENTITIES_PATH . '/Continent.php';
 
-// Pagination
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$perPage = isset($_GET['per_page']) ? (int)$_GET['per_page'] : 25;
-$offset = ($page - 1) * $perPage;
-
-// Search
+$continent = new Continent();
+$page = $_GET['page'] ?? 1;
+$perPage = $_GET['per_page'] ?? 25;
 $search = $_GET['search'] ?? '';
 
-// Get continents
+// Search filter
+$conditions = [];
 if ($search) {
-    $continents = Continent::searchByName($search);
-    $total = count($continents);
-    $continents = array_slice($continents, $offset, $perPage);
+    // Note: This is simplified. For proper search, you'd need to modify the all() method
+    $records = $continent->search('name', $search);
+    $totalRecords = count($records);
+    $totalPages = 1;
 } else {
-    $continents = Continent::all($perPage, $offset);
-    $total = Continent::count();
+    $pagination = $continent->paginate($page, $perPage, $conditions);
+    $records = $pagination['data'];
+    $totalPages = $pagination['total_pages'];
+    $totalRecords = $pagination['total_records'];
 }
 
-$totalPages = ceil($total / $perPage);
-
-include __DIR__ . '/../../../../includes/header.php';
+$pageTitle = 'Continents';
+require_once __DIR__ . '/../../../../includes/header.php';
 ?>
 
-<div class="container-fluid mt-4">
-    <div class="row">
-        <div class="col-md-12">
-            <!-- Header -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1>
-                    <i class="bi bi-globe"></i> Continents
-                </h1>
-                <a href="/continents/create" class="btn btn-primary">
-                    <i class="bi bi-plus-circle"></i> Add Continent
-                </a>
-            </div>
+<div class="container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="<?php echo url('/'); ?>">Home</a></li>
+            <li class="breadcrumb-item"><a href="<?php echo url('pages/dashboard.php'); ?>">Dashboard</a></li>
+            <li class="breadcrumb-item active">Continents</li>
+        </ol>
+    </nav>
 
-            <!-- Search & Filter -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <form method="GET" class="row g-3">
-                        <div class="col-md-6">
-                            <input type="text" name="search" class="form-control" placeholder="Search continents..." value="<?= htmlspecialchars($search) ?>">
-                        </div>
-                        <div class="col-md-3">
-                            <select name="per_page" class="form-select">
-                                <option value="10" <?= $perPage == 10 ? 'selected' : '' ?>>10 per page</option>
-                                <option value="25" <?= $perPage == 25 ? 'selected' : '' ?>>25 per page</option>
-                                <option value="50" <?= $perPage == 50 ? 'selected' : '' ?>>50 per page</option>
-                                <option value="100" <?= $perPage == 100 ? 'selected' : '' ?>>100 per page</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <button type="submit" class="btn btn-secondary w-100">
-                                <i class="bi bi-search"></i> Search
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    <!-- Page Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1><i class="bi bi-globe"></i> Continents</h1>
+        <a href="create.php" class="btn btn-primary">
+            <i class="bi bi-plus-circle"></i> Add New Continent
+        </a>
+    </div>
 
-            <!-- Table -->
-            <div class="card">
-                <div class="card-header">
-                    <h5 class="mb-0">
-                        All Continents (<?= $total ?>)
-                    </h5>
+    <!-- Search and Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-6">
+                    <input type="text" name="search" class="form-control" placeholder="Search continents..." value="<?php echo escape($search); ?>">
                 </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-hover">
-                            <thead>
+                <div class="col-md-3">
+                    <select name="per_page" class="form-select">
+                        <option value="10" <?php echo $perPage == 10 ? 'selected' : ''; ?>>10 per page</option>
+                        <option value="25" <?php echo $perPage == 25 ? 'selected' : ''; ?>>25 per page</option>
+                        <option value="50" <?php echo $perPage == 50 ? 'selected' : ''; ?>>50 per page</option>
+                        <option value="100" <?php echo $perPage == 100 ? 'selected' : ''; ?>>100 per page</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Results Summary -->
+    <div class="alert alert-info">
+        Showing <strong><?php echo count($records); ?></strong> of <strong><?php echo $totalRecords; ?></strong> continents
+    </div>
+
+    <!-- Data Table -->
+    <div class="card">
+        <div class="card-body">
+            <?php if (empty($records)): ?>
+                <div class="alert alert-warning">
+                    <i class="bi bi-info-circle"></i> No continents found. <a href="create.php">Create one now</a>.
+                </div>
+            <?php else: ?>
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Created At</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($records as $record): ?>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>Name</th>
-                                    <th>Countries</th>
-                                    <th>Created</th>
-                                    <th>Actions</th>
+                                    <td><?php echo escape($record['id']); ?></td>
+                                    <td><?php echo escape($record['name']); ?></td>
+                                    <td><?php echo escape($record['created_at']); ?></td>
+                                    <td class="text-nowrap">
+                                        <a href="detail.php?id=<?php echo $record['id']; ?>" class="btn btn-sm btn-info me-1" title="View">
+                                            <i class="bi bi-eye"></i>
+                                        </a>
+                                        <a href="edit.php?id=<?php echo $record['id']; ?>" class="btn btn-sm btn-warning me-1" title="Edit">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="delete.php?id=<?php echo $record['id']; ?>" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm('Are you sure you want to delete this continent?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (empty($continents)): ?>
-                                    <tr>
-                                        <td colspan="5" class="text-center text-muted py-4">
-                                            <i class="bi bi-inbox"></i> No continents found
-                                        </td>
-                                    </tr>
-                                <?php else: ?>
-                                    <?php foreach ($continents as $continent): ?>
-                                        <tr>
-                                            <td><?= $continent->id ?></td>
-                                            <td>
-                                                <a href="/continents/<?= $continent->id ?>" class="text-decoration-none">
-                                                    <strong><?= htmlspecialchars($continent->name) ?></strong>
-                                                </a>
-                                            </td>
-                                            <td>
-                                                <span class="badge bg-info"><?= $continent->countCountries() ?> countries</span>
-                                            </td>
-                                            <td>
-                                                <small class="text-muted">
-                                                    <?= date('M d, Y', strtotime($continent->created_at)) ?>
-                                                </small>
-                                            </td>
-                                            <td>
-                                                <div class="btn-group btn-group-sm" role="group">
-                                                    <a href="/continents/<?= $continent->id ?>" class="btn btn-outline-primary" title="View">
-                                                        <i class="bi bi-eye"></i>
-                                                    </a>
-                                                    <a href="/continents/<?= $continent->id ?>/edit" class="btn btn-outline-secondary" title="Edit">
-                                                        <i class="bi bi-pencil"></i>
-                                                    </a>
-                                                    <form method="POST" action="/continents/<?= $continent->id ?>/delete" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this continent?');">
-                                                        <?= csrf_field() ?>
-                                                        <button type="submit" class="btn btn-outline-danger" title="Delete">
-                                                            <i class="bi bi-trash"></i>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Pagination -->
-                    <?php
-                    $currentPage = $page;
-                    $baseUrl = '/continents';
-                    include __DIR__ . '/../../../../views/components/pagination.php';
-                    ?>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
                 </div>
-            </div>
+
+                <!-- Pagination -->
+                <?php if ($totalPages > 1): ?>
+                    <nav class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <?php if ($page > 1): ?>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=<?php echo $page - 1; ?>&per_page=<?php echo $perPage; ?>&search=<?php echo urlencode($search); ?>">Previous</a>
+                                </li>
+                            <?php endif; ?>
+
+                            <?php for ($i = max(1, $page - 2); $i <= min($totalPages, $page + 2); $i++): ?>
+                                <li class="page-item <?php echo $i == $page ? 'active' : ''; ?>">
+                                    <a class="page-link" href="?page=<?php echo $i; ?>&per_page=<?php echo $perPage; ?>&search=<?php echo urlencode($search); ?>"><?php echo $i; ?></a>
+                                </li>
+                            <?php endfor; ?>
+
+                            <?php if ($page < $totalPages): ?>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=<?php echo $page + 1; ?>&per_page=<?php echo $perPage; ?>&search=<?php echo urlencode($search); ?>">Next</a>
+                                </li>
+                            <?php endif; ?>
+                        </ul>
+                    </nav>
+                <?php endif; ?>
+            <?php endif; ?>
         </div>
     </div>
 </div>
 
-<?php include __DIR__ . '/../../../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../../../includes/footer.php'; ?>

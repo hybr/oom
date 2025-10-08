@@ -300,7 +300,7 @@ valid_to
 status (Active / Revoked)
 -------------------------------------------------------------------------------------
 
-CATALOG DOMAIN (Revised for V4L Multi-Organization Architecture)
+CATALOG DOMAIN
 =====================================================================================
 
 CATALOG_CATEGORY

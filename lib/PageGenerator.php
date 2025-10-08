@@ -1,150 +1,221 @@
 <?php
 
-namespace App;
-
 /**
- * Page Generator Utility
- * Generates CRUD pages for entities
+ * PageGenerator class - generates CRUD pages for entities
  */
-class PageGenerator
-{
+class PageGenerator {
+
     /**
-     * Generate all CRUD pages for an entity
+     * Generate table HTML for list view
      */
-    public static function generatePages(string $entityClass, string $entityFolder, array $config = []): void
-    {
-        $config = array_merge([
-            'displayName' => ucfirst(str_replace('_', ' ', $entityFolder)),
-            'pluralName' => $entityFolder,
-            'icon' => 'bi-file-earmark',
-            'fields' => [],
-            'searchFields' => [],
-        ], $config);
+    public static function generateTable($columns, $data, $entityName, $actions = ['view', 'edit', 'delete']) {
+        $html = '<div class="table-responsive">';
+        $html .= '<table class="table table-striped table-hover">';
+        $html .= '<thead class="table-dark"><tr>';
 
-        $basePath = __DIR__ . '/../public/pages/entities/' . $entityFolder;
+        // Checkbox for bulk actions
+        $html .= '<th><input type="checkbox" id="select-all"></th>';
 
-        if (!is_dir($basePath)) {
-            mkdir($basePath, 0755, true);
+        // Column headers
+        foreach ($columns as $key => $label) {
+            $html .= '<th>' . escape($label) . '</th>';
         }
 
-        // Generate list page
-        self::generateListPage($basePath, $entityClass, $config);
+        $html .= '<th>Actions</th>';
+        $html .= '</tr></thead><tbody>';
 
-        // Generate detail page
-        self::generateDetailPage($basePath, $entityClass, $config);
+        // Data rows
+        foreach ($data as $row) {
+            $html .= '<tr>';
+            $html .= '<td><input type="checkbox" class="select-row" value="' . escape($row['id']) . '"></td>';
 
-        // Generate create page
-        self::generateCreatePage($basePath, $entityClass, $config);
+            foreach ($columns as $key => $label) {
+                $value = $row[$key] ?? '';
 
-        // Generate edit page
-        self::generateEditPage($basePath, $entityClass, $config);
+                // Format different data types
+                if (strpos($key, '_date') !== false || strpos($key, '_at') !== false) {
+                    $value = $value ? date('Y-m-d H:i', strtotime($value)) : '';
+                } elseif (is_bool($value)) {
+                    $value = $value ? 'Yes' : 'No';
+                } elseif (strlen($value) > 100) {
+                    $value = substr($value, 0, 100) . '...';
+                }
 
-        // Generate action handlers
-        self::generateStore($basePath, $entityClass);
-        self::generateUpdate($basePath, $entityClass);
-        self::generateDelete($basePath, $entityClass);
+                $html .= '<td>' . escape($value) . '</td>';
+            }
 
-        echo "Generated pages for: {$config['displayName']}\n";
+            // Action buttons
+            $html .= '<td class="text-nowrap">';
+
+            if (in_array('view', $actions)) {
+                $html .= '<a href="detail.php?id=' . $row['id'] . '" class="btn btn-sm btn-info me-1" title="View"><i class="bi bi-eye"></i></a>';
+            }
+
+            if (in_array('edit', $actions)) {
+                $html .= '<a href="edit.php?id=' . $row['id'] . '" class="btn btn-sm btn-warning me-1" title="Edit"><i class="bi bi-pencil"></i></a>';
+            }
+
+            if (in_array('delete', $actions)) {
+                $html .= '<a href="delete.php?id=' . $row['id'] . '" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm(\'Are you sure?\')"><i class="bi bi-trash"></i></a>';
+            }
+
+            $html .= '</td>';
+            $html .= '</tr>';
+        }
+
+        $html .= '</tbody></table></div>';
+
+        return $html;
     }
 
-    private static function generateListPage($basePath, $entityClass, $config): void
-    {
-        $content = "<?php\n/**\n * {$config['displayName']} List Page\n */\n\n";
-        $content .= "use {$entityClass};\n\n";
-        $content .= "\$pageTitle = '{$config['displayName']}';\n\n";
-        $content .= "// Pagination\n\$page = isset(\$_GET['page']) ? (int)\$_GET['page'] : 1;\n";
-        $content .= "\$perPage = isset(\$_GET['per_page']) ? (int)\$_GET['per_page'] : 25;\n";
-        $content .= "\$offset = (\$page - 1) * \$perPage;\n\n";
-        $content .= "// Get entities\n";
-        $content .= "\$entities = {$entityClass}::all(\$perPage, \$offset);\n";
-        $content .= "\$total = {$entityClass}::count();\n";
-        $content .= "\$totalPages = ceil(\$total / \$perPage);\n\n";
-        $content .= "include __DIR__ . '/../../../../includes/header.php';\n";
-        $content .= "?>\n\n<div class=\"container-fluid mt-4\">\n";
-        $content .= "    <div class=\"d-flex justify-content-between align-items-center mb-4\">\n";
-        $content .= "        <h1><i class=\"{$config['icon']}\"></i> {$config['displayName']}</h1>\n";
-        $content .= "        <a href=\"/{$config['pluralName']}/create\" class=\"btn btn-primary\"><i class=\"bi bi-plus-circle\"></i> Add New</a>\n";
-        $content .= "    </div>\n";
-        $content .= "    <div class=\"card\"><div class=\"card-body\">\n";
-        $content .= "        <div class=\"table-responsive\"><table class=\"table table-hover\">\n";
-        $content .= "            <thead><tr><th>ID</th><th>Details</th><th>Actions</th></tr></thead>\n";
-        $content .= "            <tbody>\n";
-        $content .= "                <?php foreach (\$entities as \$entity): ?>\n";
-        $content .= "                <tr><td><?= \$entity->id ?></td><td><!-- Add fields --></td>\n";
-        $content .= "                <td><a href=\"/{$config['pluralName']}/<?= \$entity->id ?>\" class=\"btn btn-sm btn-outline-primary\">View</a></td></tr>\n";
-        $content .= "                <?php endforeach; ?>\n";
-        $content .= "            </tbody>\n";
-        $content .= "        </table></div>\n";
-        $content .= "        <?php \$currentPage = \$page; \$baseUrl = '/{$config['pluralName']}'; include __DIR__ . '/../../../../views/components/pagination.php'; ?>\n";
-        $content .= "    </div></div>\n</div>\n<?php include __DIR__ . '/../../../../includes/footer.php'; ?>";
+    /**
+     * Generate pagination HTML
+     */
+    public static function generatePagination($currentPage, $totalPages, $baseUrl) {
+        if ($totalPages <= 1) {
+            return '';
+        }
 
-        file_put_contents($basePath . '/list.php', $content);
+        $html = '<nav><ul class="pagination justify-content-center">';
+
+        // Previous button
+        if ($currentPage > 1) {
+            $html .= '<li class="page-item"><a class="page-link" href="' . $baseUrl . '?page=' . ($currentPage - 1) . '">Previous</a></li>';
+        } else {
+            $html .= '<li class="page-item disabled"><span class="page-link">Previous</span></li>';
+        }
+
+        // Page numbers
+        $start = max(1, $currentPage - 2);
+        $end = min($totalPages, $currentPage + 2);
+
+        if ($start > 1) {
+            $html .= '<li class="page-item"><a class="page-link" href="' . $baseUrl . '?page=1">1</a></li>';
+            if ($start > 2) {
+                $html .= '<li class="page-item disabled"><span class="page-link">...</span></li>';
+            }
+        }
+
+        for ($i = $start; $i <= $end; $i++) {
+            if ($i == $currentPage) {
+                $html .= '<li class="page-item active"><span class="page-link">' . $i . '</span></li>';
+            } else {
+                $html .= '<li class="page-item"><a class="page-link" href="' . $baseUrl . '?page=' . $i . '">' . $i . '</a></li>';
+            }
+        }
+
+        if ($end < $totalPages) {
+            if ($end < $totalPages - 1) {
+                $html .= '<li class="page-item disabled"><span class="page-link">...</span></li>';
+            }
+            $html .= '<li class="page-item"><a class="page-link" href="' . $baseUrl . '?page=' . $totalPages . '">' . $totalPages . '</a></li>';
+        }
+
+        // Next button
+        if ($currentPage < $totalPages) {
+            $html .= '<li class="page-item"><a class="page-link" href="' . $baseUrl . '?page=' . ($currentPage + 1) . '">Next</a></li>';
+        } else {
+            $html .= '<li class="page-item disabled"><span class="page-link">Next</span></li>';
+        }
+
+        $html .= '</ul></nav>';
+
+        return $html;
     }
 
-    private static function generateDetailPage($basePath, $entityClass, $config): void
-    {
-        $content = "<?php\nuse {$entityClass};\n\$id = \$_GET['id'] ?? null;\nif (!\$id) { redirect('/{$config['pluralName']}'); exit; }\n";
-        $content .= "\$entity = {$entityClass}::find(\$id);\nif (!\$entity) { \$_SESSION['error'] = 'Not found'; redirect('/{$config['pluralName']}'); exit; }\n";
-        $content .= "\$pageTitle = \$entity->id;\ninclude __DIR__ . '/../../../../includes/header.php';\n";
-        $content .= "?>\n<div class=\"container-fluid mt-4\"><h1>{$config['displayName']} Details</h1>\n";
-        $content .= "<div class=\"card\"><div class=\"card-body\"><p>ID: <?= \$entity->id ?></p></div></div>\n";
-        $content .= "</div>\n<?php include __DIR__ . '/../../../../includes/footer.php'; ?>";
+    /**
+     * Generate form field HTML
+     */
+    public static function generateFormField($name, $label, $type = 'text', $value = '', $required = false, $options = []) {
+        $html = '<div class="mb-3">';
+        $html .= '<label for="' . $name . '" class="form-label">' . escape($label);
+        if ($required) {
+            $html .= ' <span class="text-danger">*</span>';
+        }
+        $html .= '</label>';
 
-        file_put_contents($basePath . '/detail.php', $content);
+        $oldValue = old($name, $value);
+        $error = error($name);
+        $inputClass = 'form-control' . ($error ? ' is-invalid' : '');
+
+        switch ($type) {
+            case 'textarea':
+                $html .= '<textarea name="' . $name . '" id="' . $name . '" class="' . $inputClass . '" rows="4"';
+                if ($required) $html .= ' required';
+                $html .= '>' . escape($oldValue) . '</textarea>';
+                break;
+
+            case 'select':
+                $html .= '<select name="' . $name . '" id="' . $name . '" class="' . $inputClass . '"';
+                if ($required) $html .= ' required';
+                $html .= '>';
+                $html .= '<option value="">-- Select --</option>';
+                foreach ($options as $optValue => $optLabel) {
+                    $selected = $oldValue == $optValue ? ' selected' : '';
+                    $html .= '<option value="' . escape($optValue) . '"' . $selected . '>' . escape($optLabel) . '</option>';
+                }
+                $html .= '</select>';
+                break;
+
+            case 'checkbox':
+                $checked = $oldValue ? ' checked' : '';
+                $html .= '<div class="form-check">';
+                $html .= '<input type="checkbox" name="' . $name . '" id="' . $name . '" class="form-check-input" value="1"' . $checked . '>';
+                $html .= '<label class="form-check-label" for="' . $name . '">' . escape($label) . '</label>';
+                $html .= '</div>';
+                break;
+
+            case 'date':
+            case 'datetime-local':
+            case 'email':
+            case 'number':
+            case 'url':
+                $html .= '<input type="' . $type . '" name="' . $name . '" id="' . $name . '" class="' . $inputClass . '" value="' . escape($oldValue) . '"';
+                if ($required) $html .= ' required';
+                $html .= '>';
+                break;
+
+            default:
+                $html .= '<input type="text" name="' . $name . '" id="' . $name . '" class="' . $inputClass . '" value="' . escape($oldValue) . '"';
+                if ($required) $html .= ' required';
+                $html .= '>';
+        }
+
+        if ($error) {
+            $html .= '<div class="invalid-feedback">' . escape($error) . '</div>';
+        }
+
+        $html .= '</div>';
+
+        return $html;
     }
 
-    private static function generateCreatePage($basePath, $entityClass, $config): void
-    {
-        $content = "<?php\n\$pageTitle = 'Add {$config['displayName']}';\ninclude __DIR__ . '/../../../../includes/header.php';\n";
-        $content .= "?>\n<div class=\"container-fluid mt-4\"><h1>Add {$config['displayName']}</h1>\n";
-        $content .= "<form method=\"POST\" action=\"/{$config['pluralName']}/store\">\n";
-        $content .= "<?= csrf_field() ?>\n<!-- Add form fields -->\n";
-        $content .= "<button type=\"submit\" class=\"btn btn-primary\">Save</button>\n";
-        $content .= "</form></div>\n<?php include __DIR__ . '/../../../../includes/footer.php'; ?>";
+    /**
+     * Generate detail view HTML
+     */
+    public static function generateDetailView($fields, $data) {
+        $html = '<div class="card"><div class="card-body">';
 
-        file_put_contents($basePath . '/create.php', $content);
-    }
+        foreach ($fields as $key => $label) {
+            $value = $data[$key] ?? '';
 
-    private static function generateEditPage($basePath, $entityClass, $config): void
-    {
-        $content = "<?php\nuse {$entityClass};\n\$id = \$_GET['id'] ?? null;\nif (!\$id) { redirect('/{$config['pluralName']}'); exit; }\n";
-        $content .= "\$entity = {$entityClass}::find(\$id);\nif (!\$entity) { redirect('/{$config['pluralName']}'); exit; }\n";
-        $content .= "\$pageTitle = 'Edit {$config['displayName']}';\ninclude __DIR__ . '/../../../../includes/header.php';\n";
-        $content .= "?>\n<div class=\"container-fluid mt-4\"><h1>Edit {$config['displayName']}</h1>\n";
-        $content .= "<form method=\"POST\" action=\"/{$config['pluralName']}/<?= \$entity->id ?>/update\">\n";
-        $content .= "<?= csrf_field() ?>\n<!-- Add form fields -->\n";
-        $content .= "<button type=\"submit\" class=\"btn btn-primary\">Update</button>\n";
-        $content .= "</form></div>\n<?php include __DIR__ . '/../../../../includes/footer.php'; ?>";
+            // Format different data types
+            if (strpos($key, '_date') !== false || strpos($key, '_at') !== false) {
+                $value = $value ? date('Y-m-d H:i:s', strtotime($value)) : 'N/A';
+            } elseif (is_bool($value)) {
+                $value = $value ? 'Yes' : 'No';
+            } elseif (empty($value) && $value !== '0') {
+                $value = 'N/A';
+            }
 
-        file_put_contents($basePath . '/edit.php', $content);
-    }
+            $html .= '<div class="row mb-2">';
+            $html .= '<div class="col-md-4"><strong>' . escape($label) . ':</strong></div>';
+            $html .= '<div class="col-md-8">' . escape($value) . '</div>';
+            $html .= '</div>';
+        }
 
-    private static function generateStore($basePath, $entityClass): void
-    {
-        $content = "<?php\nuse {$entityClass};\nif (\$_SERVER['REQUEST_METHOD'] !== 'POST' || !verify_csrf()) { redirect('/'); exit; }\n";
-        $content .= "\$entity = new {$entityClass}();\n\$entity->fill(\$_POST);\n";
-        $content .= "if (\$entity->save()) { \$_SESSION['success'] = 'Saved!'; redirect('/' . basename(dirname(__FILE__)) . '/' . \$entity->id); } else { \$_SESSION['_errors'] = \$entity->getErrors(); redirect('/' . basename(dirname(__FILE__)) . '/create'); }";
+        $html .= '</div></div>';
 
-        file_put_contents($basePath . '/store.php', $content);
-    }
-
-    private static function generateUpdate($basePath, $entityClass): void
-    {
-        $content = "<?php\nuse {$entityClass};\n\$id = \$_POST['id'] ?? \$_GET['id'] ?? null;\n";
-        $content .= "if (\$_SERVER['REQUEST_METHOD'] !== 'POST' || !\$id || !verify_csrf()) { redirect('/'); exit; }\n";
-        $content .= "\$entity = {$entityClass}::find(\$id);\nif (!\$entity) { redirect('/'); exit; }\n";
-        $content .= "\$entity->fill(\$_POST);\nif (\$entity->save()) { \$_SESSION['success'] = 'Updated!'; redirect('/' . basename(dirname(__FILE__)) . '/' . \$entity->id); } else { \$_SESSION['_errors'] = \$entity->getErrors(); redirect('/' . basename(dirname(__FILE__)) . '/' . \$id . '/edit'); }";
-
-        file_put_contents($basePath . '/update.php', $content);
-    }
-
-    private static function generateDelete($basePath, $entityClass): void
-    {
-        $content = "<?php\nuse {$entityClass};\n\$id = \$_POST['id'] ?? \$_GET['id'] ?? null;\n";
-        $content .= "if (\$_SERVER['REQUEST_METHOD'] !== 'POST' || !\$id || !verify_csrf()) { redirect('/'); exit; }\n";
-        $content .= "\$entity = {$entityClass}::find(\$id);\nif (\$entity && \$entity->delete()) { \$_SESSION['success'] = 'Deleted!'; } else { \$_SESSION['error'] = 'Failed to delete'; }\n";
-        $content .= "redirect('/' . basename(dirname(__FILE__)));";
-
-        file_put_contents($basePath . '/delete.php', $content);
+        return $html;
     }
 }

@@ -1,144 +1,101 @@
 <?php
 
-namespace Entities;
+require_once __DIR__ . '/BaseEntity.php';
 
 /**
  * Person Entity
- * Represents an individual with personal information
  */
-class Person extends BaseEntity
-{
-    protected ?string $first_name = null;
-    protected ?string $middle_name = null;
-    protected ?string $last_name = null;
-    protected ?string $date_of_birth = null;
-
-    public static function getTableName(): string
-    {
-        return 'person';
-    }
-
-    protected function getFillableAttributes(): array
-    {
-        return ['first_name', 'middle_name', 'last_name', 'date_of_birth'];
-    }
-
-    protected function getValidationRules(): array
-    {
-        return [
-            'first_name' => ['required', 'min:2', 'max:100'],
-            'last_name' => ['required', 'min:2', 'max:100'],
-        ];
-    }
+class Person extends BaseEntity {
+    protected $table = 'persons';
+    protected $fillable = ['first_name', 'middle_name', 'last_name', 'date_of_birth'];
 
     /**
      * Get full name
      */
-    public function getFullName(): string
-    {
-        $parts = array_filter([
-            $this->first_name,
-            $this->middle_name,
-            $this->last_name,
-        ]);
-
-        return implode(' ', $parts);
-    }
-
-    /**
-     * Get initials
-     */
-    public function getInitials(): string
-    {
-        $initials = substr($this->first_name, 0, 1);
-
-        if ($this->middle_name) {
-            $initials .= substr($this->middle_name, 0, 1);
+    public function getFullName($personId) {
+        $person = $this->find($personId);
+        if (!$person) {
+            return 'Unknown';
         }
 
-        if ($this->last_name) {
-            $initials .= substr($this->last_name, 0, 1);
+        $name = $person['first_name'];
+        if (!empty($person['middle_name'])) {
+            $name .= ' ' . $person['middle_name'];
         }
+        $name .= ' ' . $person['last_name'];
 
-        return strtoupper($initials);
+        return $name;
     }
 
     /**
-     * Get age
+     * Get credentials for this person
      */
-    public function getAge(): ?int
-    {
-        if (!$this->date_of_birth) {
-            return null;
-        }
-
-        $dob = new \DateTime($this->date_of_birth);
-        $now = new \DateTime();
-        $diff = $now->diff($dob);
-
-        return $diff->y;
+    public function getCredential($personId) {
+        $sql = "SELECT * FROM credentials WHERE person_id = ? AND deleted_at IS NULL";
+        return $this->queryOne($sql, [$personId]);
     }
 
     /**
-     * Get credential for this person
+     * Get education records
      */
-    public function getCredential(): ?Credential
-    {
-        $credentials = Credential::where('person_id = :person_id', ['person_id' => $this->id], 1);
-        return $credentials[0] ?? null;
+    public function getEducation($personId) {
+        $sql = "SELECT * FROM person_education WHERE person_id = ? AND deleted_at IS NULL ORDER BY start_date DESC";
+        return $this->query($sql, [$personId]);
     }
 
     /**
-     * Get all education records
+     * Get skills
      */
-    public function getEducation(): array
-    {
-        return PersonEducation::where('person_id = :person_id', ['person_id' => $this->id]);
+    public function getSkills($personId) {
+        $sql = "SELECT ps.*, s.name as skill_name
+                FROM person_skills ps
+                JOIN popular_skills s ON ps.skill_id = s.id
+                WHERE ps.person_id = ? AND ps.deleted_at IS NULL
+                ORDER BY s.name";
+        return $this->query($sql, [$personId]);
     }
 
     /**
-     * Get all skills
+     * Get organizations owned by this person
      */
-    public function getSkills(): array
-    {
-        return PersonSkill::where('person_id = :person_id', ['person_id' => $this->id]);
+    public function getOrganizations($personId) {
+        $sql = "SELECT * FROM organizations WHERE admin_id = ? AND deleted_at IS NULL ORDER BY short_name";
+        return $this->query($sql, [$personId]);
     }
 
     /**
-     * Check if person has credential
+     * Get job applications
      */
-    public function hasCredential(): bool
-    {
-        return $this->getCredential() !== null;
+    public function getApplications($personId) {
+        $sql = "SELECT va.*, ov.opening_date, ov.closing_date,
+                       pop.name as position_name, o.short_name as organization_name
+                FROM vacancy_applications va
+                JOIN organization_vacancies ov ON va.vacancy_id = ov.id
+                JOIN popular_organization_positions pop ON ov.popular_position_id = pop.id
+                JOIN organizations o ON ov.organization_id = o.id
+                WHERE va.applicant_id = ? AND va.deleted_at IS NULL
+                ORDER BY va.application_date DESC";
+        return $this->query($sql, [$personId]);
     }
 
     /**
-     * Search persons by name
+     * Validate person data
      */
-    public static function searchByName(string $query): array
-    {
-        return static::search($query, ['first_name', 'middle_name', 'last_name']);
+    public function validateData($data, $id = null) {
+        $rules = [
+            'first_name' => 'required|min:2|max:100',
+            'last_name' => 'required|min:2|max:100',
+            'middle_name' => 'max:100',
+            'date_of_birth' => 'date',
+        ];
+
+        return $this->validate($data, $rules);
     }
 
     /**
-     * Get persons by birth year
+     * Override getLabel to return full name
      */
-    public static function getByBirthYear(int $year): array
-    {
-        return static::where('strftime("%Y", date_of_birth) = :year', ['year' => (string)$year]);
-    }
-
-    /**
-     * Get persons by age range
-     */
-    public static function getByAgeRange(int $minAge, int $maxAge): array
-    {
-        $maxDate = date('Y-m-d', strtotime("-{$minAge} years"));
-        $minDate = date('Y-m-d', strtotime("-{$maxAge} years"));
-
-        return static::where(
-            'date_of_birth BETWEEN :min_date AND :max_date',
-            ['min_date' => $minDate, 'max_date' => $maxDate]
-        );
+    public function getLabel($id) {
+        return $this->getFullName($id);
     }
 }

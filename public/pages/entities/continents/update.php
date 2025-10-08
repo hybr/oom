@@ -1,42 +1,40 @@
 <?php
-/**
- * Update Continent Action
- */
+require_once __DIR__ . '/../../../../bootstrap.php';
 
-use Entities\Continent;
+auth()->requireAuth();
 
-$id = $_POST['id'] ?? $_GET['id'] ?? null;
-
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !$id) {
-    redirect('/continents');
-    exit;
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    redirect('/pages/entities/continents/list.php');
 }
 
-// CSRF verification
-if (!verify_csrf()) {
-    $_SESSION['error'] = 'Invalid request';
-    redirect('/continents/' . $id . '/edit');
-    exit;
+require_once ENTITIES_PATH . '/Continent.php';
+
+$id = $_POST['id'] ?? null;
+
+if (!$id) {
+    redirect('/pages/entities/continents/list.php');
 }
 
-$continent = Continent::find($id);
+$continent = new Continent();
 
-if (!$continent) {
-    $_SESSION['error'] = 'Continent not found';
-    redirect('/continents');
-    exit;
+// Validate
+if (!$continent->validateData($_POST, $id)) {
+    $_SESSION['errors'] = (new Validator($_POST))->errors();
+    $_SESSION['old'] = $_POST;
+    redirect('/pages/entities/continents/edit.php?id=' . $id);
 }
 
-// Store old input
-$_SESSION['_old'] = $_POST;
+try {
+    $continent->update($id, [
+        'name' => $_POST['name'],
+    ]);
 
-// Update continent
-$continent->fill($_POST);
+    success('Continent updated successfully!');
+    redirect('/pages/entities/continents/detail.php?id=' . $id);
 
-if ($continent->save()) {
-    $_SESSION['success'] = 'Continent updated successfully!';
-    redirect('/continents/' . $continent->id);
-} else {
-    $_SESSION['_errors'] = $continent->getErrors();
-    redirect('/continents/' . $id . '/edit');
+} catch (Exception $e) {
+    error_log('Error updating continent: ' . $e->getMessage());
+    $_SESSION['errors'] = ['general' => 'An error occurred while updating the continent.'];
+    $_SESSION['old'] = $_POST;
+    redirect('/pages/entities/continents/edit.php?id=' . $id);
 }

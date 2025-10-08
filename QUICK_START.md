@@ -1,249 +1,210 @@
-# V4L Quick Start Guide
+# V4L Quick Start Guide 🚀
 
-## ✅ System Fixed and Ready!
+Get up and running with V4L in minutes!
 
-The 404 error has been resolved. The application is now fully functional with a complete routing system.
+## ⚡ Quick Setup
 
-## 🚀 Running the Application
+### Step 1: Verify Requirements
 
-### Start the Server
+Make sure you have:
+- ✅ PHP 8.1+ installed
+- ✅ SQLite extension enabled
+- ✅ Web server (Apache/Nginx) or PHP built-in server
+
+Check your PHP version:
+```bash
+php -v
+```
+
+### Step 2: Initialize Database
+
+```bash
+php database/init-db.php
+```
+
+You should see: `Database initialization completed successfully!`
+
+### Step 3: Start the Server
+
+#### Option A: PHP Built-in Server (Development)
+
+**From project root:**
 ```bash
 php -S localhost:8000 -t public
 ```
 
-### Access the Application
-Open your browser and visit:
-- **Dashboard**: http://localhost:8000/
-- **Organization Vacancies**: http://localhost:8000/organization_vacancies
-
-## 📂 What Was Fixed
-
-### 1. **Router System** (`lib/Router.php`)
-- Complete URL routing with pattern matching
-- Support for GET, POST, PUT, DELETE methods
-- Named parameters extraction (e.g., `/vacancies/{id}`)
-- 404 handling with custom page
-
-### 2. **Bootstrap** (`bootstrap.php`)
-- Application initialization
-- Environment variable loading from `.env`
-- Auto-loading for entities, lib, processes, services
-- Configuration loading
-- Helper functions (view, config, auth, csrf, etc.)
-- Error handling setup
-
-### 3. **Entry Point** (`public/index.php`)
-- Main application entry
-- Route definitions for all pages
-- Organization vacancies routes
-- Generic entity routes
-- Authentication routes
-
-### 4. **UI Components**
-- **Header** (`includes/header.php`): Bootstrap 5.3 navigation with dropdowns
-- **Footer** (`includes/footer.php`): Application footer
-- **CSS** (`public/assets/css/style.css`): Custom styles
-- **JS** (`public/assets/js/app.js`): Client-side utilities
-
-### 5. **Pages Created**
-- Dashboard (`public/pages/dashboard.php`)
-- Organization Vacancies List (`public/pages/organization/vacancies/list.php`)
-
-## 🎨 Features
-
-### Navigation Menu
-The header includes:
-- **Dashboard** - Home page
-- **My** - Personal management (Profile, Education, Skills)
-- **Organization** - Business management (Vacancies, Organizations)
-- **Common** - Reference data (Continents, Countries, Languages, Addresses)
-- **User Menu** - Login/Signup or Profile/Logout
-
-### Responsive Design
-- Bootstrap 5.3 framework
-- Mobile-first approach
-- Bootstrap Icons
-- Custom CSS variables for theming
-- Responsive navbar with hamburger menu
-
-### Helper Functions Available
-```php
-// View rendering
-view('template', ['data' => $value]);
-
-// Configuration
-config('app.name'); // Get config value
-
-// URL generation
-url('/path'); // Generate full URL
-asset('css/style.css'); // Asset URL
-
-// Authentication
-auth(); // Get current user
-csrf_token(); // Get CSRF token
-csrf_field(); // Generate CSRF input field
-
-// Session
-session('key'); // Get session value
-old('field'); // Get old input value
-errors('field'); // Get validation errors
-
-// Redirect
-redirect('/path'); // Redirect to URL
+**OR from public directory:**
+```bash
+cd public
+php -S localhost:8000
 ```
 
-## 📋 Available Routes
+Then visit: http://localhost:8000
 
-### Main Routes
-- `GET /` - Dashboard
-- `GET /login` - Login page
-- `POST /login` - Login process
-- `GET /signup` - Signup page
-- `POST /signup` - Signup process
-- `GET /logout` - Logout
+#### Option B: Apache/Nginx
+Configure your web server to point to the `public/` directory.
 
-### Organization Vacancies
-- `GET /organization_vacancies` - List vacancies
-- `GET /organization_vacancies/create` - Create form
-- `POST /organization_vacancies/store` - Store vacancy
-- `GET /organization_vacancies/{id}` - View details
-- `GET /organization_vacancies/{id}/edit` - Edit form
-- `POST /organization_vacancies/{id}/update` - Update vacancy
-- `POST /organization_vacancies/{id}/delete` - Delete vacancy
+### Step 4: Create Your Account
 
-### Generic Entity Routes
-Pattern: `/{entity}`, `/{entity}/create`, `/{entity}/{id}`
+1. Click **"Sign Up"** in the top navigation
+2. Fill in your details:
+   - First Name: John
+   - Last Name: Doe
+   - Username: johndoe
+   - Password: password123 (minimum 8 characters)
+3. Click **"Create Account"**
 
-Works for any entity like:
-- `/continents`
-- `/countries`
-- `/persons`
-- `/organizations`
-- etc.
+You'll be automatically logged in and redirected to the dashboard!
 
-## 🗂️ File Structure
+## 🎯 What to Do Next
 
-```
-public/
-├── index.php              # Main entry point (routes)
-├── pages/
-│   ├── dashboard.php      # Dashboard page
-│   ├── auth/             # Auth pages
-│   ├── organization/
-│   │   └── vacancies/    # Vacancy pages
-│   └── entities/         # Generic entity pages
-└── assets/
-    ├── css/
-    │   └── style.css     # Custom styles
-    └── js/
-        └── app.js        # JavaScript utilities
+### 1. Explore the Geography Data
 
-includes/
-├── header.php            # Navigation & header
-└── footer.php            # Footer
+**Add a Continent:**
+- Navigate: **Common** → **Continents**
+- Click **"Add New Continent"**
+- Enter: "North America"
+- Save and view the details
 
-lib/
-├── Database.php          # Database layer
-└── Router.php            # URL routing
+**Add a Country:**
+- Navigate: **Common** → **Countries**
+- Click **"Add New Country"**
+- Name: "United States"
+- Continent: Select "North America"
+- Save
 
-bootstrap.php             # Application bootstrap
-.env                      # Environment config
-```
+### 2. Create Your Organization
 
-## 🔧 Next Steps
+- Go to **Dashboard**
+- Click **"Create Organization"** under Quick Actions
+- Fill in:
+  - Short Name: "My Local Shop"
+  - Tag Line: "Quality products for the community"
+  - Subdomain: "mylocalshop" (must be unique)
+  - Legal Category: Create one first via Common menu
+  - Industry: Create one first via Common menu
 
-### 1. Create More Pages
-You can create pages for any entity by following this pattern:
+### 3. Post a Job Vacancy
 
-**List Page**: `public/pages/entities/{entity}/list.php`
+- Navigate: **Organization** → **Vacancies**
+- Create a position first via **Common** → **Organization Positions**
+- Create a vacancy with opening/closing dates
+- View it on the public **Jobs** page
+
+### 4. Add Items to Catalog
+
+- Navigate: **Market** → **Browse Catalog**
+- Click **"Add Item to Catalog"** (if you're an admin)
+- Add products or services
+- They'll appear on the marketplace!
+
+## 📁 Sample Data Setup (Optional)
+
+Want to populate with sample data? Here's a quick script:
+
 ```php
 <?php
-$pageTitle = 'Entity Name';
-include __DIR__ . '/../../../includes/header.php';
+// Run this from command line: php sample-data.php
+require_once 'bootstrap.php';
 
-// Your list view here
+$db = db();
 
-include __DIR__ . '/../../../includes/footer.php';
-?>
+// Add continents
+$continents = ['Africa', 'Antarctica', 'Asia', 'Europe', 'North America', 'Oceania', 'South America'];
+foreach ($continents as $continent) {
+    $db->insert("INSERT INTO continents (name, created_at) VALUES (?, datetime('now'))", [$continent]);
+}
+
+// Add some skills
+$skills = ['PHP', 'JavaScript', 'Python', 'Project Management', 'Marketing', 'Sales', 'Customer Service'];
+foreach ($skills as $skill) {
+    $db->insert("INSERT INTO popular_skills (name, created_at) VALUES (?, datetime('now'))", [$skill]);
+}
+
+// Add education subjects
+$subjects = ['Computer Science', 'Business Administration', 'Engineering', 'Marketing', 'Finance'];
+foreach ($subjects as $subject) {
+    $db->insert("INSERT INTO popular_education_subjects (name, created_at) VALUES (?, datetime('now'))", [$subject]);
+}
+
+echo "Sample data added successfully!\n";
 ```
 
-### 2. Database Migrations
-Create migration files in `database/migrations/` to set up database schema.
+## 🎨 Customization Tips
 
-### 3. Authentication
-Implement login/signup pages in `public/pages/auth/`
+### Change Theme Colors
+Edit `public/assets/css/style.css`:
+```css
+:root {
+    --primary-color: #0d6efd;  /* Change this to your brand color */
+}
+```
 
-### 4. API Endpoints
-Create API routes in `public/api/` for AJAX operations
+### Toggle Dark Mode
+Click the moon/sun icon in the top navigation bar!
+
+### Modify Navigation
+Edit `includes/header.php` to add/remove menu items.
 
 ## 🐛 Troubleshooting
 
-### 404 Error on Organization Vacancies
-**Fixed!** The router now properly handles all routes.
-
-### Assets Not Loading
-Make sure to access via `http://localhost:8000` (not file:///)
-
-### Database Connection Error
-Ensure `database/database.sqlite` exists:
+### "Database not found" error
 ```bash
-touch database/database.sqlite
+php database/init-db.php
 ```
 
-### Session Issues
-Check that `session_start()` is called in bootstrap.php (already done)
+### Permission errors
+```bash
+chmod -R 755 database/ logs/ uploads/
+```
 
-## 📊 Current Status
+### White screen / errors
+Enable error display in `.env`:
+```
+APP_DEBUG=true
+```
 
-✅ **Working Components:**
-- URL Routing
-- Request handling
-- Page rendering
-- Navigation menu
-- Responsive UI
-- Asset serving
-- Helper functions
-- Environment config
+### Can't login
+Make sure you:
+1. Created an account via the signup page
+2. Using the correct username and password
+3. Database was initialized successfully
 
-🔄 **In Development:**
-- Database migrations
-- Entity CRUD pages
-- Authentication system
-- API endpoints
-- WebSocket integration
+## 📚 Learn More
 
-## 🎯 Testing the Fix
+- **Full Documentation**: See `README.md`
+- **Architecture**: See `instructions.txt`
+- **Database Schema**: See `er_diagram.txt`
+- **Entity Examples**: Check `entities/Continent.php` for patterns
+- **CRUD Examples**: See `public/pages/entities/continents/` for complete CRUD implementation
 
-1. **Start server:**
-   ```bash
-   php -S localhost:8000 -t public
-   ```
+## 🔗 Key URLs
 
-2. **Visit pages:**
-   - http://localhost:8000/ (Dashboard)
-   - http://localhost:8000/organization_vacancies (Works!)
+- **Homepage**: http://localhost:8000/
+- **Login**: http://localhost:8000/pages/auth/login.php
+- **Sign Up**: http://localhost:8000/pages/auth/signup.php
+- **Dashboard**: http://localhost:8000/pages/dashboard.php
+- **Marketplace**: http://localhost:8000/pages/market/catalog.php
+- **Jobs**: http://localhost:8000/pages/market/jobs.php
+- **Continents**: http://localhost:8000/pages/entities/continents/list.php
 
-3. **Check response:**
-   - Should see the Organization Vacancies page
-   - Navigation menu should be visible
-   - Bootstrap styling should be applied
+## ✅ Verification Checklist
 
-## 📚 Documentation
+- [ ] Database initialized successfully
+- [ ] Web server running
+- [ ] Can access homepage
+- [ ] Can sign up and create account
+- [ ] Can login successfully
+- [ ] Can see dashboard
+- [ ] Can create a continent
+- [ ] Can toggle dark/light mode
 
-- **README.md** - Complete system overview
-- **IMPLEMENTATION_STATUS.md** - Development progress
-- **Entity files** - See `entities/` directory
-- **ER Diagram** - See `er_diagram.txt`
+## 🎉 You're Ready!
 
-## 💡 Tips
+Your V4L instance is now running. Start building your local marketplace community!
 
-1. **Creating New Routes**: Add them in `public/index.php`
-2. **Creating New Pages**: Follow the existing page structure
-3. **Using Entities**: All entities extend `BaseEntity` with full CRUD
-4. **Database Operations**: Use `App\Database` class or entity methods
-5. **Styling**: Edit `public/assets/css/style.css`
-6. **JavaScript**: Add to `public/assets/js/app.js`
+For questions or issues, refer to the main `README.md` file.
 
 ---
 
-**The application is now fully functional and ready for development! 🎉**
+**Happy Building!** 🏪

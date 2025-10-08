@@ -1,64 +1,39 @@
 <?php
-/**
- * Login Process Handler
- */
-
 require_once __DIR__ . '/../../../bootstrap.php';
 
-use Entities\Credential;
-
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    redirect('/login');
+    header('Location: login.php');
     exit;
 }
-
-// CSRF verification
-if (!verify_csrf()) {
-    $_SESSION['error'] = 'Invalid request';
-    redirect('/login');
-    exit;
-}
-
-// Store old input
-$_SESSION['_old'] = $_POST;
 
 $username = $_POST['username'] ?? '';
 $password = $_POST['password'] ?? '';
-$remember = isset($_POST['remember']);
 
-// Validate
-if (empty($username) || empty($password)) {
-    $_SESSION['_errors'] = [
-        'username' => empty($username) ? ['Username is required'] : [],
-        'password' => empty($password) ? ['Password is required'] : [],
-    ];
-    redirect('/login');
+// Validate input
+$validator = Validator::make($_POST);
+$valid = $validator->validate([
+    'username' => 'required',
+    'password' => 'required',
+]);
+
+if (!$valid) {
+    $_SESSION['errors'] = $validator->errors();
+    $_SESSION['old'] = $_POST;
+    header('Location: login.php');
     exit;
 }
 
 // Attempt login
-$credential = Credential::login($username, $password);
+if (auth()->login($username, $password)) {
+    // Check for intended URL
+    $intendedUrl = $_SESSION['intended_url'] ?? '/pages/dashboard.php';
+    unset($_SESSION['intended_url']);
 
-if (!$credential) {
-    $_SESSION['_errors'] = ['login' => ['Invalid username or password']];
-    redirect('/login');
+    success('Welcome back! You have successfully logged in.');
+    redirect($intendedUrl);
+} else {
+    $_SESSION['errors'] = ['username' => 'Invalid username or password.'];
+    $_SESSION['old'] = $_POST;
+    header('Location: login.php');
     exit;
 }
-
-// Login successful
-$_SESSION['user_id'] = $credential->person_id;
-$_SESSION['credential_id'] = $credential->id;
-
-// Remember me
-if ($remember) {
-    $token = $credential->generateRememberToken();
-    setcookie('remember_token', $token, time() + (86400 * 30), '/'); // 30 days
-    setcookie('user_id', $credential->person_id, time() + (86400 * 30), '/');
-}
-
-$_SESSION['success'] = 'Welcome back!';
-
-// Redirect to intended page or home
-$redirectTo = $_SESSION['redirect_after_login'] ?? '/';
-unset($_SESSION['redirect_after_login']);
-redirect($redirectTo);

@@ -1,33 +1,34 @@
 <?php
-/**
- * Store Continent Action
- */
+require_once __DIR__ . '/../../../../bootstrap.php';
 
-use Entities\Continent;
+auth()->requireAuth();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    redirect('/continents');
-    exit;
+    redirect('/pages/entities/continents/create.php');
 }
 
-// CSRF verification
-if (!verify_csrf()) {
-    $_SESSION['error'] = 'Invalid request';
-    redirect('/continents/create');
-    exit;
-}
+require_once ENTITIES_PATH . '/Continent.php';
 
-// Store old input
-$_SESSION['_old'] = $_POST;
-
-// Create continent
 $continent = new Continent();
-$continent->fill($_POST);
 
-if ($continent->save()) {
-    $_SESSION['success'] = 'Continent created successfully!';
-    redirect('/continents/' . $continent->id);
-} else {
-    $_SESSION['_errors'] = $continent->getErrors();
-    redirect('/continents/create');
+// Validate
+if (!$continent->validateData($_POST)) {
+    $_SESSION['errors'] = (new Validator($_POST))->errors();
+    $_SESSION['old'] = $_POST;
+    redirect('/pages/entities/continents/create.php');
+}
+
+try {
+    $id = $continent->create([
+        'name' => $_POST['name'],
+    ]);
+
+    success('Continent created successfully!');
+    redirect('/pages/entities/continents/detail.php?id=' . $id);
+
+} catch (Exception $e) {
+    error_log('Error creating continent: ' . $e->getMessage());
+    $_SESSION['errors'] = ['general' => 'An error occurred while creating the continent.'];
+    $_SESSION['old'] = $_POST;
+    redirect('/pages/entities/continents/create.php');
 }

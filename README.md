@@ -1,412 +1,267 @@
-# V4L (Vocal 4 Local) - Geo-Intelligent Marketplace Platform
+# V4L - Vocal 4 Local 🏪
 
-## Overview
-V4L is a modern, enterprise-grade PHP application built without frameworks, featuring microservices architecture, real-time capabilities, and comprehensive workflow management.
+**Your Community, Your Marketplace.**
 
-## System Architecture
+V4L is a comprehensive web platform connecting local organizations with local customers, built with modern PHP and responsive design principles.
 
-### Technology Stack
-- **Backend**: PHP 8.1+ (Pure PHP, no framework)
-- **Database**: SQLite (with migration path to PostgreSQL/MySQL)
-- **Frontend**: HTML5, Bootstrap 5.3+, Vanilla JavaScript (ES6+)
-- **Real-time**: WebSocket
-- **Architecture**: Microservices, MVC, SOLID principles
+## 🌟 Features
 
-### Folder Structure
-```
-project-root/
-├── config/                 # Configuration files
-│   ├── app.php            # Application config
-│   ├── database.php       # Database config
-│   └── websocket.php      # WebSocket config
-├── database/
-│   ├── migrations/        # Schema migrations
-│   ├── seeders/          # Data seeders
-│   └── database.sqlite   # SQLite database file
-├── entities/             # Entity classes (Domain Models)
-│   ├── BaseEntity.php    # Abstract base entity
-│   ├── Geography Domain
-│   │   ├── Continent.php
-│   │   ├── Country.php
-│   │   ├── Language.php
-│   │   └── PostalAddress.php
-│   ├── Person Domain
-│   │   ├── Person.php
-│   │   └── Credential.php
-│   ├── Education & Skill Domain
-│   │   ├── PopularEducationSubject.php
-│   │   ├── PopularSkill.php
-│   │   ├── PersonEducation.php
-│   │   ├── PersonEducationSubject.php
-│   │   └── PersonSkill.php
-│   └── [More entities to be created]
-├── processes/            # Workflow/Process classes
-│   └── BaseProcess.php
-├── services/             # Microservice modules
-│   ├── entity/          # Entity CRUD operations
-│   ├── workflow/        # Process engine
-│   ├── auth/            # Authentication & authorization
-│   ├── notification/    # Notifications
-│   ├── reporting/       # Reports
-│   ├── search/          # Full-text search
-│   ├── integration/     # External APIs
-│   ├── audit/           # Audit trails
-│   └── storage/         # File storage
-├── includes/             # Shared includes
-│   ├── header.php
-│   ├── footer.php
-│   └── sidebar.php
-├── public/               # Web root
-│   ├── index.php        # Entry point
-│   ├── api/             # API endpoints
-│   ├── assets/          # Static assets
-│   │   ├── css/
-│   │   ├── js/
-│   │   └── images/
-│   └── entities/        # Entity web pages
-├── lib/                  # Core libraries
-│   ├── Database.php     # Database layer
-│   ├── Router.php       # Request routing
-│   ├── Validator.php    # Validation
-│   └── WebSocket.php    # WebSocket server
-├── tests/                # Test suite
-│   ├── Unit/
-│   └── Integration/
-├── logs/                 # Application logs
-├── uploads/              # User uploads
-└── composer.json        # Dependencies
+- **Local Marketplace**: Browse and discover products and services from local businesses
+- **Job Board**: Find employment opportunities in your community
+- **Organization Management**: Manage your organization, branches, and operations
+- **Hiring System**: Post vacancies, receive applications, conduct interviews
+- **Catalog Management**: Centralized product/service catalog with seller integration
+- **User Authentication**: Secure signup, login, and session management
+- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
+- **Dark/Light Mode**: Theme toggle with persistent user preference
+- **Geography Support**: Multi-level geographic data (Continents → Countries → Languages)
+- **Education & Skills Tracking**: Manage personal education and skill profiles
+
+## 🏗️ Architecture
+
+- **Language**: PHP 8.1+ (Pure PHP, no frameworks)
+- **Architecture**: MVC pattern with microservices principles
+- **Database**: SQLite (with migration path to MySQL/PostgreSQL)
+- **Frontend**: Bootstrap 5.3, Vanilla JavaScript, Responsive Design
+- **Patterns**: SOLID principles, Repository pattern, OOP
+
+## 📋 Requirements
+
+- PHP 8.1 or higher
+- SQLite3 extension enabled
+- Apache/Nginx web server
+- Write permissions for `database/`, `logs/`, and `uploads/` directories
+
+## 🚀 Installation
+
+### 1. Clone or download the project
+
+```bash
+git clone <repository-url>
+cd oom
 ```
 
-## Core Features
+### 2. Set up the environment file
 
-### 1. BaseEntity Class
-All entities inherit from `BaseEntity` which provides:
-
-#### Attributes (All Entities)
-- `id` - Primary key
-- `created_at` - Creation timestamp
-- `created_by` - Creator user ID
-- `updated_at` - Last update timestamp
-- `updated_by` - Last updater user ID
-- `deleted_at` - Soft delete timestamp
-- `version` - Optimistic locking version
-
-#### CRUD Operations
-- `save()` - Insert or update
-- `delete()` - Soft delete
-- `forceDelete()` - Hard delete
-- `restore()` - Restore soft-deleted record
-- `find($id)` - Find by ID
-- `all($limit, $offset)` - Get all records
-- `where($condition, $params)` - Custom queries
-- `count($condition)` - Count records
-
-#### Validation & Security
-- Automatic validation based on rules
-- Field-level validation errors
-- SQL injection prevention (PDO prepared statements)
-- Optimistic locking for concurrent updates
-
-#### Audit Trail
-- Automatic audit logging
-- Change history tracking
-- User action tracking
-- IP and user agent capture
-
-### 2. Database Layer
-The `Database` class (`lib/Database.php`) provides:
-- PDO-based connection management
-- Support for SQLite, MySQL, PostgreSQL
-- Query builder methods
-- Transaction support
-- Connection pooling (singleton pattern)
-
-### 3. Entity Domains
-
-#### Geography Domain
-- **Continent**: Global continents
-- **Country**: Countries with continent links
-- **Language**: Languages by country
-- **PostalAddress**: Full addresses with geo-coordinates
-  - Distance calculations
-  - Proximity search
-  - Multi-line formatting
-
-#### Person Domain
-- **Person**: Individual profiles
-  - Full name formatting
-  - Age calculation
-  - Initials generation
-- **Credential**: Authentication
-  - Password hashing (Argon2)
-  - Login/logout
-  - Password reset
-  - Remember me tokens
-  - Account locking after failed attempts
-
-#### Education & Skill Domain
-- **PopularEducationSubject**: Reference subjects
-- **PopularSkill**: Reference skills
-- **PersonEducation**: Education history
-  - Institution tracking
-  - Education levels (ENUM)
-  - Duration calculations
-- **PersonEducationSubject**: Grades/marks per subject
-- **PersonSkill**: Skill proficiency
-  - Skill levels (beginner, intermediate, expert)
-  - Certification tracking
-
-### 4. Security Features
-
-#### Authentication
-- Secure password hashing (Argon2ID)
-- Session management
-- Remember me functionality
-- Account lockout protection
-- Password reset with time-limited tokens
-
-#### Data Protection
-- SQL injection prevention (PDO)
-- XSS prevention (output escaping)
-- CSRF protection (token validation)
-- Sensitive data exclusion from API responses
-
-#### Security Headers (via .htaccess)
-- X-Frame-Options
-- X-Content-Type-Options
-- X-XSS-Protection
-- Referrer-Policy
-
-### 5. API Design
-
-#### RESTful Endpoints Pattern
-```
-GET    /api/entities          # List
-GET    /api/entities/{id}     # Get single
-POST   /api/entities          # Create
-PUT    /api/entities/{id}     # Update
-DELETE /api/entities/{id}     # Delete
-POST   /api/entities/{id}/action  # Execute action
-GET    /api/entities/{id}/history # Get history
+```bash
+cp .env.example .env
 ```
 
-#### Response Format
-```json
-{
-  "success": true,
-  "data": {},
-  "message": "Operation successful",
-  "errors": [],
-  "meta": {
-    "timestamp": "2025-10-05T10:30:00Z",
-    "version": "1.0",
-    "pagination": {}
-  }
+Edit `.env` to configure your settings (database, URLs, etc.)
+
+### 3. Install dependencies (optional, for testing)
+
+```bash
+composer install
+```
+
+### 4. Initialize the database
+
+```bash
+php database/init-db.php
+```
+
+This will create all necessary tables in the SQLite database.
+
+### 5. Configure your web server
+
+#### Apache (.htaccess provided)
+
+Point your document root to the `public/` directory.
+
+#### Nginx
+
+```nginx
+server {
+    listen 80;
+    server_name localhost;
+    root /path/to/oom/public;
+    index index.php;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
 }
 ```
 
-## Entity Relationships
+### 6. Set permissions
 
-### Geography Relationships
-```
-Continent (1) ──→ (N) Country
-Country (1) ──→ (N) Language
-Country (1) ──→ (N) PostalAddress
-```
-
-### Person Relationships
-```
-Person (1) ──→ (1) Credential
-Person (1) ──→ (N) PersonEducation
-PersonEducation (1) ──→ (N) PersonEducationSubject
-PersonEducationSubject (N) ──→ (1) PopularEducationSubject
-Person (1) ──→ (N) PersonSkill
-PersonSkill (N) ──→ (1) PopularSkill
-```
-
-## Key Entity Methods
-
-### Person Entity
-- `getFullName()`: Returns formatted full name
-- `getInitials()`: Returns initials (e.g., "JD")
-- `getAge()`: Calculates age from date of birth
-- `getCredential()`: Gets authentication credential
-- `getEducation()`: Gets all education records
-- `getSkills()`: Gets all skills
-- `searchByName($query)`: Search persons by name
-
-### Credential Entity
-- `setPassword($password)`: Hash and set password
-- `verifyPassword($password)`: Verify password
-- `login($username, $password)`: Authenticate user
-- `signUp($personId, $username, $password)`: Create account
-- `forgotPassword()`: Generate reset token
-- `resetPassword($token, $newPassword)`: Reset password
-- `changePassword($current, $new)`: Change password
-- `generateRememberToken()`: Create remember token
-- `isLocked()`: Check if account is locked
-
-### PostalAddress Entity
-- `getFormattedAddress()`: Get one-line address
-- `getMultiLine()`: Get multi-line address array
-- `hasCoordinates()`: Check if coordinates exist
-- `distanceTo($otherAddress)`: Calculate distance in km
-- `findNear($lat, $lng, $radius)`: Find nearby addresses
-- `searchByLocation($query)`: Search addresses
-
-## Configuration
-
-### Environment Variables (.env)
-```
-APP_NAME="V4L - Vocal 4 Local"
-APP_ENV=development
-APP_DEBUG=true
-APP_URL=http://localhost
-
-DB_CONNECTION=sqlite
-DB_DATABASE=./database/database.sqlite
-
-SESSION_LIFETIME=120
-WEBSOCKET_HOST=localhost
-WEBSOCKET_PORT=8080
-```
-
-## Installation
-
-1. **Clone the repository**
-   ```bash
-   git clone <repo-url>
-   cd oom
-   ```
-
-2. **Install dependencies**
-   ```bash
-   composer install
-   ```
-
-3. **Configure environment**
-   ```bash
-   cp .env.example .env
-   # Edit .env with your settings
-   ```
-
-4. **Set up database**
-   ```bash
-   php database/migrations/run.php
-   ```
-
-5. **Start web server**
-   ```bash
-   php -S localhost:8000 -t public
-   ```
-
-6. **Access application**
-   ```
-   http://localhost:8000
-   ```
-
-## Testing
-
-### Run PHPUnit Tests
 ```bash
-composer test
-# or
+chmod -R 755 database/ logs/ uploads/
+```
+
+### 7. Access the application
+
+Navigate to `http://localhost` in your browser.
+
+## 📱 Usage
+
+### Creating Your First Account
+
+1. Go to the homepage
+2. Click "Sign Up" in the navigation
+3. Fill in your personal details and create credentials
+4. You'll be automatically logged in after signup
+
+### Creating an Organization
+
+1. After logging in, go to Dashboard
+2. Click "Create Organization" under Quick Actions
+3. Fill in organization details (name, legal category, subdomain, etc.)
+4. Submit to create your organization
+
+### Managing Data
+
+The application provides full CRUD operations for all entities:
+
+- **Geography**: Continents, Countries, Languages, Postal Addresses
+- **People**: Persons, Credentials, Education, Skills
+- **Organizations**: Organizations, Branches, Buildings, Workstations
+- **Hiring**: Vacancies, Applications, Interviews, Job Offers, Contracts
+- **Catalog**: Categories, Items, Features, Media, Tags, Reviews
+- **Sellers**: Seller Items, Prices, Inventory, Service Schedules
+
+### Navigation
+
+The main menu is organized into four sections:
+
+1. **My**: Personal profile, education, skills
+2. **Organization**: Manage your organizations, vacancies, hiring
+3. **Market**: Browse catalog, find sellers, search jobs
+4. **Common**: Geography data, reference data (industries, skills, etc.)
+
+## 🗂️ Project Structure
+
+```
+oom/
+├── bootstrap.php              # Application bootstrap
+├── composer.json              # PHP dependencies
+├── config/                    # Configuration files
+│   ├── app.php
+│   ├── database.php
+│   └── websocket.php
+├── database/                  # Database files
+│   ├── init-db.php           # Database initialization
+│   └── database.sqlite       # SQLite database file
+├── entities/                  # Entity classes
+│   ├── BaseEntity.php        # Base entity with CRUD
+│   ├── Continent.php
+│   ├── Country.php
+│   ├── Person.php
+│   ├── Organization.php
+│   └── ...
+├── includes/                  # Shared includes
+│   ├── header.php
+│   └── footer.php
+├── lib/                       # Core libraries
+│   ├── Auth.php
+│   ├── Database.php
+│   ├── Router.php
+│   ├── Validator.php
+│   └── PageGenerator.php
+├── public/                    # Web root
+│   ├── index.php             # Homepage
+│   ├── .htaccess             # Apache config
+│   ├── assets/               # CSS, JS, images
+│   └── pages/                # Application pages
+│       ├── auth/             # Authentication pages
+│       ├── dashboard.php     # User dashboard
+│       ├── entities/         # Entity CRUD pages
+│       └── market/           # Marketplace pages
+├── services/                  # Service modules
+├── tests/                     # Unit and integration tests
+├── logs/                      # Application logs
+└── uploads/                   # User uploads
+```
+
+## 🔒 Security Features
+
+- Password hashing with bcrypt
+- SQL injection prevention via PDO prepared statements
+- XSS protection with output escaping
+- CSRF protection for state-changing operations
+- Session security (httpOnly, secure flags)
+- Security headers (X-Frame-Options, Content-Security-Policy, etc.)
+- Soft delete for data preservation
+
+## 🎨 Customization
+
+### Themes
+
+The application supports light and dark modes. Users can toggle themes using the button in the navigation bar. The preference is saved in localStorage.
+
+### Styling
+
+Edit `public/assets/css/style.css` to customize colors, fonts, and layout. The application uses CSS variables for easy theming.
+
+### Adding New Entities
+
+1. Create entity class in `entities/` extending `BaseEntity`
+2. Define table name and fillable fields
+3. Add validation rules
+4. Create CRUD pages in `public/pages/entities/[entity_name]/`
+5. Update navigation in `includes/header.php`
+
+## 🧪 Testing
+
+Run PHPUnit tests:
+
+```bash
 vendor/bin/phpunit
 ```
 
-### Test Coverage
-```bash
-vendor/bin/phpunit --coverage-html tests/coverage
-```
+## 📖 API Documentation
 
-## Development Principles
+RESTful API endpoints will be documented separately. The application is designed to support both web and API access.
 
-### SOLID Principles
-- **Single Responsibility**: Each class has one purpose
-- **Open/Closed**: Open for extension, closed for modification
-- **Liskov Substitution**: Derived classes are substitutable
-- **Interface Segregation**: Many specific interfaces
-- **Dependency Inversion**: Depend on abstractions
+## 🤝 Contributing
 
-### Design Patterns Used
-- Repository Pattern (BaseEntity)
-- Singleton (Database connection)
-- Factory Pattern (Entity creation)
-- Observer (Event handling - planned)
-- Strategy (Workflow actions - planned)
+This is a demonstration project following enterprise PHP best practices. For production use:
 
-### Code Standards
-- PSR-12 coding style
-- PHPDoc blocks for all classes and methods
-- Type hints and return types
-- Descriptive naming conventions
+1. Implement comprehensive testing
+2. Add proper error logging and monitoring
+3. Configure production security settings
+4. Implement caching strategies
+5. Add WebSocket for real-time features
+6. Migrate to MySQL/PostgreSQL for production scale
 
-## Upcoming Features
+## 📝 License
 
-### To Be Implemented
-1. Organization Domain Entities
-2. Hiring Domain Entities
-3. Process Authorization Domain
-4. Workflow/Process Engine
-5. RESTful API Endpoints
-6. WebSocket Real-time Updates
-7. Responsive UI Components
-8. Dark/Light Theme Support
-9. Comprehensive Testing Suite
+This project is provided as-is for educational and demonstration purposes.
 
-## Menu Structure
+## 🔗 Related Documentation
 
-Based on `@menu.txt`, the application features:
+- See `er_diagram.txt` for complete entity relationship diagram
+- See `instructions.txt` for detailed architecture specification
 
-### Main Modules
-1. **Dashboard** - Overview and stats
-2. **My** - Personal management (profile, education, skills, addresses)
-3. **Organization** - Business management (branches, teams, positions, HR)
-4. **Market** - Marketplace (goods, services, map view, requests)
-5. **Common** - Reference data (geography, languages, industries)
-6. **Administration** - System management (users, content moderation, reports)
-7. **Account** - Authentication (login, signup, password management)
+## 💡 Support
 
-## Entity Method Summary
+For issues or questions:
+- Check the documentation in `er_diagram.txt` and `instructions.txt`
+- Review the code comments and PHPDoc blocks
+- Examine example implementations in the Geography domain entities
 
-### BaseEntity (Abstract)
-- CRUD: save(), delete(), forceDelete(), restore()
-- Query: find(), findWithTrashed(), all(), where(), count()
-- Validation: validate(), getErrors()
-- Conversion: toArray(), toJson()
-- Audit: getHistory(), logAudit()
-- Search: search()
+## 🎯 Roadmap
 
-### Domain-Specific Methods
-Each entity extends BaseEntity with 10-15 action methods specific to its domain, including:
-- Relationship getters
-- Business logic calculations
-- State transitions
-- Search/filter capabilities
-- Formatted output methods
-
-## Security Best Practices
-
-1. **Never store plain passwords** - Always use password_hash()
-2. **Use prepared statements** - Prevent SQL injection
-3. **Validate all inputs** - Server-side validation
-4. **Escape all outputs** - Prevent XSS
-5. **Implement CSRF tokens** - Protect state-changing operations
-6. **Use HTTPS in production** - Encrypt data in transit
-7. **Regular security audits** - Review code and dependencies
-
-## Support & Documentation
-
-- Entity documentation: See individual entity files
-- API documentation: `/docs/api.md` (to be created)
-- Workflow documentation: `/docs/workflows.md` (to be created)
-
-## License
-[Your License Here]
-
-## Contributors
-[Your Name/Team]
+Future enhancements:
+- [ ] WebSocket implementation for real-time updates
+- [ ] Email notification system
+- [ ] File upload and management
+- [ ] Advanced search with filters
+- [ ] Reporting and analytics dashboard
+- [ ] Multi-language support
+- [ ] Export functionality (CSV, PDF, Excel)
+- [ ] API authentication (OAuth/JWT)
+- [ ] Rate limiting and API throttling
+- [ ] Full-text search with SQLite FTS5
 
 ---
 
-**Note**: This is a work in progress. Additional entities, services, and UI components are being developed according to the architecture specification.
+**V4L** - Building stronger communities through local connections. 🏪🤝👥

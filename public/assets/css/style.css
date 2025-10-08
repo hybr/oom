@@ -1,176 +1,220 @@
-/* V4L Platform Custom Styles */
+/* V4L - Vocal 4 Local - Main Stylesheet */
 
 :root {
-    /* Light theme colors */
+    /* Light mode colors */
     --primary-color: #0d6efd;
     --secondary-color: #6c757d;
     --success-color: #198754;
     --danger-color: #dc3545;
     --warning-color: #ffc107;
     --info-color: #0dcaf0;
-    --light-color: #f8f9fa;
-    --dark-color: #212529;
-
-    /* Custom colors */
-    --bg-color: #ffffff;
+    --light-bg: #f8f9fa;
+    --dark-bg: #212529;
+    --white: #ffffff;
+    --black: #000000;
     --text-color: #212529;
     --border-color: #dee2e6;
+    --shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
-/* Dark theme (to be implemented) */
 [data-theme="dark"] {
-    --bg-color: #212529;
-    --text-color: #f8f9fa;
+    /* Dark mode colors */
+    --light-bg: #212529;
+    --white: #1a1d20;
+    --text-color: #e9ecef;
     --border-color: #495057;
+    --shadow: 0 0.125rem 0.25rem rgba(255, 255, 255, 0.075);
+}
+
+* {
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body {
-    background-color: var(--bg-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--light-bg);
     color: var(--text-color);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
 
-/* Navigation */
+.main-content {
+    flex: 1;
+    padding: 2rem 0;
+}
+
+/* Header & Navigation */
+.navbar {
+    background-color: var(--white);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+[data-theme="dark"] .navbar {
+    background-color: var(--dark-bg);
+}
+
 .navbar-brand {
     font-weight: bold;
     font-size: 1.5rem;
+    color: var(--primary-color) !important;
 }
 
-.navbar-nav .nav-link {
-    transition: all 0.3s ease;
-}
-
-.navbar-nav .nav-link:hover {
-    transform: translateY(-2px);
-}
-
-/* Dropdown menus with scrolling */
-.dropdown-menu {
-    max-height: 70vh;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-
-/* Custom scrollbar for dropdown menus */
-.dropdown-menu::-webkit-scrollbar {
-    width: 8px;
-}
-
-.dropdown-menu::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 4px;
-}
-
-.dropdown-menu::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 4px;
-}
-
-.dropdown-menu::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
-/* Dropdown headers */
-.dropdown-header {
-    font-weight: 600;
+.navbar-tagline {
     font-size: 0.85rem;
-    text-transform: uppercase;
-    color: var(--primary-color);
-    padding: 0.5rem 1rem;
-    margin-top: 0.25rem;
+    color: var(--secondary-color);
+    margin-left: 0.5rem;
 }
 
-.dropdown-header:first-child {
-    margin-top: 0;
+/* Dropdown menus */
+.dropdown-menu {
+    background-color: var(--white);
+    border: 1px solid var(--border-color);
 }
 
-/* Dropdown items with icons */
-.dropdown-item i {
-    width: 20px;
-    margin-right: 8px;
-    text-align: center;
+[data-theme="dark"] .dropdown-menu {
+    background-color: var(--dark-bg);
 }
 
-/* Dropdown item hover effect */
 .dropdown-item {
-    transition: all 0.2s ease;
+    color: var(--text-color);
 }
 
 .dropdown-item:hover {
-    background-color: var(--primary-color);
-    color: white;
-    padding-left: 1.5rem;
+    background-color: var(--light-bg);
 }
 
 /* Cards */
 .card {
+    background-color: var(--white);
     border: 1px solid var(--border-color);
-    transition: box-shadow 0.3s ease;
+    box-shadow: var(--shadow);
 }
 
-.card:hover {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+[data-theme="dark"] .card {
+    background-color: var(--dark-bg);
 }
 
 /* Tables */
 .table {
-    background-color: var(--bg-color);
+    color: var(--text-color);
 }
 
-.table thead th {
-    border-bottom: 2px solid var(--border-color);
+[data-theme="dark"] .table {
+    --bs-table-bg: var(--dark-bg);
+    --bs-table-striped-bg: rgba(255, 255, 255, 0.05);
+    --bs-table-hover-bg: rgba(255, 255, 255, 0.075);
 }
 
 /* Forms */
-.form-control:focus,
-.form-select:focus {
+.form-control, .form-select {
+    background-color: var(--white);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+    background-color: var(--dark-bg);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.form-control:focus, .form-select:focus {
+    background-color: var(--white);
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+    color: var(--text-color);
 }
 
-/* Buttons */
-.btn {
-    transition: all 0.3s ease;
-}
-
-.btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.15);
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+    background-color: var(--dark-bg);
 }
 
 /* Footer */
-footer {
-    margin-top: auto;
+.footer {
+    background-color: var(--white);
     border-top: 1px solid var(--border-color);
+    padding: 2rem 0;
+    margin-top: auto;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
+[data-theme="dark"] .footer {
+    background-color: var(--dark-bg);
+}
+
+/* Theme toggle button */
+.theme-toggle {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-color);
+    padding: 0.25rem 0.5rem;
+}
+
+.theme-toggle:hover {
+    color: var(--primary-color);
+}
+
+/* Alert messages */
+.alert {
+    border-radius: 0.375rem;
+    margin-bottom: 1rem;
+}
+
+/* Breadcrumbs */
+.breadcrumb {
+    background-color: transparent;
+    padding: 0.75rem 0;
+}
+
+.breadcrumb-item a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.breadcrumb-item.active {
+    color: var(--secondary-color);
+}
+
+/* Action buttons */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Mobile optimization */
+@media (max-width: 767.98px) {
     .navbar-brand {
         font-size: 1.25rem;
     }
 
-    .btn-sm {
-        font-size: 0.75rem;
+    .navbar-tagline {
+        display: none;
     }
 
-    .card-body {
-        padding: 1rem;
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .action-buttons .btn {
+        width: 100%;
     }
 }
 
-/* Utility classes */
-.text-truncate-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.cursor-pointer {
-    cursor: pointer;
+/* Tablet optimization */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .container {
+        max-width: 100%;
+        padding: 0 1rem;
+    }
 }
 
 /* Loading spinner */
@@ -187,23 +231,65 @@ footer {
     z-index: 9999;
 }
 
-/* Animations */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
 }
 
-.fade-in {
-    animation: fadeIn 0.5s ease-in-out;
+::-webkit-scrollbar-track {
+    background: var(--light-bg);
 }
 
-/* Alert animations */
-.alert {
-    animation: fadeIn 0.3s ease-in-out;
+::-webkit-scrollbar-thumb {
+    background: var(--secondary-color);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+/* Utility classes */
+.text-muted {
+    color: var(--secondary-color) !important;
+}
+
+.border-top {
+    border-top: 1px solid var(--border-color) !important;
+}
+
+.border-bottom {
+    border-bottom: 1px solid var(--border-color) !important;
+}
+
+/* Page specific styles */
+.entity-detail-section {
+    margin-bottom: 2rem;
+}
+
+.entity-detail-section h4 {
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.related-entities {
+    margin-top: 3rem;
+}
+
+.stats-card {
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.stats-card h3 {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.stats-card p {
+    margin: 0;
+    color: var(--secondary-color);
 }

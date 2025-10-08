@@ -188,10 +188,12 @@ UI Components
 
 Navigation:
 
-Top-level menus are My, Organization, Market, Common
-Sub-menus in dropdown or sidebar
-Breadcrumbs for context
-Responsive hamburger menu
+Top-level menus: My, Organization, Market, and Common.
+Each top-level menu contains sub-menus, displayed either in a dropdown or sidebar.
+Sub-menus correspond to domains (as defined in the ER Diagram), and each sub-menu further expands into sub-sub-menus for the individual entities within that domain.
+
+Sub-menus and sub-sub-menus open on hover (desktop) or on tap (mobile).
+The interface includes breadcrumbs for contextual navigation and a responsive hamburger menu for mobile and compact layouts.
 
 
 List Views:
@@ -208,24 +210,38 @@ Export options (CSV, PDF, Excel)
 
 Detail Views:
 
-Categorized sections (tabs or accordions)
-Related entity sections
-Action buttons contextual to state
-Change history timeline
-Attachment viewer
-Comment/note section
+The Entity Detail View should present information in a well-organized and interactive layout, including:
+
+Categorized Sections: Display fields grouped into logical sections using tabs or accordions.
+
+Related Entities: Include sections showing related entities from the same domain (as defined in the ER Diagram).
+
+Contextual Actions: Provide action buttons based on the current state or user permissions.
+
+Change History: Show a timeline of modifications or version history for audit and traceability.
+
+Attachments: Integrate an attachment viewer to display uploaded documents or media files.
+
+Comments & Notes: Offer a discussion or note-taking section for collaboration and internal remarks.
 
 
 Forms:
 
-Categorized fields (logical grouping)
-Inline validation with clear error messages
-Required field indicators
-Help text and tooltips
-Auto-save drafts
-Cancel confirmation for unsaved changes
+Forms should be designed for clarity, usability, and data integrity, incorporating the following guidelines:
 
-In all forms, the label for any foreign key field should function as a hyperlink to the corresponding foreign entity’s detail page.
+Categorized Fields: Group related fields logically into sections for better readability.
+
+Inline Validation: Provide real-time validation with clear and descriptive error messages.
+
+Required Field Indicators: Mark mandatory fields visibly and consistently.
+
+Help Text & Tooltips: Offer contextual guidance and tooltips to assist users in data entry.
+
+Auto-Save Drafts: Automatically save partially completed forms to prevent data loss.
+
+Cancel Confirmation: Prompt users for confirmation when exiting a form with unsaved changes.
+
+Foreign Key Links: In all forms, labels for foreign key fields should act as hyperlinks to the corresponding foreign entity’s detail view.
 
 Theming
 
@@ -354,12 +370,7 @@ user_roles
 audit_log
 entity_history
 
--- Process tables
-processes
-process_states
-process_transitions
-process_instances
-process_history
+
 4.3 Schema Requirements
 
 Primary Keys: Auto-incrementing integers

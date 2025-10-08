@@ -1,96 +1,65 @@
 <?php
-/**
- * Login Page
- */
-
 require_once __DIR__ . '/../../../bootstrap.php';
 
 // Redirect if already logged in
-if (auth()) {
-    redirect('/');
+if (auth()->check()) {
+    header('Location: ../dashboard.php');
     exit;
 }
 
 $pageTitle = 'Login';
-include __DIR__ . '/../../../includes/header.php';
+require_once __DIR__ . '/../../../includes/header.php';
 ?>
 
-<div class="container mt-5">
+<div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
-            <div class="card shadow">
+            <div class="card shadow-sm mt-5">
                 <div class="card-body p-5">
-                    <div class="text-center mb-4">
-                        <h1 class="h3 mb-3">
-                            <i class="bi bi-box-arrow-in-right"></i> Welcome Back
-                        </h1>
-                        <p class="text-muted">Sign in to your V4L account</p>
-                    </div>
+                    <h2 class="text-center mb-4">
+                        <i class="bi bi-box-arrow-in-right"></i> Login to V4L
+                    </h2>
 
-                    <?php include __DIR__ . '/../../../views/components/form-errors.php'; ?>
-
-                    <form method="POST" action="/login" class="needs-validation" novalidate>
-                        <?= csrf_field() ?>
-
+                    <form action="login-process.php" method="POST" class="needs-validation" novalidate>
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-person"></i></span>
-                                <input type="text"
-                                       class="form-control <?= errors('username') ? 'is-invalid' : '' ?>"
-                                       id="username"
-                                       name="username"
-                                       value="<?= old('username') ?>"
-                                       autocomplete="username"
-                                       required
-                                       autofocus>
-                            </div>
-                            <?php $field = 'username'; include __DIR__ . '/../../../views/components/form-errors.php'; ?>
+                            <input type="text" class="form-control <?php echo error('username') ? 'is-invalid' : ''; ?>"
+                                   id="username" name="username" value="<?php echo old('username'); ?>" required autofocus>
+                            <?php if ($err = error('username')): ?>
+                                <div class="invalid-feedback"><?php echo escape($err); ?></div>
+                            <?php endif; ?>
                         </div>
 
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
-                                <input type="password"
-                                       class="form-control <?= errors('password') ? 'is-invalid' : '' ?>"
-                                       id="password"
-                                       name="password"
-                                       autocomplete="current-password"
-                                       required>
-                            </div>
-                            <?php $field = 'password'; include __DIR__ . '/../../../views/components/form-errors.php'; ?>
+                            <input type="password" class="form-control <?php echo error('password') ? 'is-invalid' : ''; ?>"
+                                   id="password" name="password" required>
+                            <?php if ($err = error('password')): ?>
+                                <div class="invalid-feedback"><?php echo escape($err); ?></div>
+                            <?php endif; ?>
                         </div>
 
                         <div class="mb-3 form-check">
-                            <input type="checkbox" class="form-check-input" id="remember" name="remember" value="1">
+                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
                             <label class="form-check-label" for="remember">
                                 Remember me
                             </label>
                         </div>
 
-                        <div class="d-grid mb-3">
+                        <div class="d-grid">
                             <button type="submit" class="btn btn-primary btn-lg">
-                                <i class="bi bi-box-arrow-in-right"></i> Sign In
+                                <i class="bi bi-box-arrow-in-right"></i> Login
                             </button>
-                        </div>
-
-                        <div class="text-center">
-                            <a href="/forgot-password" class="text-decoration-none">
-                                <small>Forgot your password?</small>
-                            </a>
                         </div>
                     </form>
 
                     <hr class="my-4">
 
                     <div class="text-center">
-                        <p class="mb-0">
-                            <small class="text-muted">Don't have an account?</small>
-                            <a href="/signup" class="text-decoration-none">
-                                <small><strong>Sign up now</strong></small>
-                            </a>
-                        </p>
+                        <p class="text-muted mb-2">Don't have an account?</p>
+                        <a href="signup.php" class="btn btn-outline-secondary">
+                            <i class="bi bi-person-plus"></i> Sign Up
+                        </a>
                     </div>
                 </div>
             </div>
@@ -98,4 +67,4 @@ include __DIR__ . '/../../../includes/header.php';
     </div>
 </div>
 
-<?php include __DIR__ . '/../../../includes/footer.php'; ?>
+<?php require_once __DIR__ . '/../../../includes/footer.php'; ?>
