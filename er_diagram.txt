@@ -19,6 +19,11 @@ id (PK)
 name
 continent_id → CONTINENT.id (FK)
 -------------------------------------------------------------------------------------
+STATE
+id (PK)
+name
+country_id → COUNTRY.id (FK)
+-------------------------------------------------------------------------------------
 LANGUAGE
 id (PK)
 name
@@ -30,7 +35,7 @@ first_street
 second_street
 area
 city
-state
+state_id -> STATE.id (FK)
 pin
 latitude
 longitude
@@ -362,7 +367,6 @@ status (Visible / Hidden)
 🏪 SELLER / LESSOR DOMAIN
 =====================================================================================
 
-
 This new domain connects organizations to the global catalog and defines how, where, and at what price goods/services are available.
 
 SELLER_ITEM
@@ -416,3 +420,792 @@ rating (1–5)
 review_text
 review_date
 status (Visible / Hidden)
+
+
+✅ TRANSACTION / SALES DOMAIN
+=====================================================================================
+CUSTOMER_ORDER
+id (PK)
+buyer_id → PERSON.id (FK)
+seller_item_id → SELLER_ITEM.id (FK)
+order_date
+status (Pending / Confirmed / Shipped / Delivered / Cancelled / Returned)
+payment_status (Pending / Paid / Refunded)
+delivery_address_id → POSTAL_ADDRESS.id (FK)
+-------------------------------------------------------------------------------------
+ORDER_ITEM_DETAIL
+id (PK)
+order_id → CUSTOMER_ORDER.id (FK)
+quantity
+unit_price
+discount_percent
+tax_amount
+total_price
+-------------------------------------------------------------------------------------
+SHIPMENT
+id (PK)
+order_id → CUSTOMER_ORDER.id (FK)
+courier_name
+tracking_number
+shipped_date
+delivered_date
+delivery_status
+-------------------------------------------------------------------------------------
+PAYMENT_TRANSACTION
+id (PK)
+order_id → CUSTOMER_ORDER.id (FK)
+amount
+currency
+payment_method (UPI / Card / Wallet / COD)
+transaction_date
+transaction_status
+
+
+💰 FINANCE & ACCOUNTING DOMAIN
+=====================================================================================
+CHART_OF_ACCOUNT
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+code (Unique within organization)
+name
+type ENUM(Asset, Liability, Equity, Income, Expense)
+parent_account_id → CHART_OF_ACCOUNT.id (FK, self)
+description
+is_active (boolean)
+created_by → PERSON.id (FK)
+created_date
+-------------------------------------------------------------------------------------
+FISCAL_YEAR
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+start_date
+end_date
+is_active (boolean)
+status (Open / Closed)
+-------------------------------------------------------------------------------------
+ACCOUNTING_PERIOD
+id (PK)
+fiscal_year_id → FISCAL_YEAR.id (FK)
+period_name (e.g., Jan 2025)
+start_date
+end_date
+status (Open / Closed)
+-------------------------------------------------------------------------------------
+JOURNAL_ENTRY
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+journal_date
+reference_number
+description
+posted_by → PERSON.id (FK)
+approved_by → PERSON.id (FK, nullable)
+status (Draft / Posted / Cancelled)
+-------------------------------------------------------------------------------------
+JOURNAL_ENTRY_LINE
+id (PK)
+journal_entry_id → JOURNAL_ENTRY.id (FK)
+account_id → CHART_OF_ACCOUNT.id (FK)
+debit_amount
+credit_amount
+narration
+-------------------------------------------------------------------------------------
+INVOICE
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+customer_id → PERSON.id (FK)
+invoice_number (Unique within organization)
+invoice_date
+due_date
+status (Draft / Sent / Paid / Cancelled)
+currency_code
+total_amount
+tax_amount
+discount_amount
+net_amount
+remarks
+-------------------------------------------------------------------------------------
+INVOICE_LINE_ITEM
+id (PK)
+invoice_id → INVOICE.id (FK)
+seller_item_id → SELLER_ITEM.id (FK)
+description
+quantity
+unit_price
+discount_percent
+tax_percent
+line_total
+-------------------------------------------------------------------------------------
+BILL
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+vendor_id → PERSON.id (FK)
+bill_number
+bill_date
+due_date
+currency_code
+status (Draft / Approved / Paid / Cancelled)
+total_amount
+tax_amount
+discount_amount
+net_amount
+remarks
+-------------------------------------------------------------------------------------
+BILL_LINE_ITEM
+id (PK)
+bill_id → BILL.id (FK)
+catalog_item_id → CATALOG_ITEM.id (FK)
+description
+quantity
+unit_price
+tax_percent
+line_total
+-------------------------------------------------------------------------------------
+PAYMENT_VOUCHER
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+payment_date
+payment_mode ENUM(Cash, Bank, UPI, Card, Cheque)
+paid_to → PERSON.id (FK)
+reference_entity (INVOICE / BILL / EXPENSE_CLAIM)
+reference_id (UUID / FK)
+amount
+currency_code
+remarks
+status (Pending / Completed / Failed)
+-------------------------------------------------------------------------------------
+RECEIPT_VOUCHER
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+receipt_date
+received_from → PERSON.id (FK)
+reference_entity (INVOICE / ORDER / REFUND)
+reference_id (UUID / FK)
+payment_mode ENUM(Cash, Bank, UPI, Card)
+amount
+currency_code
+remarks
+status (Pending / Completed / Failed)
+-------------------------------------------------------------------------------------
+TAX_RATE
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+name
+tax_code
+percentage
+effective_from
+effective_to (nullable)
+is_active (boolean)
+-------------------------------------------------------------------------------------
+TAX_TRANSACTION
+id (PK)
+reference_entity (INVOICE / BILL)
+reference_id (UUID / FK)
+tax_id → TAX_RATE.id (FK)
+taxable_amount
+tax_amount
+-------------------------------------------------------------------------------------
+EXPENSE_CLAIM
+id (PK)
+employee_id → PERSON.id (FK)
+organization_id → ORGANIZATION.id (FK)
+claim_date
+description
+total_amount
+status (Submitted / Approved / Rejected / Paid)
+approved_by → PERSON.id (FK, nullable)
+-------------------------------------------------------------------------------------
+EXPENSE_CLAIM_ITEM
+id (PK)
+claim_id → EXPENSE_CLAIM.id (FK)
+date
+expense_category (Travel / Food / Lodging / Office / Misc)
+amount
+remarks
+attachment_url
+-------------------------------------------------------------------------------------
+GENERAL_LEDGER_VIEW (Virtual Table / SQL View)
+account_id
+account_name
+period_id
+opening_balance
+total_debit
+total_credit
+closing_balance
+
+
+
+🧑‍💼 HR & PAYROLL DOMAIN
+=====================================================================================
+EMPLOYEE
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+person_id → PERSON.id (FK)
+employment_contract_id → EMPLOYMENT_CONTRACT.id (FK)
+employee_code (Unique within organization)
+joining_date
+exit_date (nullable)
+position_id → POPULAR_ORGANIZATION_POSITION.id (FK)
+department_id → POPULAR_ORGANIZATION_DEPARTMENT.id (FK)
+supervisor_id → EMPLOYEE.id (FK, self)
+status (Active / On Leave / Resigned / Terminated)
+work_email
+work_phone
+photo_url
+Methods:
+getReportingManager()
+getTenure()
+-------------------------------------------------------------------------------------
+ATTENDANCE_RECORD
+id (PK)
+employee_id → EMPLOYEE.id (FK)
+attendance_date
+check_in_time
+check_out_time
+work_duration (computed)
+status (Present / Absent / Half Day / Leave / Holiday)
+remarks
+recorded_by → PERSON.id (FK)
+-------------------------------------------------------------------------------------
+ATTENDANCE_POLICY
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+standard_work_hours_per_day
+late_grace_minutes
+overtime_rate (multiplier)
+max_overtime_hours_per_day
+is_active (boolean)
+-------------------------------------------------------------------------------------
+LEAVE_TYPE
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+name (e.g., Casual Leave, Sick Leave, Earned Leave)
+max_days_per_year
+carry_forward_allowed (boolean)
+requires_approval (boolean)
+is_paid (boolean)
+-------------------------------------------------------------------------------------
+LEAVE_BALANCE
+id (PK)
+employee_id → EMPLOYEE.id (FK)
+leave_type_id → LEAVE_TYPE.id (FK)
+fiscal_year_id → FISCAL_YEAR.id (FK)
+opening_balance
+availed_days
+remaining_days (computed)
+-------------------------------------------------------------------------------------
+LEAVE_APPLICATION
+id (PK)
+employee_id → EMPLOYEE.id (FK)
+leave_type_id → LEAVE_TYPE.id (FK)
+applied_date
+start_date
+end_date
+total_days (computed)
+reason
+status (Applied / Approved / Rejected / Cancelled)
+approved_by → EMPLOYEE.id (FK, nullable)
+remarks
+attachment_url (e.g., medical certificate)
+-------------------------------------------------------------------------------------
+WORK_SHIFT
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+name (Morning / Evening / Night)
+start_time
+end_time
+break_minutes
+is_active (boolean)
+-------------------------------------------------------------------------------------
+EMPLOYEE_SHIFT_ASSIGNMENT
+id (PK)
+employee_id → EMPLOYEE.id (FK)
+work_shift_id → WORK_SHIFT.id (FK)
+effective_from
+effective_to (nullable)
+assigned_by → PERSON.id (FK)
+-------------------------------------------------------------------------------------
+SALARY_COMPONENT
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+name (Basic, HRA, DA, Bonus, PF, ESI, Tax, etc.)
+component_type ENUM(Earning, Deduction)
+calculation_type ENUM(Fixed, Percentage)
+percentage_of_component_id → SALARY_COMPONENT.id (FK, self, nullable)
+is_taxable (boolean)
+is_active (boolean)
+-------------------------------------------------------------------------------------
+EMPLOYEE_SALARY_STRUCTURE
+id (PK)
+employee_id → EMPLOYEE.id (FK)
+effective_from
+effective_to (nullable)
+status (Active / Inactive)
+created_by → PERSON.id (FK)
+-------------------------------------------------------------------------------------
+EMPLOYEE_SALARY_COMPONENT
+id (PK)
+salary_structure_id → EMPLOYEE_SALARY_STRUCTURE.id (FK)
+salary_component_id → SALARY_COMPONENT.id (FK)
+amount
+remarks
+-------------------------------------------------------------------------------------
+PAYROLL_PERIOD
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+fiscal_year_id → FISCAL_YEAR.id (FK)
+period_name (e.g., “Jan 2025”)
+start_date
+end_date
+status (Open / Processed / Closed)
+processed_by → PERSON.id (FK, nullable)
+-------------------------------------------------------------------------------------
+PAYROLL_PROCESS
+id (PK)
+employee_id → EMPLOYEE.id (FK)
+payroll_period_id → PAYROLL_PERIOD.id (FK)
+gross_earnings
+total_deductions
+net_salary
+processing_date
+status (Draft / Approved / Paid)
+approved_by → PERSON.id (FK, nullable)
+-------------------------------------------------------------------------------------
+PAYROLL_DETAIL
+id (PK)
+payroll_process_id → PAYROLL_PROCESS.id (FK)
+salary_component_id → SALARY_COMPONENT.id (FK)
+amount
+component_type ENUM(Earning, Deduction)
+remarks
+-------------------------------------------------------------------------------------
+PAYSLIP
+id (PK)
+payroll_process_id → PAYROLL_PROCESS.id (FK)
+payslip_number (Unique)
+employee_id → EMPLOYEE.id (FK)
+issue_date
+payment_date
+net_salary
+status (Generated / Released / Acknowledged)
+pdf_url
+Methods:
+generatePayslip()
+emailPayslip()
+-------------------------------------------------------------------------------------
+PERFORMANCE_REVIEW
+id (PK)
+employee_id → EMPLOYEE.id (FK)
+reviewed_by → EMPLOYEE.id (FK)
+review_period_start
+review_period_end
+rating (1–5)
+feedback
+recommendation
+status (Pending / Finalized)
+-------------------------------------------------------------------------------------
+HR_POLICY
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+policy_name
+description
+effective_from
+effective_to (nullable)
+attachment_url
+is_active (boolean)
+
+
+🤝 CRM (Customer Relationship Management) DOMAIN
+=====================================================================================
+
+CUSTOMER_ACCOUNT
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+type ENUM(Individual, Business)
+person_id → PERSON.id (FK, nullable)       -- for individual customers
+business_name                             -- for business customers
+industry_id → INDUSTRY_CATEGORY.id (FK, nullable)
+source ENUM(Referral, Website, WalkIn, Campaign, Other)
+status ENUM(Active, Inactive, Prospect)
+created_by → PERSON.id (FK)
+created_date
+remarks
+-------------------------------------------------------------------------------------
+CUSTOMER_CONTACT
+id (PK)
+customer_account_id → CUSTOMER_ACCOUNT.id (FK)
+person_id → PERSON.id (FK)
+designation
+primary_contact (boolean)
+email
+phone
+remarks
+-------------------------------------------------------------------------------------
+CRM_LEAD
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+lead_name
+lead_source ENUM(Referral, Website, SocialMedia, Campaign, Event, Other)
+contact_person → PERSON.id (FK, nullable)
+email
+phone
+assigned_to → EMPLOYEE.id (FK)
+status ENUM(New, Contacted, Qualified, Lost, Converted)
+interest_area
+remarks
+created_date
+updated_date
+Methods:
+convertToOpportunity()
+assignToEmployee()
+-------------------------------------------------------------------------------------
+CRM_OPPORTUNITY
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+customer_account_id → CUSTOMER_ACCOUNT.id (FK, nullable)
+lead_id → CRM_LEAD.id (FK, nullable)
+title
+expected_close_date
+probability_percent
+expected_value
+stage ENUM(Prospecting, Proposal, Negotiation, Won, Lost)
+assigned_to → EMPLOYEE.id (FK)
+remarks
+created_date
+updated_date
+-------------------------------------------------------------------------------------
+CRM_OPPORTUNITY_ITEM
+id (PK)
+opportunity_id → CRM_OPPORTUNITY.id (FK)
+catalog_item_id → CATALOG_ITEM.id (FK)
+quantity
+unit_price
+discount_percent
+expected_revenue (computed)
+remarks
+-------------------------------------------------------------------------------------
+CRM_ACTIVITY_TYPE
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+name (Call, Meeting, Email, Demo, Site Visit, etc.)
+is_active (boolean)
+-------------------------------------------------------------------------------------
+CRM_ACTIVITY
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+activity_type_id → CRM_ACTIVITY_TYPE.id (FK)
+related_entity ENUM(CRM_LEAD, CUSTOMER_ACCOUNT, CRM_OPPORTUNITY)
+related_entity_id (UUID / FK)
+activity_date
+subject
+notes
+status ENUM(Scheduled, Completed, Cancelled)
+assigned_to → EMPLOYEE.id (FK)
+follow_up_date (nullable)
+attachment_url (nullable)
+-------------------------------------------------------------------------------------
+MARKETING_CAMPAIGN
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+name
+campaign_type ENUM(Email, SocialMedia, Event, Advertisement, Other)
+start_date
+end_date
+budget
+target_audience
+status ENUM(Draft, Active, Completed, Cancelled)
+created_by → PERSON.id (FK)
+remarks
+-------------------------------------------------------------------------------------
+CAMPAIGN_LEAD
+id (PK)
+campaign_id → MARKETING_CAMPAIGN.id (FK)
+lead_id → CRM_LEAD.id (FK)
+engagement_level ENUM(Low, Medium, High)
+conversion_status ENUM(None, Converted)
+remarks
+-------------------------------------------------------------------------------------
+SUPPORT_TICKET
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+customer_account_id → CUSTOMER_ACCOUNT.id (FK)
+contact_person_id → PERSON.id (FK, nullable)
+ticket_number (Unique)
+subject
+description
+priority ENUM(Low, Medium, High, Critical)
+category ENUM(General, Technical, Billing, Feedback, Other)
+status ENUM(Open, In Progress, On Hold, Resolved, Closed)
+created_by → PERSON.id (FK)
+assigned_to → EMPLOYEE.id (FK, nullable)
+created_date
+updated_date
+closed_date (nullable)
+-------------------------------------------------------------------------------------
+SUPPORT_TICKET_COMMENT
+id (PK)
+ticket_id → SUPPORT_TICKET.id (FK)
+commented_by → PERSON.id (FK)
+comment_text
+comment_date
+attachment_url (nullable)
+is_internal (boolean)
+-------------------------------------------------------------------------------------
+SUPPORT_TICKET_TAG
+id (PK)
+ticket_id → SUPPORT_TICKET.id (FK)
+tag_name
+-------------------------------------------------------------------------------------
+CUSTOMER_FEEDBACK
+id (PK)
+customer_account_id → CUSTOMER_ACCOUNT.id (FK)
+related_entity ENUM(SUPPORT_TICKET, ORDER, SERVICE, OTHER)
+related_entity_id (UUID / FK)
+rating (1–5)
+feedback_text
+submitted_by → PERSON.id (FK)
+submitted_date
+status (Visible / Hidden)
+-------------------------------------------------------------------------------------
+CRM_REMINDER
+id (PK)
+related_entity ENUM(CRM_LEAD, CRM_OPPORTUNITY, SUPPORT_TICKET)
+related_entity_id (UUID / FK)
+employee_id → EMPLOYEE.id (FK)
+reminder_date
+message
+is_completed (boolean)
+created_date
+
+
+
+🚚 PROCUREMENT & SUPPLY CHAIN DOMAIN
+=====================================================================================
+VENDOR
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+person_id → PERSON.id (FK, nullable)
+business_name
+contact_person_id → PERSON.id (FK, nullable)
+industry_id → INDUSTRY_CATEGORY.id (FK, nullable)
+postal_address_id → POSTAL_ADDRESS.id (FK)
+email
+phone
+gst_number (nullable)
+pan_number (nullable)
+status ENUM(Active, Inactive, Blacklisted)
+rating (1–5, nullable)
+remarks
+created_by → PERSON.id (FK)
+created_date
+-------------------------------------------------------------------------------------
+VENDOR_CONTACT
+id (PK)
+vendor_id → VENDOR.id (FK)
+contact_name
+designation
+email
+phone
+is_primary (boolean)
+remarks
+-------------------------------------------------------------------------------------
+PURCHASE_REQUEST
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+requested_by → EMPLOYEE.id (FK)
+department_id → POPULAR_ORGANIZATION_DEPARTMENT.id (FK)
+request_date
+priority ENUM(Low, Medium, High, Urgent)
+status ENUM(Draft, Submitted, Approved, Rejected, Cancelled, ConvertedToPO)
+remarks
+-------------------------------------------------------------------------------------
+PURCHASE_REQUEST_ITEM
+id (PK)
+purchase_request_id → PURCHASE_REQUEST.id (FK)
+catalog_item_id → CATALOG_ITEM.id (FK)
+quantity
+preferred_vendor_id → VENDOR.id (FK, nullable)
+remarks
+-------------------------------------------------------------------------------------
+PURCHASE_ORDER
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+vendor_id → VENDOR.id (FK)
+purchase_request_id → PURCHASE_REQUEST.id (FK, nullable)
+po_number (Unique within organization)
+po_date
+expected_delivery_date
+currency_code
+total_amount
+tax_amount
+discount_amount
+net_amount
+status ENUM(Draft, Approved, Sent, Received, Closed, Cancelled)
+payment_terms
+delivery_terms
+created_by → PERSON.id (FK)
+approved_by → PERSON.id (FK, nullable)
+remarks
+-------------------------------------------------------------------------------------
+PURCHASE_ORDER_ITEM
+id (PK)
+purchase_order_id → PURCHASE_ORDER.id (FK)
+catalog_item_id → CATALOG_ITEM.id (FK)
+description
+quantity
+unit_price
+discount_percent
+tax_percent
+line_total
+remarks
+-------------------------------------------------------------------------------------
+GOODS_RECEIPT_NOTE
+id (PK)
+purchase_order_id → PURCHASE_ORDER.id (FK)
+received_by → EMPLOYEE.id (FK)
+receipt_date
+reference_number
+status ENUM(Pending, PartiallyReceived, Completed, Rejected)
+remarks
+-------------------------------------------------------------------------------------
+GOODS_RECEIPT_ITEM
+id (PK)
+grn_id → GOODS_RECEIPT_NOTE.id (FK)
+purchase_order_item_id → PURCHASE_ORDER_ITEM.id (FK)
+received_quantity
+accepted_quantity
+rejected_quantity
+inspection_status ENUM(Pending, Accepted, Rejected)
+remarks
+-------------------------------------------------------------------------------------
+QUALITY_INSPECTION
+id (PK)
+grn_item_id → GOODS_RECEIPT_ITEM.id (FK)
+inspected_by → EMPLOYEE.id (FK)
+inspection_date
+inspection_notes
+result ENUM(Passed, Failed, Conditional)
+attachment_url (nullable)
+-------------------------------------------------------------------------------------
+WAREHOUSE
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+building_id → ORGANIZATION_BUILDING.id (FK)
+name
+code
+manager_id → EMPLOYEE.id (FK)
+is_active (boolean)
+remarks
+-------------------------------------------------------------------------------------
+INVENTORY_ITEM
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+catalog_item_id → CATALOG_ITEM.id (FK)
+warehouse_id → WAREHOUSE.id (FK)
+batch_number
+lot_number (nullable)
+quantity_on_hand
+reorder_level
+uom
+last_updated
+status ENUM(Available, Reserved, OutOfStock)
+-------------------------------------------------------------------------------------
+INVENTORY_TRANSACTION
+id (PK)
+inventory_item_id → INVENTORY_ITEM.id (FK)
+transaction_date
+transaction_type ENUM(Receipt, Issue, Adjustment, Transfer, Return)
+reference_entity ENUM(GRN, SALES_ORDER, INVENTORY_ADJUSTMENT, OTHER)
+reference_id (UUID / FK)
+quantity_change
+remarks
+recorded_by → PERSON.id (FK)
+-------------------------------------------------------------------------------------
+INVENTORY_TRANSFER
+id (PK)
+from_warehouse_id → WAREHOUSE.id (FK)
+to_warehouse_id → WAREHOUSE.id (FK)
+transfer_date
+status ENUM(InTransit, Received, Cancelled)
+remarks
+approved_by → EMPLOYEE.id (FK)
+-------------------------------------------------------------------------------------
+INVENTORY_TRANSFER_ITEM
+id (PK)
+inventory_transfer_id → INVENTORY_TRANSFER.id (FK)
+inventory_item_id → INVENTORY_ITEM.id (FK)
+quantity
+received_quantity
+remarks
+-------------------------------------------------------------------------------------
+PURCHASE_RETURN
+id (PK)
+purchase_order_id → PURCHASE_ORDER.id (FK)
+vendor_id → VENDOR.id (FK)
+return_date
+reason
+status ENUM(Draft, Approved, Shipped, Settled)
+remarks
+-------------------------------------------------------------------------------------
+PURCHASE_RETURN_ITEM
+id (PK)
+purchase_return_id → PURCHASE_RETURN.id (FK)
+purchase_order_item_id → PURCHASE_ORDER_ITEM.id (FK)
+returned_quantity
+return_value
+remarks
+-------------------------------------------------------------------------------------
+SUPPLIER_CREDIT_NOTE
+id (PK)
+vendor_id → VENDOR.id (FK)
+purchase_return_id → PURCHASE_RETURN.id (FK)
+credit_note_number
+credit_date
+amount
+status ENUM(Open, Adjusted, Closed)
+remarks
+-------------------------------------------------------------------------------------
+SHIPMENT
+id (PK)
+organization_id → ORGANIZATION.id (FK)
+shipment_number
+carrier_name
+tracking_number
+shipment_date
+expected_arrival
+actual_arrival (nullable)
+status ENUM(Preparing, InTransit, Delivered, Returned)
+origin_warehouse_id → WAREHOUSE.id (FK)
+destination_address_id → POSTAL_ADDRESS.id (FK)
+remarks
+-------------------------------------------------------------------------------------
+SHIPMENT_ITEM
+id (PK)
+shipment_id → SHIPMENT.id (FK)
+catalog_item_id → CATALOG_ITEM.id (FK)
+quantity
+uom
+remarks
+-------------------------------------------------------------------------------------
+PURCHASE_INVOICE
+id (PK)
+purchase_order_id → PURCHASE_ORDER.id (FK)
+vendor_id → VENDOR.id (FK)
+invoice_number
+invoice_date
+due_date
+total_amount
+tax_amount
+net_amount
+currency_code
+status ENUM(Draft, Approved, Paid, Cancelled)
+remarks
+-------------------------------------------------------------------------------------
+PURCHASE_PAYMENT
+id (PK)
+purchase_invoice_id → PURCHASE_INVOICE.id (FK)
+payment_date
+payment_mode ENUM(Cash, Bank, Cheque, UPI)
+amount
+transaction_reference
+status ENUM(Pending, Completed, Failed)
+remarks

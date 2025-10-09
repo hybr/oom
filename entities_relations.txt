@@ -1,0 +1,211 @@
+CONTINENT
+└── COUNTRY
+├── STATE / PROVINCE
+│ └── CITY / TOWN
+│ └── POSTAL_ADDRESS
+│ ├── first_street
+│ ├── second_street
+│ ├── area / locality
+│ ├── postal_code / pin
+│ ├── latitude / longitude
+│ ├── address_type (Home / Office / Warehouse)
+│ └── is_primary (boolean)
+├── LANGUAGE
+├── CURRENCY 
+└── TIMEZONE
+
+
+
+👤 PERSON & AUTHENTICATION DOMAIN
+PERSON
+ ├── CREDENTIAL
+ │    ├── username (Unique)
+ │    ├── password_hash + password_salt
+ │    └── last_login / failed_attempts
+ ├── CONTACT
+ │    ├── contact_type (Email / Mobile / WhatsApp)
+ │    ├── contact_value
+ │    └── is_primary
+ ├── PERSON_ROLE (Customer / Employee / Vendor / Admin)
+ └── PERSON_ADDRESS (FK → POSTAL_ADDRESS)
+
+🎓 EDUCATION & SKILL DOMAIN
+PERSON
+ ├── PERSON_EDUCATION
+ │    ├── institution
+ │    ├── education_level (Enum)
+ │    └── start_date / complete_date
+ │         └── PERSON_EDUCATION_SUBJECT → SKILL_SUBJECT
+ ├── PERSON_SKILL
+ │    ├── level / marks / institution
+ │    └── subject_id → SKILL_SUBJECT
+ └── CERTIFICATION
+      ├── skill_id → PERSON_SKILL
+      ├── certificate_name
+      ├── issue_date / expiry_date
+      └── verification_url
+
+🏢 ORGANIZATION DOMAIN
+ORGANIZATION_LEGAL_CATEGORY (self)
+ORGANIZATION
+ ├── admin_id → PERSON
+ ├── industry_id → INDUSTRY_CATEGORY
+ ├── legal_category_id
+ ├── parent_organization_id (for hierarchy)
+ ├── logo_url
+ ├── organization_contact (phone/email)
+ ├── organization_policy
+ └── ORGANIZATION_BRANCH
+      └── ORGANIZATION_BUILDING
+           ├── POSTAL_ADDRESS
+           └── WORKSTATION
+
+💼 HIRING DOMAIN
+ORGANIZATION
+ └── ORGANIZATION_VACANCY
+      ├── JOB_DESCRIPTION (version-controlled)
+      ├── ORGANIZATION_VACANCY_WORKSTATION
+      ├── VACANCY_APPLICATION
+      │    ├── APPLICATION_HISTORY (status log)
+      │    └── APPLICATION_REVIEW
+      ├── INTERVIEW_STAGE
+      │    └── INTERVIEW_PANEL (multiple interviewers)
+      ├── APPLICATION_INTERVIEW
+      ├── JOB_OFFER
+      └── EMPLOYMENT_CONTRACT
+
+🔒 PROCESS AUTHORIZATION DOMAIN
+ROLE
+ └── ROLE_ASSIGNMENT → PERSON
+ENTITY_DEFINITION
+ └── ENTITY_PROCESS_AUTHORIZATION
+      ├── action ENUM
+      └── popular_position_id
+ENTITY_INSTANCE_AUTHORIZATION
+ └── AUTHORIZATION_AUDIT_LOG
+
+🛒 CATALOG & SELLER DOMAIN
+CATALOG_CATEGORY (self)
+ └── CATALOG_ITEM
+      ├── CATALOG_ITEM_FEATURE
+      ├── CATALOG_ITEM_MEDIA
+      ├── CATALOG_ITEM_TAG
+      └── CATALOG_ITEM_REVIEW
+
+SELLER_ITEM
+ ├── organization_id
+ ├── catalog_item_id
+ ├── SELLER_ITEM_PRICE
+ ├── SELLER_ITEM_INVENTORY
+ ├── SELLER_SERVICE_SCHEDULE
+ ├── SELLER_ITEM_REVIEW
+ ├── BUNDLE_ITEM (combination of multiple SELLER_ITEMs)
+ ├── PRICING_RULE (discounts, promotions)
+ ├── WARRANTY_POLICY
+ └── RETURN_POLICY
+
+💰 FINANCE & ACCOUNTING DOMAIN
+CHART_OF_ACCOUNT (self)
+ ├── account_category
+ └── JOURNAL_ENTRY
+      └── JOURNAL_ENTRY_LINE
+           ├── source_entity (INVOICE / BILL / VOUCHER)
+           └── source_id (UUID)
+
+FISCAL_YEAR
+ └── ACCOUNTING_PERIOD
+
+INVOICE
+ ├── INVOICE_LINE_ITEM
+ ├── TAX_TRANSACTION
+ └── eInvoice (IRN, QR_code, acknowledgment_no)
+
+BILL
+ └── BILL_LINE_ITEM
+
+PAYMENT_VOUCHER
+ └── PAYMENT_VOUCHER_DETAIL (multi-entity payment support)
+
+RECEIPT_VOUCHER
+TAX_RATE
+EXPENSE_CLAIM
+ └── EXPENSE_CLAIM_ITEM (linked to CHART_OF_ACCOUNT)
+GENERAL_LEDGER_VIEW (Virtual)
+
+🧑‍💼 HR & PAYROLL DOMAIN
+EMPLOYEE
+ ├── ATTENDANCE_RECORD
+ ├── LEAVE_APPLICATION
+ ├── LEAVE_BALANCE → LEAVE_TYPE → LEAVE_POLICY
+ ├── WORK_SHIFT → EMPLOYEE_SHIFT_ASSIGNMENT
+ ├── EMPLOYEE_SALARY_STRUCTURE
+ │    └── EMPLOYEE_SALARY_COMPONENT
+ ├── PAYROLL_PERIOD
+ │    └── PAYROLL_PROCESS
+ │         └── PAYROLL_DETAIL
+ │              └── PAYSLIP
+ ├── EMPLOYEE_BENEFIT (PF, ESI, Insurance)
+ ├── HOLIDAY_CALENDAR
+ ├── PERFORMANCE_REVIEW
+ │    └── PERFORMANCE_GOAL
+ └── PAYROLL_AUDIT_LOG
+
+🤝 CRM DOMAIN
+CUSTOMER_ACCOUNT
+ ├── CUSTOMER_CONTACT
+ ├── CUSTOMER_FEEDBACK
+ └── SUPPORT_TICKET
+      ├── SUPPORT_TICKET_COMMENT
+      ├── SUPPORT_TICKET_TAG
+      ├── TICKET_SLA
+      └── KNOWLEDGE_BASE_ARTICLE
+
+CRM_LEAD
+ ├── CRM_OPPORTUNITY
+ │    ├── CRM_OPPORTUNITY_ITEM
+ │    └── PIPELINE_STAGE_HISTORY
+ ├── CRM_ACTIVITY_TYPE
+ │    └── CRM_ACTIVITY
+ └── MARKETING_CAMPAIGN
+      ├── CAMPAIGN_LEAD
+      ├── EMAIL_TEMPLATE
+      └── AUTOMATION_RULES
+
+CRM_REMINDER
+CUSTOMER_SEGMENT
+
+🚚 PROCUREMENT & SUPPLY CHAIN DOMAIN
+VENDOR
+ ├── VENDOR_CONTACT
+ ├── VENDOR_RATING_HISTORY
+ ├── VENDOR_CATEGORY
+ └── PURCHASE_REQUEST
+      ├── PURCHASE_REQUEST_ITEM
+      ├── PURCHASE_ORDER
+      │    ├── PURCHASE_ORDER_ITEM
+      │    ├── PURCHASE_ORDER_REVISION
+      │    └── PURCHASE_INVOICE
+      │         ├── PURCHASE_PAYMENT
+      │         └── SUPPLIER_CREDIT_NOTE
+      ├── GOODS_RECEIPT_NOTE
+      │    └── GOODS_RECEIPT_ITEM
+      │         └── QUALITY_INSPECTION
+      ├── PURCHASE_RETURN
+      │    └── PURCHASE_RETURN_ITEM
+      └── INVENTORY_ITEM
+           ├── INVENTORY_TRANSACTION
+           ├── INVENTORY_TRANSFER
+           │    └── INVENTORY_TRANSFER_ITEM
+           └── INVENTORY_AUDIT
+
+WAREHOUSE
+ ├── WAREHOUSE_LOCATION (bin/shelf/rack)
+ └── AUTOMATED_REORDER_RULE
+
+🧠 CROSS-DOMAIN ENTITIES
+DOCUMENT (central attachment management)
+NOTIFICATION
+WORKFLOW_RULE
+INTEGRATION_LOG
+ANALYTICS_SUMMARY
+LOCALIZATION_TEXT
