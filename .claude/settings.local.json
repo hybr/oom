@@ -10,7 +10,8 @@
       "Bash(php:*)",
       "Bash(cat:*)",
       "Bash(mkdir:*)",
-      "Bash(findstr:*)"
+      "Bash(findstr:*)",
+      "Bash(tree:*)"
     ],
     "deny": [],
     "ask": []

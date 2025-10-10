@@ -1,0 +1,50 @@
+# V4L .gitignore
+
+# Environment
+.env
+
+# Databases
+database/*.sqlite
+database/*.db
+
+# Logs
+logs/
+*.log
+
+# Cache
+cache/
+*.cache
+
+# Composer
+vendor/
+composer.lock
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Tests
+tests/coverage/
+.phpunit.result.cache
+
+# Temporary files
+tmp/
+temp/
+
+# Build artifacts
+dist/
+build/
+
+# Uploaded files
+uploads/
+
+# Session files
+sessions/

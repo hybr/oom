@@ -1,152 +1,227 @@
 <?php
-
 /**
- * Auth class - handles user authentication
+ * Authentication and Session Management
  */
-class Auth {
-    private $db;
-    private $sessionKey = 'user_id';
-    private $orgSessionKey = 'organization_id';
 
-    public function __construct() {
-        $this->db = db();
+class Auth
+{
+    /**
+     * Check if user is authenticated
+     */
+    public static function check()
+    {
+        return isset($_SESSION['user_id']);
     }
 
     /**
-     * Attempt to log in a user
+     * Get current user ID
      */
-    public function login($username, $password) {
-        $sql = "SELECT c.*, p.id as person_id, p.first_name, p.last_name
-                FROM credentials c
-                JOIN persons p ON c.person_id = p.id
-                WHERE c.username = ? AND c.deleted_at IS NULL";
+    public static function id()
+    {
+        return $_SESSION['user_id'] ?? null;
+    }
 
-        $credential = $this->db->selectOne($sql, [$username]);
+    /**
+     * Get current user data
+     */
+    public static function user()
+    {
+        if (!self::check()) {
+            return null;
+        }
 
-        if (!$credential) {
+        $userId = self::id();
+        $sql = "SELECT * FROM credential WHERE id = ? AND deleted_at IS NULL";
+        return Database::fetchOne($sql, [$userId]);
+    }
+
+    /**
+     * Attempt to login a user
+     */
+    public static function attempt($username, $password)
+    {
+        $sql = "SELECT * FROM credential WHERE username = ? AND deleted_at IS NULL";
+        $user = Database::fetchOne($sql, [$username]);
+
+        if (!$user) {
+            self::logFailedAttempt($username);
             return false;
         }
 
-        if (!password_verify($password, $credential['password_hash'])) {
+        // Check if account is locked
+        if (self::isLocked($username)) {
             return false;
         }
 
-        // Set session
-        $_SESSION[$this->sessionKey] = $credential['person_id'];
-        $_SESSION['username'] = $credential['username'];
-        $_SESSION['full_name'] = trim($credential['first_name'] . ' ' . $credential['last_name']);
+        // Verify password
+        if (!password_verify($password, $user['password_hash'])) {
+            self::logFailedAttempt($username);
+            return false;
+        }
 
-        // Regenerate session ID for security
+        // Login successful - regenerate session
         session_regenerate_id(true);
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['username'] = $user['username'];
+        $_SESSION['email'] = $user['email'];
+
+        // Clear failed attempts
+        self::clearFailedAttempts($username);
 
         return true;
     }
 
     /**
-     * Log out the current user
+     * Logout the current user
      */
-    public function logout() {
-        unset($_SESSION[$this->sessionKey]);
-        unset($_SESSION['username']);
-        unset($_SESSION['full_name']);
-        unset($_SESSION[$this->orgSessionKey]);
+    public static function logout()
+    {
+        $_SESSION = [];
         session_destroy();
-    }
-
-    /**
-     * Check if user is authenticated
-     */
-    public function check() {
-        return isset($_SESSION[$this->sessionKey]);
-    }
-
-    /**
-     * Get the current user ID
-     */
-    public function id() {
-        return $_SESSION[$this->sessionKey] ?? null;
-    }
-
-    /**
-     * Get the current user's full name
-     */
-    public function user() {
-        if (!$this->check()) {
-            return null;
-        }
-
-        return [
-            'id' => $_SESSION[$this->sessionKey] ?? null,
-            'username' => $_SESSION['username'] ?? null,
-            'full_name' => $_SESSION['full_name'] ?? null,
-        ];
-    }
-
-    /**
-     * Require authentication (redirect to login if not authenticated)
-     */
-    public function requireAuth() {
-        if (!$this->check()) {
-            $_SESSION['intended_url'] = $_SERVER['REQUEST_URI'];
-            redirect('/pages/auth/login.php');
-        }
+        session_start();
     }
 
     /**
      * Register a new user
      */
-    public function register($username, $password, $personId) {
-        $passwordHash = password_hash($password, PASSWORD_DEFAULT);
+    public static function register($username, $email, $password)
+    {
+        // Check if username exists
+        $sql = "SELECT COUNT(*) as cnt FROM credential WHERE username = ?";
+        $result = Database::fetchOne($sql, [$username]);
+        if ($result['cnt'] > 0) {
+            return ['success' => false, 'error' => 'Username already exists'];
+        }
 
-        $sql = "INSERT INTO credentials (username, password_hash, person_id, created_at)
-                VALUES (?, ?, ?, datetime('now'))";
+        // Check if email exists
+        $sql = "SELECT COUNT(*) as cnt FROM credential WHERE email = ?";
+        $result = Database::fetchOne($sql, [$email]);
+        if ($result['cnt'] > 0) {
+            return ['success' => false, 'error' => 'Email already exists'];
+        }
+
+        // Hash password
+        $passwordHash = password_hash($password, PASSWORD_ARGON2ID);
+
+        // Generate UUID
+        $id = self::generateUuid();
+
+        // Insert user
+        $sql = "INSERT INTO credential (id, username, email, password_hash, created_at, updated_at)
+                VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))";
 
         try {
-            $this->db->insert($sql, [$username, $passwordHash, $personId]);
-            return true;
+            Database::execute($sql, [$id, $username, $email, $passwordHash]);
+            return ['success' => true, 'user_id' => $id];
         } catch (Exception $e) {
-            error_log('Registration failed: ' . $e->getMessage());
+            return ['success' => false, 'error' => 'Registration failed: ' . $e->getMessage()];
+        }
+    }
+
+    /**
+     * Log failed login attempt
+     */
+    private static function logFailedAttempt($username)
+    {
+        if (!isset($_SESSION['failed_attempts'])) {
+            $_SESSION['failed_attempts'] = [];
+        }
+
+        if (!isset($_SESSION['failed_attempts'][$username])) {
+            $_SESSION['failed_attempts'][$username] = [
+                'count' => 0,
+                'last_attempt' => time(),
+            ];
+        }
+
+        $_SESSION['failed_attempts'][$username]['count']++;
+        $_SESSION['failed_attempts'][$username]['last_attempt'] = time();
+    }
+
+    /**
+     * Clear failed login attempts
+     */
+    private static function clearFailedAttempts($username)
+    {
+        if (isset($_SESSION['failed_attempts'][$username])) {
+            unset($_SESSION['failed_attempts'][$username]);
+        }
+    }
+
+    /**
+     * Check if account is locked due to failed attempts
+     */
+    private static function isLocked($username)
+    {
+        if (!isset($_SESSION['failed_attempts'][$username])) {
             return false;
         }
-    }
 
-    /**
-     * Check if username already exists
-     */
-    public function usernameExists($username) {
-        $sql = "SELECT id FROM credentials WHERE username = ?";
-        $result = $this->db->selectOne($sql, [$username]);
-        return !empty($result);
-    }
+        $attempts = $_SESSION['failed_attempts'][$username];
+        $maxAttempts = 5;
+        $lockoutTime = 900; // 15 minutes
 
-    /**
-     * Set the active organization
-     */
-    public function setOrganization($organizationId) {
-        $_SESSION[$this->orgSessionKey] = $organizationId;
-    }
-
-    /**
-     * Get the active organization ID
-     */
-    public function organizationId() {
-        return $_SESSION[$this->orgSessionKey] ?? null;
-    }
-
-    /**
-     * Get all organizations the user is admin of
-     */
-    public function getUserOrganizations() {
-        if (!$this->check()) {
-            return [];
+        if ($attempts['count'] >= $maxAttempts) {
+            $timeSinceLastAttempt = time() - $attempts['last_attempt'];
+            if ($timeSinceLastAttempt < $lockoutTime) {
+                return true;
+            } else {
+                // Lockout expired, reset attempts
+                self::clearFailedAttempts($username);
+                return false;
+            }
         }
 
-        $sql = "SELECT o.*, olc.name as legal_category_name
-                FROM organizations o
-                LEFT JOIN organization_legal_categories olc ON o.legal_category_id = olc.id
-                WHERE o.admin_id = ? AND o.deleted_at IS NULL
-                ORDER BY o.short_name";
+        return false;
+    }
 
-        return $this->db->select($sql, [$this->id()]);
+    /**
+     * Generate CSRF token
+     */
+    public static function generateCsrfToken()
+    {
+        if (!isset($_SESSION['csrf_token'])) {
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        }
+        return $_SESSION['csrf_token'];
+    }
+
+    /**
+     * Validate CSRF token
+     */
+    public static function validateCsrfToken($token)
+    {
+        return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
+    }
+
+    /**
+     * Generate UUID v4
+     */
+    public static function generateUuid()
+    {
+        $data = random_bytes(16);
+        $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
+        $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
+        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
+    }
+
+    /**
+     * Require authentication (redirect if not logged in)
+     */
+    public static function requireAuth()
+    {
+        if (!self::check()) {
+            Router::redirect('/auth/login');
+        }
+    }
+
+    /**
+     * Require guest (redirect if logged in)
+     */
+    public static function requireGuest()
+    {
+        if (self::check()) {
+            Router::redirect('/dashboard');
+        }
     }
 }

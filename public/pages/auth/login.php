@@ -1,42 +1,47 @@
 <?php
 require_once __DIR__ . '/../../../bootstrap.php';
 
-// Redirect if already logged in
-if (auth()->check()) {
-    header('Location: ../dashboard.php');
-    exit;
-}
+Auth::requireGuest();
 
 $pageTitle = 'Login';
+$error = $_SESSION['error'] ?? null;
+unset($_SESSION['error']);
+
 require_once __DIR__ . '/../../../includes/header.php';
 ?>
 
-<div class="container">
+<div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-5">
-            <div class="card shadow-sm mt-5">
+            <div class="card shadow">
                 <div class="card-body p-5">
                     <h2 class="text-center mb-4">
-                        <i class="bi bi-box-arrow-in-right"></i> Login to V4L
+                        <i class="bi bi-box-arrow-in-right"></i> Login
                     </h2>
 
-                    <form action="login-process.php" method="POST" class="needs-validation" novalidate>
+                    <?php if ($error): ?>
+                        <div class="alert alert-danger" role="alert">
+                            <i class="bi bi-exclamation-triangle"></i> <?php echo htmlspecialchars($error); ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <form method="POST" action="/auth/login-process" class="needs-validation" novalidate>
+                        <input type="hidden" name="csrf_token" value="<?php echo Auth::generateCsrfToken(); ?>">
+
                         <div class="mb-3">
                             <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control <?php echo error('username') ? 'is-invalid' : ''; ?>"
-                                   id="username" name="username" value="<?php echo old('username'); ?>" required autofocus>
-                            <?php if ($err = error('username')): ?>
-                                <div class="invalid-feedback"><?php echo escape($err); ?></div>
-                            <?php endif; ?>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input type="text" class="form-control" id="username" name="username" required autofocus>
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control <?php echo error('password') ? 'is-invalid' : ''; ?>"
-                                   id="password" name="password" required>
-                            <?php if ($err = error('password')): ?>
-                                <div class="invalid-feedback"><?php echo escape($err); ?></div>
-                            <?php endif; ?>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
                         </div>
 
                         <div class="mb-3 form-check">
@@ -55,12 +60,9 @@ require_once __DIR__ . '/../../../includes/header.php';
 
                     <hr class="my-4">
 
-                    <div class="text-center">
-                        <p class="text-muted mb-2">Don't have an account?</p>
-                        <a href="signup.php" class="btn btn-outline-secondary">
-                            <i class="bi bi-person-plus"></i> Sign Up
-                        </a>
-                    </div>
+                    <p class="text-center mb-0">
+                        Don't have an account? <a href="/auth/signup">Sign Up</a>
+                    </p>
                 </div>
             </div>
         </div>

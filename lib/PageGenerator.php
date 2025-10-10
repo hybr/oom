@@ -1,188 +1,86 @@
 <?php
-
 /**
- * PageGenerator class - generates CRUD pages for entities
+ * Page Generator - Auto-generates CRUD pages from metadata
  */
-class PageGenerator {
+
+class PageGenerator
+{
+    private $entity;
+    private $attributes;
+    private $relationships;
+
+    public function __construct($entityCode)
+    {
+        $this->entity = EntityManager::getEntity($entityCode);
+        if (!$this->entity) {
+            throw new Exception("Entity not found: {$entityCode}");
+        }
+
+        $this->attributes = EntityManager::getAttributes($this->entity['id']);
+        $this->relationships = EntityManager::getRelationships($this->entity['id']);
+    }
 
     /**
-     * Generate table HTML for list view
+     * Generate list view HTML
      */
-    public static function generateTable($columns, $data, $entityName, $actions = ['view', 'edit', 'delete']) {
-        $html = '<div class="table-responsive">';
+    public function generateListView($records, $totalCount, $page = 1, $perPage = 25)
+    {
+        $entityName = $this->entity['name'];
+        $entityCode = $this->entity['code'];
+
+        $html = '<div class="container-fluid mt-4">';
+        $html .= '<div class="d-flex justify-content-between align-items-center mb-3">';
+        $html .= "<h2>{$entityName} List</h2>";
+        $html .= '<a href="/entities/' . strtolower($entityCode) . '/create" class="btn btn-primary">Create New</a>';
+        $html .= '</div>';
+
+        // Table
+        $html .= '<div class="table-responsive">';
         $html .= '<table class="table table-striped table-hover">';
         $html .= '<thead class="table-dark"><tr>';
+        $html .= '<th>ID</th>';
 
-        // Checkbox for bulk actions
-        $html .= '<th><input type="checkbox" id="select-all"></th>';
-
-        // Column headers
-        foreach ($columns as $key => $label) {
-            $html .= '<th>' . escape($label) . '</th>';
+        // Show first 5 attributes
+        $displayAttrs = array_slice($this->attributes, 0, 5);
+        foreach ($displayAttrs as $attr) {
+            $html .= '<th>' . htmlspecialchars($attr['name']) . '</th>';
         }
 
         $html .= '<th>Actions</th>';
         $html .= '</tr></thead><tbody>';
 
-        // Data rows
-        foreach ($data as $row) {
+        foreach ($records as $record) {
             $html .= '<tr>';
-            $html .= '<td><input type="checkbox" class="select-row" value="' . escape($row['id']) . '"></td>';
+            $html .= '<td><small>' . substr($record['id'], 0, 8) . '...</small></td>';
 
-            foreach ($columns as $key => $label) {
-                $value = $row[$key] ?? '';
-
-                // Format different data types
-                if (strpos($key, '_date') !== false || strpos($key, '_at') !== false) {
-                    $value = $value ? date('Y-m-d H:i', strtotime($value)) : '';
-                } elseif (is_bool($value)) {
-                    $value = $value ? 'Yes' : 'No';
-                } elseif (strlen($value) > 100) {
-                    $value = substr($value, 0, 100) . '...';
+            foreach ($displayAttrs as $attr) {
+                $value = $record[$attr['code']] ?? '';
+                if (strlen($value) > 50) {
+                    $value = substr($value, 0, 50) . '...';
                 }
-
-                $html .= '<td>' . escape($value) . '</td>';
+                $html .= '<td>' . htmlspecialchars($value) . '</td>';
             }
 
-            // Action buttons
-            $html .= '<td class="text-nowrap">';
-
-            if (in_array('view', $actions)) {
-                $html .= '<a href="detail.php?id=' . $row['id'] . '" class="btn btn-sm btn-info me-1" title="View"><i class="bi bi-eye"></i></a>';
-            }
-
-            if (in_array('edit', $actions)) {
-                $html .= '<a href="edit.php?id=' . $row['id'] . '" class="btn btn-sm btn-warning me-1" title="Edit"><i class="bi bi-pencil"></i></a>';
-            }
-
-            if (in_array('delete', $actions)) {
-                $html .= '<a href="delete.php?id=' . $row['id'] . '" class="btn btn-sm btn-danger" title="Delete" onclick="return confirm(\'Are you sure?\')"><i class="bi bi-trash"></i></a>';
-            }
-
+            $html .= '<td>';
+            $html .= '<a href="/entities/' . strtolower($entityCode) . '/detail/' . $record['id'] . '" class="btn btn-sm btn-info">View</a> ';
+            $html .= '<a href="/entities/' . strtolower($entityCode) . '/edit/' . $record['id'] . '" class="btn btn-sm btn-warning">Edit</a> ';
+            $html .= '<button onclick="deleteRecord(\'' . $record['id'] . '\')" class="btn btn-sm btn-danger">Delete</button>';
             $html .= '</td>';
             $html .= '</tr>';
         }
 
-        $html .= '</tbody></table></div>';
+        $html .= '</tbody></table>';
+        $html .= '</div>';
 
-        return $html;
-    }
-
-    /**
-     * Generate pagination HTML
-     */
-    public static function generatePagination($currentPage, $totalPages, $baseUrl) {
-        if ($totalPages <= 1) {
-            return '';
-        }
-
-        $html = '<nav><ul class="pagination justify-content-center">';
-
-        // Previous button
-        if ($currentPage > 1) {
-            $html .= '<li class="page-item"><a class="page-link" href="' . $baseUrl . '?page=' . ($currentPage - 1) . '">Previous</a></li>';
-        } else {
-            $html .= '<li class="page-item disabled"><span class="page-link">Previous</span></li>';
-        }
-
-        // Page numbers
-        $start = max(1, $currentPage - 2);
-        $end = min($totalPages, $currentPage + 2);
-
-        if ($start > 1) {
-            $html .= '<li class="page-item"><a class="page-link" href="' . $baseUrl . '?page=1">1</a></li>';
-            if ($start > 2) {
-                $html .= '<li class="page-item disabled"><span class="page-link">...</span></li>';
+        // Pagination
+        $totalPages = ceil($totalCount / $perPage);
+        if ($totalPages > 1) {
+            $html .= '<nav><ul class="pagination">';
+            for ($i = 1; $i <= $totalPages; $i++) {
+                $active = $i == $page ? 'active' : '';
+                $html .= '<li class="page-item ' . $active . '"><a class="page-link" href="?page=' . $i . '">' . $i . '</a></li>';
             }
-        }
-
-        for ($i = $start; $i <= $end; $i++) {
-            if ($i == $currentPage) {
-                $html .= '<li class="page-item active"><span class="page-link">' . $i . '</span></li>';
-            } else {
-                $html .= '<li class="page-item"><a class="page-link" href="' . $baseUrl . '?page=' . $i . '">' . $i . '</a></li>';
-            }
-        }
-
-        if ($end < $totalPages) {
-            if ($end < $totalPages - 1) {
-                $html .= '<li class="page-item disabled"><span class="page-link">...</span></li>';
-            }
-            $html .= '<li class="page-item"><a class="page-link" href="' . $baseUrl . '?page=' . $totalPages . '">' . $totalPages . '</a></li>';
-        }
-
-        // Next button
-        if ($currentPage < $totalPages) {
-            $html .= '<li class="page-item"><a class="page-link" href="' . $baseUrl . '?page=' . ($currentPage + 1) . '">Next</a></li>';
-        } else {
-            $html .= '<li class="page-item disabled"><span class="page-link">Next</span></li>';
-        }
-
-        $html .= '</ul></nav>';
-
-        return $html;
-    }
-
-    /**
-     * Generate form field HTML
-     */
-    public static function generateFormField($name, $label, $type = 'text', $value = '', $required = false, $options = []) {
-        $html = '<div class="mb-3">';
-        $html .= '<label for="' . $name . '" class="form-label">' . escape($label);
-        if ($required) {
-            $html .= ' <span class="text-danger">*</span>';
-        }
-        $html .= '</label>';
-
-        $oldValue = old($name, $value);
-        $error = error($name);
-        $inputClass = 'form-control' . ($error ? ' is-invalid' : '');
-
-        switch ($type) {
-            case 'textarea':
-                $html .= '<textarea name="' . $name . '" id="' . $name . '" class="' . $inputClass . '" rows="4"';
-                if ($required) $html .= ' required';
-                $html .= '>' . escape($oldValue) . '</textarea>';
-                break;
-
-            case 'select':
-                $html .= '<select name="' . $name . '" id="' . $name . '" class="' . $inputClass . '"';
-                if ($required) $html .= ' required';
-                $html .= '>';
-                $html .= '<option value="">-- Select --</option>';
-                foreach ($options as $optValue => $optLabel) {
-                    $selected = $oldValue == $optValue ? ' selected' : '';
-                    $html .= '<option value="' . escape($optValue) . '"' . $selected . '>' . escape($optLabel) . '</option>';
-                }
-                $html .= '</select>';
-                break;
-
-            case 'checkbox':
-                $checked = $oldValue ? ' checked' : '';
-                $html .= '<div class="form-check">';
-                $html .= '<input type="checkbox" name="' . $name . '" id="' . $name . '" class="form-check-input" value="1"' . $checked . '>';
-                $html .= '<label class="form-check-label" for="' . $name . '">' . escape($label) . '</label>';
-                $html .= '</div>';
-                break;
-
-            case 'date':
-            case 'datetime-local':
-            case 'email':
-            case 'number':
-            case 'url':
-                $html .= '<input type="' . $type . '" name="' . $name . '" id="' . $name . '" class="' . $inputClass . '" value="' . escape($oldValue) . '"';
-                if ($required) $html .= ' required';
-                $html .= '>';
-                break;
-
-            default:
-                $html .= '<input type="text" name="' . $name . '" id="' . $name . '" class="' . $inputClass . '" value="' . escape($oldValue) . '"';
-                if ($required) $html .= ' required';
-                $html .= '>';
-        }
-
-        if ($error) {
-            $html .= '<div class="invalid-feedback">' . escape($error) . '</div>';
+            $html .= '</ul></nav>';
         }
 
         $html .= '</div>';
@@ -193,28 +91,212 @@ class PageGenerator {
     /**
      * Generate detail view HTML
      */
-    public static function generateDetailView($fields, $data) {
-        $html = '<div class="card"><div class="card-body">';
+    public function generateDetailView($record)
+    {
+        $entityName = $this->entity['name'];
+        $entityCode = $this->entity['code'];
 
-        foreach ($fields as $key => $label) {
-            $value = $data[$key] ?? '';
+        $html = '<div class="container-fluid mt-4">';
+        $html .= '<div class="d-flex justify-content-between align-items-center mb-3">';
+        $html .= "<h2>{$entityName} Details</h2>";
+        $html .= '<div>';
+        $html .= '<a href="/entities/' . strtolower($entityCode) . '/edit/' . $record['id'] . '" class="btn btn-warning">Edit</a> ';
+        $html .= '<a href="/entities/' . strtolower($entityCode) . '/list" class="btn btn-secondary">Back to List</a>';
+        $html .= '</div></div>';
 
-            // Format different data types
-            if (strpos($key, '_date') !== false || strpos($key, '_at') !== false) {
-                $value = $value ? date('Y-m-d H:i:s', strtotime($value)) : 'N/A';
-            } elseif (is_bool($value)) {
-                $value = $value ? 'Yes' : 'No';
-            } elseif (empty($value) && $value !== '0') {
-                $value = 'N/A';
+        $html .= '<div class="card">';
+        $html .= '<div class="card-body">';
+        $html .= '<dl class="row">';
+
+        // Display all attributes
+        foreach ($this->attributes as $attr) {
+            $value = $record[$attr['code']] ?? '';
+            $html .= '<dt class="col-sm-3">' . htmlspecialchars($attr['name']) . ':</dt>';
+            $html .= '<dd class="col-sm-9">' . htmlspecialchars($value) . '</dd>';
+        }
+
+        // System fields
+        $html .= '<dt class="col-sm-3">Created At:</dt>';
+        $html .= '<dd class="col-sm-9">' . htmlspecialchars($record['created_at']) . '</dd>';
+        $html .= '<dt class="col-sm-3">Updated At:</dt>';
+        $html .= '<dd class="col-sm-9">' . htmlspecialchars($record['updated_at']) . '</dd>';
+
+        $html .= '</dl>';
+        $html .= '</div></div>';
+
+        // Related entities
+        if (!empty($this->relationships)) {
+            $html .= '<div class="mt-4">';
+            $html .= '<h4>Related Records</h4>';
+            foreach ($this->relationships as $rel) {
+                $toEntity = EntityManager::getEntityById($rel['to_entity_id']);
+                $html .= '<div class="card mb-2">';
+                $html .= '<div class="card-header">' . htmlspecialchars($rel['relation_name']) . '</div>';
+                $html .= '<div class="card-body">';
+                $html .= '<a href="/entities/' . strtolower($toEntity['code']) . '/list?filter=' . $rel['fk_field'] . '=' . $record['id'] . '" class="btn btn-sm btn-primary">View ' . htmlspecialchars($toEntity['name']) . ' Records</a>';
+                $html .= '</div></div>';
             }
-
-            $html .= '<div class="row mb-2">';
-            $html .= '<div class="col-md-4"><strong>' . escape($label) . ':</strong></div>';
-            $html .= '<div class="col-md-8">' . escape($value) . '</div>';
             $html .= '</div>';
         }
 
-        $html .= '</div></div>';
+        $html .= '</div>';
+
+        return $html;
+    }
+
+    /**
+     * Generate form HTML for create/edit
+     */
+    public function generateForm($record = null, $action = 'create')
+    {
+        $entityName = $this->entity['name'];
+        $entityCode = $this->entity['code'];
+        $isEdit = $action === 'edit';
+
+        $html = '<div class="container-fluid mt-4">';
+        $html .= '<h2>' . ($isEdit ? 'Edit' : 'Create') . ' ' . $entityName . '</h2>';
+
+        $formAction = $isEdit ? "/entities/" . strtolower($entityCode) . "/update" : "/entities/" . strtolower($entityCode) . "/store";
+        $html .= '<form method="POST" action="' . $formAction . '" class="needs-validation" novalidate>';
+
+        // CSRF token
+        $html .= '<input type="hidden" name="csrf_token" value="' . Auth::generateCsrfToken() . '">';
+
+        if ($isEdit && $record) {
+            $html .= '<input type="hidden" name="id" value="' . htmlspecialchars($record['id']) . '">';
+        }
+
+        $html .= '<div class="row">';
+
+        // Generate form fields
+        foreach ($this->attributes as $attr) {
+            if ($attr['is_system'] == 1) {
+                continue;
+            }
+
+            $value = $isEdit && $record ? ($record[$attr['code']] ?? '') : ($attr['default_value'] ?? '');
+            $required = $attr['is_required'] == 1 ? 'required' : '';
+
+            $html .= '<div class="col-md-6 mb-3">';
+            $html .= '<label for="' . $attr['code'] . '" class="form-label">' . htmlspecialchars($attr['name']);
+            if ($required) {
+                $html .= ' <span class="text-danger">*</span>';
+            }
+            $html .= '</label>';
+
+            // Check if this is a foreign key
+            $isForeignKey = false;
+            foreach ($this->relationships as $rel) {
+                if ($rel['fk_field'] === $attr['code']) {
+                    $isForeignKey = true;
+                    $html .= $this->generateForeignKeySelect($rel, $value, $required);
+                    break;
+                }
+            }
+
+            if (!$isForeignKey) {
+                $html .= $this->generateFormField($attr, $value, $required);
+            }
+
+            if ($attr['description']) {
+                $html .= '<div class="form-text">' . htmlspecialchars($attr['description']) . '</div>';
+            }
+
+            $html .= '</div>';
+        }
+
+        $html .= '</div>';
+
+        $html .= '<div class="mt-4">';
+        $html .= '<button type="submit" class="btn btn-primary">' . ($isEdit ? 'Update' : 'Create') . '</button> ';
+        $html .= '<a href="/entities/' . strtolower($entityCode) . '/list" class="btn btn-secondary">Cancel</a>';
+        $html .= '</div>';
+
+        $html .= '</form>';
+        $html .= '</div>';
+
+        return $html;
+    }
+
+    /**
+     * Generate form field based on attribute type
+     */
+    private function generateFormField($attr, $value, $required)
+    {
+        $html = '';
+        $code = $attr['code'];
+
+        switch ($attr['data_type']) {
+            case 'text':
+                if ($attr['enum_values']) {
+                    // Select dropdown
+                    $options = json_decode($attr['enum_values'], true);
+                    $html .= '<select name="' . $code . '" id="' . $code . '" class="form-select" ' . $required . '>';
+                    $html .= '<option value="">-- Select --</option>';
+                    foreach ($options as $option) {
+                        $selected = $value == $option ? 'selected' : '';
+                        $html .= '<option value="' . htmlspecialchars($option) . '" ' . $selected . '>' . htmlspecialchars($option) . '</option>';
+                    }
+                    $html .= '</select>';
+                } else {
+                    $html .= '<input type="text" name="' . $code . '" id="' . $code . '" class="form-control" value="' . htmlspecialchars($value) . '" ' . $required . '>';
+                }
+                break;
+
+            case 'number':
+            case 'integer':
+                $html .= '<input type="number" name="' . $code . '" id="' . $code . '" class="form-control" value="' . htmlspecialchars($value) . '" ' . $required;
+                if ($attr['min_value']) {
+                    $html .= ' min="' . $attr['min_value'] . '"';
+                }
+                if ($attr['max_value']) {
+                    $html .= ' max="' . $attr['max_value'] . '"';
+                }
+                $html .= '>';
+                break;
+
+            case 'boolean':
+                $checked = $value ? 'checked' : '';
+                $html .= '<div class="form-check">';
+                $html .= '<input type="checkbox" name="' . $code . '" id="' . $code . '" class="form-check-input" value="1" ' . $checked . '>';
+                $html .= '<label class="form-check-label" for="' . $code . '">Yes</label>';
+                $html .= '</div>';
+                break;
+
+            case 'date':
+                $html .= '<input type="date" name="' . $code . '" id="' . $code . '" class="form-control" value="' . htmlspecialchars($value) . '" ' . $required . '>';
+                break;
+
+            case 'datetime':
+                $html .= '<input type="datetime-local" name="' . $code . '" id="' . $code . '" class="form-control" value="' . htmlspecialchars($value) . '" ' . $required . '>';
+                break;
+
+            default:
+                $html .= '<textarea name="' . $code . '" id="' . $code . '" class="form-control" rows="3" ' . $required . '>' . htmlspecialchars($value) . '</textarea>';
+        }
+
+        return $html;
+    }
+
+    /**
+     * Generate foreign key select dropdown
+     */
+    private function generateForeignKeySelect($relationship, $value, $required)
+    {
+        $toEntity = EntityManager::getEntityById($relationship['to_entity_id']);
+        $records = EntityManager::search($toEntity['code'], [], 1000);
+
+        $html = '<select name="' . $relationship['fk_field'] . '" id="' . $relationship['fk_field'] . '" class="form-select" ' . $required . '>';
+        $html .= '<option value="">-- Select ' . htmlspecialchars($toEntity['name']) . ' --</option>';
+
+        foreach ($records as $record) {
+            $selected = $value == $record['id'] ? 'selected' : '';
+            // Try to find a name field
+            $displayValue = $record['name'] ?? $record['code'] ?? $record['id'];
+            $html .= '<option value="' . htmlspecialchars($record['id']) . '" ' . $selected . '>' . htmlspecialchars($displayValue) . '</option>';
+        }
+
+        $html .= '</select>';
 
         return $html;
     }

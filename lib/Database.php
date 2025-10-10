@@ -1,119 +1,173 @@
 <?php
-
 /**
- * Database class - handles database connections and queries
+ * Database Connection Manager
+ * Handles both meta and operational database connections
  */
-class Database {
-    private static $instance = null;
-    private $pdo;
-    private $config;
 
-    public function __construct() {
-        $this->config = config('database');
-        $this->connect();
-    }
+class Database
+{
+    private static $metaConnection = null;
+    private static $defaultConnection = null;
 
-    public static function getInstance() {
-        if (self::$instance === null) {
-            self::$instance = new self();
-        }
-        return self::$instance;
-    }
+    /**
+     * Get meta database connection (SQLite)
+     */
+    public static function meta()
+    {
+        if (self::$metaConnection === null) {
+            $config = Config::get('database.meta');
+            $dsn = 'sqlite:' . $config['path'];
 
-    private function connect() {
-        $connection = $this->config['connection'];
-        $config = $this->config['connections'][$connection];
-
-        try {
-            if ($connection === 'sqlite') {
-                $this->pdo = new PDO(
-                    'sqlite:' . $config['database'],
-                    null,
-                    null,
-                    $config['options']
-                );
-                // Enable foreign keys for SQLite
-                $this->pdo->exec('PRAGMA foreign_keys = ON');
-            } else if ($connection === 'mysql') {
-                $dsn = sprintf(
-                    'mysql:host=%s;port=%s;dbname=%s;charset=%s',
-                    $config['host'],
-                    $config['port'],
-                    $config['database'],
-                    $config['charset']
-                );
-                $this->pdo = new PDO(
-                    $dsn,
-                    $config['username'],
-                    $config['password'],
-                    $config['options']
-                );
+            try {
+                self::$metaConnection = new PDO($dsn);
+                self::$metaConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                self::$metaConnection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+                self::$metaConnection->exec('PRAGMA foreign_keys = ON');
+            } catch (PDOException $e) {
+                self::logError('Meta database connection failed: ' . $e->getMessage());
+                throw $e;
             }
-        } catch (PDOException $e) {
-            error_log('Database connection failed: ' . $e->getMessage());
-            throw new Exception('Database connection failed');
         }
+
+        return self::$metaConnection;
     }
 
-    public function getPDO() {
-        return $this->pdo;
+    /**
+     * Get default operational database connection
+     */
+    public static function connection($name = 'default')
+    {
+        if (self::$defaultConnection === null) {
+            $config = Config::get("database.{$name}");
+            $driver = $config['driver'];
+
+            try {
+                if ($driver === 'sqlite') {
+                    $dsn = 'sqlite:' . $config['database'];
+                    self::$defaultConnection = new PDO($dsn);
+                    self::$defaultConnection->exec('PRAGMA foreign_keys = ON');
+                } elseif ($driver === 'mysql') {
+                    $dsn = "mysql:host={$config['host']};port={$config['port']};dbname=" . basename($config['database']) . ";charset=utf8mb4";
+                    self::$defaultConnection = new PDO($dsn, $config['username'], $config['password']);
+                } elseif ($driver === 'pgsql') {
+                    $dsn = "pgsql:host={$config['host']};port={$config['port']};dbname=" . basename($config['database']);
+                    self::$defaultConnection = new PDO($dsn, $config['username'], $config['password']);
+                }
+
+                self::$defaultConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+                self::$defaultConnection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+            } catch (PDOException $e) {
+                self::logError('Default database connection failed: ' . $e->getMessage());
+                throw $e;
+            }
+        }
+
+        return self::$defaultConnection;
     }
 
-    public function query($sql, $params = []) {
+    /**
+     * Execute a query with parameters
+     */
+    public static function query($sql, $params = [], $connection = 'default')
+    {
+        $db = $connection === 'meta' ? self::meta() : self::connection();
+
         try {
-            $stmt = $this->pdo->prepare($sql);
+            $stmt = $db->prepare($sql);
             $stmt->execute($params);
             return $stmt;
         } catch (PDOException $e) {
-            error_log('Query failed: ' . $e->getMessage() . ' | SQL: ' . $sql);
+            self::logError("Query failed: {$sql} | Error: " . $e->getMessage());
             throw $e;
         }
     }
 
-    public function select($sql, $params = []) {
-        $stmt = $this->query($sql, $params);
+    /**
+     * Fetch all results
+     */
+    public static function fetchAll($sql, $params = [], $connection = 'default')
+    {
+        $stmt = self::query($sql, $params, $connection);
         return $stmt->fetchAll();
     }
 
-    public function selectOne($sql, $params = []) {
-        $stmt = $this->query($sql, $params);
+    /**
+     * Fetch single result
+     */
+    public static function fetchOne($sql, $params = [], $connection = 'default')
+    {
+        $stmt = self::query($sql, $params, $connection);
         return $stmt->fetch();
     }
 
-    public function insert($sql, $params = []) {
-        $this->query($sql, $params);
-        return $this->pdo->lastInsertId();
-    }
-
-    public function update($sql, $params = []) {
-        $stmt = $this->query($sql, $params);
+    /**
+     * Execute an insert/update/delete query
+     */
+    public static function execute($sql, $params = [], $connection = 'default')
+    {
+        $stmt = self::query($sql, $params, $connection);
         return $stmt->rowCount();
     }
 
-    public function delete($sql, $params = []) {
-        $stmt = $this->query($sql, $params);
-        return $stmt->rowCount();
+    /**
+     * Get last insert ID
+     */
+    public static function lastInsertId($connection = 'default')
+    {
+        $db = $connection === 'meta' ? self::meta() : self::connection();
+        return $db->lastInsertId();
     }
 
-    public function beginTransaction() {
-        return $this->pdo->beginTransaction();
+    /**
+     * Begin transaction
+     */
+    public static function beginTransaction($connection = 'default')
+    {
+        $db = $connection === 'meta' ? self::meta() : self::connection();
+        return $db->beginTransaction();
     }
 
-    public function commit() {
-        return $this->pdo->commit();
+    /**
+     * Commit transaction
+     */
+    public static function commit($connection = 'default')
+    {
+        $db = $connection === 'meta' ? self::meta() : self::connection();
+        return $db->commit();
     }
 
-    public function rollBack() {
-        return $this->pdo->rollBack();
+    /**
+     * Rollback transaction
+     */
+    public static function rollback($connection = 'default')
+    {
+        $db = $connection === 'meta' ? self::meta() : self::connection();
+        return $db->rollBack();
     }
 
-    public function tableExists($tableName) {
-        $sql = "SELECT name FROM sqlite_master WHERE type='table' AND name=?";
-        $result = $this->selectOne($sql, [$tableName]);
-        return !empty($result);
+    /**
+     * Log database errors
+     */
+    private static function logError($message)
+    {
+        $logPath = Config::get('logging.path');
+        $logDir = dirname($logPath);
+
+        if (!is_dir($logDir)) {
+            mkdir($logDir, 0755, true);
+        }
+
+        $timestamp = date('Y-m-d H:i:s');
+        $logMessage = "[{$timestamp}] DATABASE ERROR: {$message}\n";
+        file_put_contents($logPath, $logMessage, FILE_APPEND);
     }
 
-    public function createTable($sql) {
-        return $this->pdo->exec($sql);
+    /**
+     * Close connections
+     */
+    public static function close()
+    {
+        self::$metaConnection = null;
+        self::$defaultConnection = null;
     }
 }

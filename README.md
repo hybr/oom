@@ -1,81 +1,97 @@
-# V4L - Vocal 4 Local 🏪
+# V4L (Vocal 4 Local)
 
-**Your Community, Your Marketplace.**
+**Tagline:** *Your Community, Your Marketplace*
 
-V4L is a comprehensive web platform connecting local organizations with local customers, built with modern PHP and responsive design principles.
+**Version:** 1.0
+**Domain:** https://v4l.app
 
-## 🌟 Features
+---
 
-- **Local Marketplace**: Browse and discover products and services from local businesses
-- **Job Board**: Find employment opportunities in your community
-- **Organization Management**: Manage your organization, branches, and operations
-- **Hiring System**: Post vacancies, receive applications, conduct interviews
-- **Catalog Management**: Centralized product/service catalog with seller integration
-- **User Authentication**: Secure signup, login, and session management
-- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
-- **Dark/Light Mode**: Theme toggle with persistent user preference
-- **Geography Support**: Multi-level geographic data (Continents → Countries → Languages)
-- **Education & Skills Tracking**: Manage personal education and skill profiles
+## Overview
 
-## 🏗️ Architecture
+V4L (Vocal 4 Local) is a PHP-based web platform designed to connect local organizations with local customers, enabling community-driven commerce and interaction.
 
-- **Language**: PHP 8.1+ (Pure PHP, no frameworks)
-- **Architecture**: MVC pattern with microservices principles
-- **Database**: SQLite (with migration path to MySQL/PostgreSQL)
-- **Frontend**: Bootstrap 5.3, Vanilla JavaScript, Responsive Design
-- **Patterns**: SOLID principles, Repository pattern, OOP
+### Key Features
 
-## 📋 Requirements
+- **Metadata-Driven Architecture**: Entities are defined in metadata, enabling dynamic CRUD operations
+- **Auto-Generated UI**: List, detail, create, and edit pages are automatically generated from entity definitions
+- **Responsive Design**: Bootstrap 5.3+ with mobile-first approach
+- **Real-time Updates**: WebSocket support for live entity updates
+- **Secure by Design**: Built-in CSRF protection, input validation, and authentication
+- **Extensible**: Add new entities purely through metadata without writing code
 
-- PHP 8.1 or higher
-- SQLite3 extension enabled
-- Apache/Nginx web server
-- Write permissions for `database/`, `logs/`, and `uploads/` directories
+---
 
-## 🚀 Installation
+## Requirements
 
-### 1. Clone or download the project
+- **PHP**: 8.2 or higher
+- **Web Server**: Apache (with mod_rewrite) or Nginx
+- **Database**: SQLite (development), PostgreSQL/MySQL (production)
+- **Extensions**: PDO, JSON, mbstring
 
-```bash
-git clone <repository-url>
-cd oom
-```
+---
 
-### 2. Set up the environment file
+## Quick Start
+
+### 1. Installation
 
 ```bash
+# Clone or download the repository
+cd /path/to/v4l
+
+# Copy environment configuration
 cp .env.example .env
+
+# Edit .env with your settings
+nano .env
 ```
 
-Edit `.env` to configure your settings (database, URLs, etc.)
-
-### 3. Install dependencies (optional, for testing)
+### 2. Initialize Databases
 
 ```bash
-composer install
+# Initialize meta database (contains entity definitions)
+php database/init-meta-db.php
+
+# This will create database/meta.sqlite with all entity metadata
 ```
 
-### 4. Initialize the database
+### 3. Set Permissions
 
 ```bash
-php database/init-db.php
+# Make database directory writable
+chmod 755 database/
+chmod 666 database/*.sqlite
+
+# Make logs directory writable
+mkdir logs
+chmod 755 logs/
 ```
 
-This will create all necessary tables in the SQLite database.
+### 4. Configure Web Server
 
-### 5. Configure your web server
+#### Apache
 
-#### Apache (.htaccess provided)
+Ensure `mod_rewrite` is enabled and your document root points to the `public/` directory.
 
-Point your document root to the `public/` directory.
+```apache
+<VirtualHost *:80>
+    ServerName v4l.local
+    DocumentRoot /path/to/v4l/public
+
+    <Directory /path/to/v4l/public>
+        AllowOverride All
+        Require all granted
+    </Directory>
+</VirtualHost>
+```
 
 #### Nginx
 
 ```nginx
 server {
     listen 80;
-    server_name localhost;
-    root /path/to/oom/public;
+    server_name v4l.local;
+    root /path/to/v4l/public;
     index index.php;
 
     location / {
@@ -83,185 +99,214 @@ server {
     }
 
     location ~ \.php$ {
-        fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+        fastcgi_pass unix:/var/run/php/php8.2-fpm.sock;
         fastcgi_index index.php;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         include fastcgi_params;
     }
 }
 ```
 
-### 6. Set permissions
+### 5. Create User Account
 
-```bash
-chmod -R 755 database/ logs/ uploads/
-```
+Visit `http://v4l.local/auth/signup` and create an account.
 
-### 7. Access the application
+### 6. Explore
 
-Navigate to `http://localhost` in your browser.
-
-## 📱 Usage
-
-### Creating Your First Account
-
-1. Go to the homepage
-2. Click "Sign Up" in the navigation
-3. Fill in your personal details and create credentials
-4. You'll be automatically logged in after signup
-
-### Creating an Organization
-
-1. After logging in, go to Dashboard
-2. Click "Create Organization" under Quick Actions
-3. Fill in organization details (name, legal category, subdomain, etc.)
-4. Submit to create your organization
-
-### Managing Data
-
-The application provides full CRUD operations for all entities:
-
-- **Geography**: Continents, Countries, Languages, Postal Addresses
-- **People**: Persons, Credentials, Education, Skills
-- **Organizations**: Organizations, Branches, Buildings, Workstations
-- **Hiring**: Vacancies, Applications, Interviews, Job Offers, Contracts
-- **Catalog**: Categories, Items, Features, Media, Tags, Reviews
-- **Sellers**: Seller Items, Prices, Inventory, Service Schedules
-
-### Navigation
-
-The main menu is organized into four sections:
-
-1. **My**: Personal profile, education, skills
-2. **Organization**: Manage your organizations, vacancies, hiring
-3. **Market**: Browse catalog, find sellers, search jobs
-4. **Common**: Geography data, reference data (industries, skills, etc.)
-
-## 🗂️ Project Structure
-
-```
-oom/
-├── bootstrap.php              # Application bootstrap
-├── composer.json              # PHP dependencies
-├── config/                    # Configuration files
-│   ├── app.php
-│   ├── database.php
-│   └── websocket.php
-├── database/                  # Database files
-│   ├── init-db.php           # Database initialization
-│   └── database.sqlite       # SQLite database file
-├── entities/                  # Entity classes
-│   ├── BaseEntity.php        # Base entity with CRUD
-│   ├── Continent.php
-│   ├── Country.php
-│   ├── Person.php
-│   ├── Organization.php
-│   └── ...
-├── includes/                  # Shared includes
-│   ├── header.php
-│   └── footer.php
-├── lib/                       # Core libraries
-│   ├── Auth.php
-│   ├── Database.php
-│   ├── Router.php
-│   ├── Validator.php
-│   └── PageGenerator.php
-├── public/                    # Web root
-│   ├── index.php             # Homepage
-│   ├── .htaccess             # Apache config
-│   ├── assets/               # CSS, JS, images
-│   └── pages/                # Application pages
-│       ├── auth/             # Authentication pages
-│       ├── dashboard.php     # User dashboard
-│       ├── entities/         # Entity CRUD pages
-│       └── market/           # Marketplace pages
-├── services/                  # Service modules
-├── tests/                     # Unit and integration tests
-├── logs/                      # Application logs
-└── uploads/                   # User uploads
-```
-
-## 🔒 Security Features
-
-- Password hashing with bcrypt
-- SQL injection prevention via PDO prepared statements
-- XSS protection with output escaping
-- CSRF protection for state-changing operations
-- Session security (httpOnly, secure flags)
-- Security headers (X-Frame-Options, Content-Security-Policy, etc.)
-- Soft delete for data preservation
-
-## 🎨 Customization
-
-### Themes
-
-The application supports light and dark modes. Users can toggle themes using the button in the navigation bar. The preference is saved in localStorage.
-
-### Styling
-
-Edit `public/assets/css/style.css` to customize colors, fonts, and layout. The application uses CSS variables for easy theming.
-
-### Adding New Entities
-
-1. Create entity class in `entities/` extending `BaseEntity`
-2. Define table name and fillable fields
-3. Add validation rules
-4. Create CRUD pages in `public/pages/entities/[entity_name]/`
-5. Update navigation in `includes/header.php`
-
-## 🧪 Testing
-
-Run PHPUnit tests:
-
-```bash
-vendor/bin/phpunit
-```
-
-## 📖 API Documentation
-
-RESTful API endpoints will be documented separately. The application is designed to support both web and API access.
-
-## 🤝 Contributing
-
-This is a demonstration project following enterprise PHP best practices. For production use:
-
-1. Implement comprehensive testing
-2. Add proper error logging and monitoring
-3. Configure production security settings
-4. Implement caching strategies
-5. Add WebSocket for real-time features
-6. Migrate to MySQL/PostgreSQL for production scale
-
-## 📝 License
-
-This project is provided as-is for educational and demonstration purposes.
-
-## 🔗 Related Documentation
-
-- See `er_diagram.txt` for complete entity relationship diagram
-- See `instructions.txt` for detailed architecture specification
-
-## 💡 Support
-
-For issues or questions:
-- Check the documentation in `er_diagram.txt` and `instructions.txt`
-- Review the code comments and PHPDoc blocks
-- Examine example implementations in the Geography domain entities
-
-## 🎯 Roadmap
-
-Future enhancements:
-- [ ] WebSocket implementation for real-time updates
-- [ ] Email notification system
-- [ ] File upload and management
-- [ ] Advanced search with filters
-- [ ] Reporting and analytics dashboard
-- [ ] Multi-language support
-- [ ] Export functionality (CSV, PDF, Excel)
-- [ ] API authentication (OAuth/JWT)
-- [ ] Rate limiting and API throttling
-- [ ] Full-text search with SQLite FTS5
+- **Dashboard**: `/dashboard`
+- **Continents**: `/entities/continent/list`
+- **Countries**: `/entities/country/list`
+- **States**: `/entities/state/list`
+- **Cities**: `/entities/city/list`
 
 ---
 
-**V4L** - Building stronger communities through local connections. 🏪🤝👥
+## Architecture
+
+### Metadata-Driven Framework
+
+V4L uses a **meta database** (SQLite) that defines:
+
+- **Entities**: Tables and their properties
+- **Attributes**: Columns with data types, validations, and constraints
+- **Relationships**: Foreign keys and entity associations
+- **Functions**: CRUD operations and business logic
+- **Validation Rules**: Input validation and business rules
+
+### Core Components
+
+1. **EntityManager** (`lib/EntityManager.php`)
+   - Reads metadata from meta database
+   - Dynamically creates operational database tables
+   - Provides CRUD operations for all entities
+
+2. **PageGenerator** (`lib/PageGenerator.php`)
+   - Auto-generates list, detail, create, and edit views
+   - Renders forms with proper input types and validation
+   - Handles foreign key relationships with dropdowns
+
+3. **Router** (`lib/Router.php`)
+   - Routes all requests through `public/index.php`
+   - Supports dynamic entity routes (`/entities/:entity/:action`)
+
+4. **Auth** (`lib/Auth.php`)
+   - Session-based authentication
+   - Password hashing with Argon2ID
+   - CSRF token generation and validation
+   - Account lockout after failed attempts
+
+5. **Database** (`lib/Database.php`)
+   - PDO wrapper for safe query execution
+   - Supports both meta and operational databases
+   - Prepared statements prevent SQL injection
+
+6. **Validator** (`lib/Validator.php`)
+   - Input validation with multiple rules
+   - XSS protection through sanitization
+
+---
+
+## Directory Structure
+
+```
+v4l/
+├── bootstrap.php           # Application bootstrap
+├── composer.json           # Dependencies
+├── metadata.txt            # Entity metadata (SQL script)
+├── requirements.txt        # Technical requirements
+├── .env.example            # Environment template
+├── config/
+│   └── app.php             # Configuration loader
+├── database/
+│   ├── init-meta-db.php    # Meta database initializer
+│   └── meta.sqlite         # Meta database (created on init)
+├── lib/                    # Core framework classes
+│   ├── Auth.php
+│   ├── Database.php
+│   ├── EntityManager.php
+│   ├── PageGenerator.php
+│   ├── Router.php
+│   └── Validator.php
+├── public/                 # Web root
+│   ├── index.php           # Entry point
+│   ├── .htaccess           # Apache rewrite rules
+│   ├── assets/             # CSS, JS, images
+│   └── pages/              # Page templates
+│       ├── auth/           # Login, signup, logout
+│       ├── entities/       # Auto-CRUD pages
+│       └── dashboard.php   # User dashboard
+├── includes/
+│   ├── header.php          # HTML header
+│   └── footer.php          # HTML footer
+└── tests/                  # PHPUnit tests
+```
+
+---
+
+## Adding New Entities
+
+To add a new entity, simply insert metadata into the meta database:
+
+```sql
+-- 1. Add entity definition
+INSERT INTO entity_definition (id, code, name, description, domain, table_name)
+VALUES ('...uuid...', 'MY_ENTITY', 'My Entity', 'Description', 'DOMAIN', 'my_entity');
+
+-- 2. Add attributes
+INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, description)
+VALUES ('...uuid...', '...entity_id...', 'my_field', 'My Field', 'text', 1, 'Field description');
+
+-- 3. Add relationships (optional)
+INSERT INTO entity_relationship (id, from_entity_id, to_entity_id, relation_type, fk_field)
+VALUES ('...uuid...', '...from_id...', '...to_id...', 'ManyToOne', 'parent_id');
+```
+
+**That's it!** The framework will automatically:
+- Create the operational database table
+- Generate list, detail, create, and edit pages
+- Handle CRUD operations
+- Validate inputs based on metadata
+
+---
+
+## Security Features
+
+- **CSRF Protection**: All forms include CSRF tokens
+- **XSS Prevention**: All output is HTML-escaped
+- **SQL Injection Prevention**: PDO prepared statements
+- **Password Security**: Argon2ID hashing
+- **Session Security**: HTTP-only, regeneration on login
+- **Input Validation**: Server-side validation for all inputs
+- **Security Headers**: CSP, X-Frame-Options, X-Content-Type-Options
+
+---
+
+## Development
+
+### Running Tests
+
+```bash
+# Install PHPUnit
+composer install
+
+# Run tests
+composer test
+
+# Or directly
+vendor/bin/phpunit
+```
+
+### Debug Mode
+
+Set `APP_DEBUG=true` in `.env` to enable error display.
+
+---
+
+## Production Deployment
+
+1. **Set Environment**:
+   ```
+   APP_ENV=production
+   APP_DEBUG=false
+   ```
+
+2. **Use Production Database**:
+   ```
+   DB_CONNECTION=pgsql
+   DB_HOST=your-db-host
+   DB_DATABASE=v4l_production
+   DB_USERNAME=your_username
+   DB_PASSWORD=your_password
+   ```
+
+3. **Enable HTTPS**:
+   - Uncomment HTTPS redirect in `.htaccess`
+   - Uncomment HSTS header
+
+4. **Set Encryption Key**:
+   ```bash
+   php -r "echo bin2hex(random_bytes(32));" > .encryption_key
+   ```
+
+5. **Optimize**:
+   ```bash
+   composer install --no-dev --optimize-autoloader
+   ```
+
+---
+
+## License
+
+MIT License - See LICENSE file for details
+
+---
+
+## Support
+
+For issues and questions:
+- GitHub: https://github.com/v4l/vocal-4-local
+- Email: support@v4l.app
+- Docs: https://docs.v4l.app
+
+---
+
+**Built with PHP 8.2+, Bootstrap 5.3, and modern web standards.**
