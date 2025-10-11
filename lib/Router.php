@@ -89,8 +89,16 @@ class Router
      */
     private function callHandler($handler, $params)
     {
+        // Filter out named keys (keep only numeric indexes for positional args)
+        $positionalParams = [];
+        foreach ($params as $key => $value) {
+            if (is_int($key)) {
+                $positionalParams[] = $value;
+            }
+        }
+
         if (is_callable($handler)) {
-            return call_user_func_array($handler, $params);
+            return call_user_func_array($handler, $positionalParams);
         } elseif (is_string($handler)) {
             // Handler is a file path
             $filePath = PUBLIC_PATH . '/' . $handler;

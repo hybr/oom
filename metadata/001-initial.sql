@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS entity_attribute (
     is_required INTEGER DEFAULT 0,
     is_unique INTEGER DEFAULT 0,
     is_system INTEGER DEFAULT 0,
+    is_label INTEGER DEFAULT 0,
     default_value TEXT,
     min_value TEXT,
     max_value TEXT,
@@ -99,14 +100,14 @@ CREATE TABLE IF NOT EXISTS entity_validation_rule (
 -- 1. entity_definition inserts (entities)
 -- =========================================
 INSERT INTO entity_definition (id, code, name, description, domain, table_name) VALUES
-('8bfa24c6-9a3e-4f56-b2d7-cc93baf6e523', 'CONTINENT', 'Continent', 'Continents of the world', 'GEOGRAPHY', 'continent'),
-('2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0', 'COUNTRY', 'Country', 'Countries within continents', 'GEOGRAPHY', 'country'),
-('9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c', 'STATE', 'State / Province', 'States or provinces within a country', 'GEOGRAPHY', 'state'),
-('aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad', 'CITY', 'City / Town', 'Cities or towns within a state', 'GEOGRAPHY', 'city'),
-('f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e', 'POSTAL_ADDRESS', 'Postal Address', 'Street-level postal addresses', 'GEOGRAPHY', 'postal_address'),
-('0d2a8f01-5c8a-49d9-8b2e-6c5c1a2d2e3f', 'LANGUAGE', 'Language', 'Languages spoken in countries', 'GEOGRAPHY', 'language'),
-('5b12c9e4-0a2f-4b4b-8eaa-953d7adf8c2a', 'CURRENCY', 'Currency', 'Currencies used in countries', 'GEOGRAPHY', 'currency'),
-('d7a6b3c9-1f41-4a6a-bc3e-5a2d4c8b9f60', 'TIMEZONE', 'Time Zone', 'Time zones of countries', 'GEOGRAPHY', 'timezone');
+('8bfa24c6-9a3e-4f56-b2d7-cc93baf6e523', 'CONTINENT', 'Continent', 'Continents of the world', 'GEOGRAPHY', 'continents'),
+('2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0', 'COUNTRY', 'Country', 'Countries within continents', 'GEOGRAPHY', 'countries'),
+('9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c', 'STATE', 'State / Province', 'States or provinces within a country', 'GEOGRAPHY', 'states'),
+('aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad', 'CITY', 'City / Town', 'Cities or towns within a state', 'GEOGRAPHY', 'cities'),
+('f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e', 'POSTAL_ADDRESS', 'Postal Address', 'Street-level postal addresses', 'GEOGRAPHY', 'postal_addresses'),
+('0d2a8f01-5c8a-49d9-8b2e-6c5c1a2d2e3f', 'LANGUAGE', 'Language', 'Languages spoken in countries', 'GEOGRAPHY', 'languages'),
+('5b12c9e4-0a2f-4b4b-8eaa-953d7adf8c2a', 'CURRENCY', 'Currency', 'Currencies used in countries', 'GEOGRAPHY', 'currencies'),
+('d7a6b3c9-1f41-4a6a-bc3e-5a2d4c8b9f60', 'TIMEZONE', 'Time Zone', 'Time zones of countries', 'GEOGRAPHY', 'timezones');
 
 -- =========================================
 -- 2. entity_attribute inserts (comprehensive)
@@ -114,54 +115,54 @@ INSERT INTO entity_definition (id, code, name, description, domain, table_name) 
 -- =========================================
 
 -- CONTINENT attributes
-INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_unique, description, display_order) VALUES
-('c1a6f3d9-88fb-4f8d-9e7b-11c2a3e5b111','8bfa24c6-9a3e-4f56-b2d7-cc93baf6e523','name','Continent Name','text',1,1,'Human-readable continent name',1),
-('c1a6f3d9-88fb-4f8d-9e7b-11c2a3e5b112','8bfa24c6-9a3e-4f56-b2d7-cc93baf6e523','code','Continent Code','text',1,1,'Short code for continent (e.g., AS, EU)',2),
-('c1a6f3d9-88fb-4f8d-9e7b-11c2a3e5b113','8bfa24c6-9a3e-4f56-b2d7-cc93baf6e523','area_sq_km','Area (sq km)','number',0,0,'Geographic area',3),
-('c1a6f3d9-88fb-4f8d-9e7b-11c2a3e5b114','8bfa24c6-9a3e-4f56-b2d7-cc93baf6e523','population','Population','number',0,0,'Total population estimate',4),
-('c1a6f3d9-88fb-4f8d-9e7b-11c2a3e5b115','8bfa24c6-9a3e-4f56-b2d7-cc93baf6e523','gdp_usd','GDP (USD)','number',0,0,'Aggregate GDP estimate',5),
-('c1a6f3d9-88fb-4f8d-9e7b-11c2a3e5b116','8bfa24c6-9a3e-4f56-b2d7-cc93baf6e523','description','Description','text',0,0,'Free-text description',6);
+INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_unique, is_label, description, display_order) VALUES
+('c1a6f3d9-88fb-4f8d-9e7b-11c2a3e5b111','8bfa24c6-9a3e-4f56-b2d7-cc93baf6e523','name','Continent Name','text',1,1,1,'Human-readable continent name',1),
+('c1a6f3d9-88fb-4f8d-9e7b-11c2a3e5b112','8bfa24c6-9a3e-4f56-b2d7-cc93baf6e523','code','Continent Code','text',1,1,1,'Short code for continent (e.g., AS, EU)',2),
+('c1a6f3d9-88fb-4f8d-9e7b-11c2a3e5b113','8bfa24c6-9a3e-4f56-b2d7-cc93baf6e523','area_sq_km','Area (sq km)','number',0,0,0,'Geographic area',3),
+('c1a6f3d9-88fb-4f8d-9e7b-11c2a3e5b114','8bfa24c6-9a3e-4f56-b2d7-cc93baf6e523','population','Population','number',0,0,0,'Total population estimate',4),
+('c1a6f3d9-88fb-4f8d-9e7b-11c2a3e5b115','8bfa24c6-9a3e-4f56-b2d7-cc93baf6e523','gdp_usd','GDP (USD)','number',0,0,0,'Aggregate GDP estimate',5),
+('c1a6f3d9-88fb-4f8d-9e7b-11c2a3e5b116','8bfa24c6-9a3e-4f56-b2d7-cc93baf6e523','description','Description','text',0,0,0,'Free-text description',6);
 
 -- COUNTRY attributes
-INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_unique, description, display_order) VALUES
-('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a001','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','name','Country Name','text',1,1,'Human-readable country name',1),
-('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a002','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','code','Country Code','text',1,1,'Short code (e.g., IND)',2),
-('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a003','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','continent_id','Continent','text',1,0,'FK to Continent',3),
-('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a004','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','iso_alpha2','ISO Alpha-2 Code','text',1,1,'ISO 3166-1 alpha-2',4),
-('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a005','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','iso_alpha3','ISO Alpha-3 Code','text',1,1,'ISO 3166-1 alpha-3',5),
-('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a006','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','iso_numeric','ISO Numeric Code','number',0,0,'ISO numeric code',6),
-('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a007','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','population','Population','number',0,0,'Population estimate',7),
-('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a008','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','area_sq_km','Area (sq km)','number',0,0,'Area in sq km',8),
-('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a009','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','official_languages','official_languages','text',0,0,'Comma-separated official languages',9),
-('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a010','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','currency_id','Currency','text',0,0,'FK to Currency',10),
-('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a011','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','timezone_id','Time Zone','text',0,0,'FK to Timezone',11),
-('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a012','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','gdp_usd','GDP (USD)','number',0,0,'GDP in USD',12),
-('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a013','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','flag_url','Flag Image URL','text',0,0,'URL to flag image',13),
-('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a014','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','description','Description','text',0,0,'Free-text',14);
+INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_unique, is_label, description, display_order) VALUES
+('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a001','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','name','Country Name','text',1,1,1,'Human-readable country name',1),
+('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a002','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','code','Country Code','text',1,1,1,'Short code (e.g., IND)',2),
+('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a003','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','continent_id','Continent','text',1,0,0,'FK to Continent',3),
+('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a004','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','iso_alpha2','ISO Alpha-2 Code','text',1,1,0,'ISO 3166-1 alpha-2',4),
+('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a005','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','iso_alpha3','ISO Alpha-3 Code','text',1,1,0,'ISO 3166-1 alpha-3',5),
+('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a006','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','iso_numeric','ISO Numeric Code','number',0,0,0,'ISO numeric code',6),
+('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a007','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','population','Population','number',0,0,0,'Population estimate',7),
+('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a008','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','area_sq_km','Area (sq km)','number',0,0,0,'Area in sq km',8),
+('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a009','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','official_languages','official_languages','text',0,0,0,'Comma-separated official languages',9),
+('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a010','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','currency_id','Currency','text',0,0,0,'FK to Currency',10),
+('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a011','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','timezone_id','Time Zone','text',0,0,0,'FK to Timezone',11),
+('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a012','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','gdp_usd','GDP (USD)','number',0,0,0,'GDP in USD',12),
+('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a013','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','flag_url','Flag Image URL','text',0,0,0,'URL to flag image',13),
+('d2b7f4a0-21d9-4e8b-aa6f-2b30d4f1a014','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','description','Description','text',0,0,0,'Free-text',14);
 
 -- STATE attributes
-INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_unique, description, display_order) VALUES
-('e3c8a8b9-7b3a-4d1b-9382-0b4a3d5a0011','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','name','State / Province Name','text',1,0,'State or province name',1),
-('e3c8a8b9-7b3a-4d1b-9382-0b4a3d5a0012','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','code','State Code','text',0,0,'Optional state code',2),
-('e3c8a8b9-7b3a-4d1b-9382-0b4a3d5a0013','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','country_id','Country','text',1,0,'FK to Country',3),
-('e3c8a8b9-7b3a-4d1b-9382-0b4a3d5a0014','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','population','Population','number',0,0,'Population estimate',4),
-('e3c8a8b9-7b3a-4d1b-9382-0b4a3d5a0015','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','area_sq_km','Area (sq km)','number',0,0,'Area in sq km',5),
-('e3c8a8b9-7b3a-4d1b-9382-0b4a3d5a0016','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','gdp_usd','GDP (USD)','number',0,0,'GDP in USD',6),
-('e3c8a8b9-7b3a-4d1b-9382-0b4a3d5a0017','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','capital','Capital City','text',0,0,'Name of state capital',7),
-('e3c8a8b9-7b3a-4d1b-9382-0b4a3d5a0018','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','description','Description','text',0,0,'Free-text',8);
+INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_unique, is_label, description, display_order) VALUES
+('e3c8a8b9-7b3a-4d1b-9382-0b4a3d5a0011','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','name','State / Province Name','text',1,0,1,'State or province name',1),
+('e3c8a8b9-7b3a-4d1b-9382-0b4a3d5a0012','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','code','State Code','text',0,0,1,'Optional state code',2),
+('e3c8a8b9-7b3a-4d1b-9382-0b4a3d5a0013','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','country_id','Country','text',1,0,0,'FK to Country',3),
+('e3c8a8b9-7b3a-4d1b-9382-0b4a3d5a0014','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','population','Population','number',0,0,0,'Population estimate',4),
+('e3c8a8b9-7b3a-4d1b-9382-0b4a3d5a0015','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','area_sq_km','Area (sq km)','number',0,0,0,'Area in sq km',5),
+('e3c8a8b9-7b3a-4d1b-9382-0b4a3d5a0016','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','gdp_usd','GDP (USD)','number',0,0,0,'GDP in USD',6),
+('e3c8a8b9-7b3a-4d1b-9382-0b4a3d5a0017','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','capital','Capital City','text',0,0,0,'Name of state capital',7),
+('e3c8a8b9-7b3a-4d1b-9382-0b4a3d5a0018','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','description','Description','text',0,0,0,'Free-text',8);
 
 -- CITY attributes
-INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_unique, description, display_order) VALUES
-('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0011','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','name','City / Town Name','text',1,0,'Name of city or town',1),
-('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0012','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','code','City Code','text',0,0,'Optional city code',2),
-('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0013','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','state_id','State / Province','text',1,0,'FK to State',3),
-('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0014','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','country_id','Country','text',1,0,'FK to Country',4),
-('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0015','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','population','Population','number',0,0,'Population',5),
-('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0016','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','area_sq_km','Area (sq km)','number',0,0,'Area in sq km',6),
-('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0017','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','latitude','Latitude','number',0,0,'Decimal degrees',7),
-('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0018','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','longitude','Longitude','number',0,0,'Decimal degrees',8),
-('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0019','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','timezone_id','Time Zone','text',0,0,'FK to Timezone',9),
-('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0020','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','description','Description','text',0,0,'Free-text',10);
+INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_unique, is_label, description, display_order) VALUES
+('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0011','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','name','City / Town Name','text',1,0,1,'Name of city or town',1),
+('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0012','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','code','City Code','text',0,0,0,'Optional city code',2),
+('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0013','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','state_id','State / Province','text',1,0,0,'FK to State',3),
+('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0014','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','country_id','Country','text',1,0,0,'FK to Country',4),
+('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0015','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','population','Population','number',0,0,0,'Population',5),
+('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0016','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','area_sq_km','Area (sq km)','number',0,0,0,'Area in sq km',6),
+('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0017','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','latitude','Latitude','number',0,0,0,'Decimal degrees',7),
+('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0018','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','longitude','Longitude','number',0,0,0,'Decimal degrees',8),
+('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0019','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','timezone_id','Time Zone','text',0,0,0,'FK to Timezone',9),
+('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0020','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','description','Description','text',0,0,0,'Free-text',10);
 
 -- POSTAL_ADDRESS attributes
 INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_unique, enum_values, validation_regex, description, display_order) VALUES
@@ -179,15 +180,15 @@ INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required,
 ('a5e1b2c3-1111-4c6d-9999-001122334466','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','delivery_instructions','Delivery Instructions','text',0,0,NULL,NULL,'Extra delivery notes',12);
 
 -- LANGUAGE attributes
-INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, display_order, description) VALUES
-('b6f2c3d4-2222-4a6b-8888-112233445566','0d2a8f01-5c8a-49d9-8b2e-6c5c1a2d2e3f','name','Language Name','text',1,1,'English name of the language'),
+INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_unique, description, display_order) VALUES
+('b6f2c3d4-2222-4a6b-8888-112233445566','0d2a8f01-5c8a-49d9-8b2e-6c5c1a2d2e3f','name','Language Name','text',1,0,'English name of the language',1),
 ('b6f2c3d4-2222-4a6b-8888-112233445567','0d2a8f01-5c8a-49d9-8b2e-6c5c1a2d2e3f','code','Language Code','text',0,0,'ISO language code (e.g., en)',2),
 ('b6f2c3d4-2222-4a6b-8888-112233445568','0d2a8f01-5c8a-49d9-8b2e-6c5c1a2d2e3f','native_name','Native Name','text',0,0,'Native script name',3),
 ('b6f2c3d4-2222-4a6b-8888-112233445569','0d2a8f01-5c8a-49d9-8b2e-6c5c1a2d2e3f','country_id','Country','text',0,0,'FK to Country',4),
 ('b6f2c3d4-2222-4a6b-8888-112233445570','0d2a8f01-5c8a-49d9-8b2e-6c5c1a2d2e3f','is_official','Is Official','boolean',0,0,'1 if official language',5);
 
 -- CURRENCY attributes
-INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, display_order, description) VALUES
+INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_unique, description, display_order) VALUES
 ('c7g3d4e5-3333-4b6c-7777-223344556677','5b12c9e4-0a2f-4b4b-8eaa-953d7adf8c2a','code','Currency Code','text',1,1,'ISO4217 code (e.g., INR)',1),
 ('c7g3d4e5-3333-4b6c-7777-223344556678','5b12c9e4-0a2f-4b4b-8eaa-953d7adf8c2a','name','Currency Name','text',1,0,'Currency full name',2),
 ('c7g3d4e5-3333-4b6c-7777-223344556679','5b12c9e4-0a2f-4b4b-8eaa-953d7adf8c2a','symbol','Currency Symbol','text',0,0,'Symbol like ₹, $',3),
@@ -195,7 +196,7 @@ INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required,
 ('c7g3d4e5-3333-4b6c-7777-223344556681','5b12c9e4-0a2f-4b4b-8eaa-953d7adf8c2a','exchange_rate_usd','Exchange Rate to USD','number',0,0,'Reference exchange rate',5);
 
 -- TIMEZONE attributes
-INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, display_order, description) VALUES
+INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_unique, description, display_order) VALUES
 ('d8h4e5f6-4444-4c6d-6666-334455667788','d7a6b3c9-1f41-4a6a-bc3e-5a2d4c8b9f60','name','Time Zone Name','text',1,1,'IANA tz name (e.g., Asia/Kolkata)',1),
 ('d8h4e5f6-4444-4c6d-6666-334455667789','d7a6b3c9-1f41-4a6a-bc3e-5a2d4c8b9f60','utc_offset','UTC Offset','text',1,0,'Offset like +05:30',2),
 ('d8h4e5f6-4444-4c6d-6666-334455667790','d7a6b3c9-1f41-4a6a-bc3e-5a2d4c8b9f60','dst','Daylight Saving','boolean',0,0,'1 if DST used',3),

@@ -31,7 +31,7 @@ class Auth
         }
 
         $userId = self::id();
-        $sql = "SELECT * FROM credential WHERE id = ? AND deleted_at IS NULL";
+        $sql = "SELECT * FROM person_credentials WHERE id = ? AND deleted_at IS NULL";
         return Database::fetchOne($sql, [$userId]);
     }
 
@@ -40,7 +40,7 @@ class Auth
      */
     public static function attempt($username, $password)
     {
-        $sql = "SELECT * FROM credential WHERE username = ? AND deleted_at IS NULL";
+        $sql = "SELECT * FROM person_credentials WHERE username = ? AND deleted_at IS NULL";
         $user = Database::fetchOne($sql, [$username]);
 
         if (!$user) {
@@ -87,14 +87,14 @@ class Auth
     public static function register($username, $email, $password)
     {
         // Check if username exists
-        $sql = "SELECT COUNT(*) as cnt FROM credential WHERE username = ?";
+        $sql = "SELECT COUNT(*) as cnt FROM person_credentials WHERE username = ?";
         $result = Database::fetchOne($sql, [$username]);
         if ($result['cnt'] > 0) {
             return ['success' => false, 'error' => 'Username already exists'];
         }
 
         // Check if email exists
-        $sql = "SELECT COUNT(*) as cnt FROM credential WHERE email = ?";
+        $sql = "SELECT COUNT(*) as cnt FROM person_credentials WHERE email = ?";
         $result = Database::fetchOne($sql, [$email]);
         if ($result['cnt'] > 0) {
             return ['success' => false, 'error' => 'Email already exists'];
@@ -107,7 +107,7 @@ class Auth
         $id = self::generateUuid();
 
         // Insert user
-        $sql = "INSERT INTO credential (id, username, email, password_hash, created_at, updated_at)
+        $sql = "INSERT INTO person_credentials (id, username, email, password_hash, created_at, updated_at)
                 VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))";
 
         try {

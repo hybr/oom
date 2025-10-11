@@ -64,12 +64,13 @@ class EntityManager
 
     /**
      * Get relationships for an entity
+     * Returns relationships where this entity is either from_entity or to_entity
      */
     public static function getRelationships($entityId)
     {
         if (!isset(self::$relationships[$entityId])) {
-            $sql = "SELECT * FROM entity_relationship WHERE from_entity_id = ?";
-            self::$relationships[$entityId] = Database::fetchAll($sql, [$entityId], 'meta');
+            $sql = "SELECT * FROM entity_relationship WHERE from_entity_id = ? OR to_entity_id = ?";
+            self::$relationships[$entityId] = Database::fetchAll($sql, [$entityId, $entityId], 'meta');
         }
         return self::$relationships[$entityId];
     }

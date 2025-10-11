@@ -3,9 +3,9 @@ require_once __DIR__ . '/../../../bootstrap.php';
 
 Auth::requireAuth();
 
-// Get entity code from URL
+// Get entity code from URL (/entities/continent/list -> continent)
 $pathParts = explode('/', trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/'));
-$entityCode = strtoupper($pathParts[1] ?? '');
+$entityCode = strtoupper($pathParts[1] ?? ''); // entities/CONTINENT/list
 
 try {
     // Load entity and create page generator

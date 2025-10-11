@@ -40,6 +40,9 @@
     <!-- Custom JS -->
     <script src="/assets/js/app.js"></script>
 
+    <!-- FK Autocomplete -->
+    <script src="/assets/js/fk-autocomplete.js"></script>
+
     <!-- Form Validation -->
     <script>
         // Bootstrap form validation

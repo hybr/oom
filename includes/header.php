@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="V4L - Your Community, Your Marketplace">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; img-src 'self' data: https:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' https://cdn.jsdelivr.net;">
 
     <title><?php echo isset($pageTitle) ? htmlspecialchars($pageTitle) . ' - V4L' : 'V4L - Your Community, Your Marketplace'; ?></title>
 
@@ -40,8 +39,16 @@
                                 <i class="bi bi-person"></i> My
                             </a>
                             <ul class="dropdown-menu">
+                                <li><h6 class="dropdown-header">Personal</h6></li>
                                 <li><a class="dropdown-item" href="/my/profile">Profile</a></li>
                                 <li><a class="dropdown-item" href="/my/settings">Settings</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">Education</h6></li>
+                                <li><a class="dropdown-item" href="/entities/person_education/list">My Education</a></li>
+                                <li><a class="dropdown-item" href="/entities/person_education_subject/list">My Subjects</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">Skills</h6></li>
+                                <li><a class="dropdown-item" href="/entities/person_skill/list">My Skills</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="/auth/logout">Logout</a></li>
                             </ul>
@@ -70,6 +77,18 @@
                                 <li><a class="dropdown-item" href="/entities/country/list">Countries</a></li>
                                 <li><a class="dropdown-item" href="/entities/state/list">States</a></li>
                                 <li><a class="dropdown-item" href="/entities/city/list">Cities</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">Reference Data</h6></li>
+                                <li><a class="dropdown-item" href="/entities/language/list">Languages</a></li>
+                                <li><a class="dropdown-item" href="/entities/currency/list">Currencies</a></li>
+                                <li><a class="dropdown-item" href="/entities/timezone/list">Time Zones</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">Education</h6></li>
+                                <li><a class="dropdown-item" href="/entities/enum_education_levels/list">Education Levels</a></li>
+                                <li><a class="dropdown-item" href="/entities/popular_education_subject/list">Education Subjects</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><h6 class="dropdown-header">Skills</h6></li>
+                                <li><a class="dropdown-item" href="/entities/popular_skill/list">Popular Skills</a></li>
                             </ul>
                         </li>
                     <?php endif; ?>
