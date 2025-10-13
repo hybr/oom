@@ -93,7 +93,9 @@ VALUES
 -- =========================================================
 INSERT INTO entity_relationship (id, from_entity_id, to_entity_id, relation_type, relation_name, fk_field)
 VALUES
+('dfa84ed4-01c3-4821-c12g-2e8c25d0a51d', '1e6b403f-5a37-47c3-8d8a-80419e2c9e25', '2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3', 'ManyToOne', 'person', 'person_id'),
 ('bca27db9-46d1-4b4c-bb9c-38b6b9bde891', '1e6b403f-5a37-47c3-8d8a-80419e2c9e25', 'ba480b24-d2a0-42b1-95f3-59f303b775b2', 'OneToMany', 'education_subjects', 'person_education_id'),
+('afa73dc3-90b2-4710-b01f-1d7b14c9940c', '6d6b3a5b-72ac-4ccf-b089-9e8a53b115c2', '2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3', 'ManyToOne', 'person', 'person_id'),
 ('bfa63ec2-89a1-4809-a00e-0c6a13b9839b', '6d6b3a5b-72ac-4ccf-b089-9e8a53b115c2', 'f216b77b-7f54-4e7a-902f-7a6a0bceab7a', 'ManyToOne', 'skill', 'subject_id');
 
 -- =========================================================

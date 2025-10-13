@@ -47,6 +47,17 @@ $router->get('/dashboard', function() {
 });
 
 // ============================================
+// My Profile Routes
+// ============================================
+$router->get('/my/profile', function() {
+    require __DIR__ . '/pages/my/profile.php';
+});
+
+$router->post('/my/change-password', function() {
+    require __DIR__ . '/pages/my/change-password.php';
+});
+
+// ============================================
 // Market Routes
 // ============================================
 $router->get('/market/catalog', function() {

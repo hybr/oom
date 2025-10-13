@@ -130,7 +130,7 @@ try {
 
     // Insert credential record
     $sql = "INSERT INTO person_credentials (
-        id, person_id, username, email, password_hash,
+        id, person_id, username, email, hashed_password,
         security_question_1, security_answer_1_hash,
         security_question_2, security_answer_2_hash,
         created_at, updated_at

@@ -54,7 +54,7 @@ class Auth
         }
 
         // Verify password
-        if (!password_verify($password, $user['password_hash'])) {
+        if (!password_verify($password, $user['hashed_password'])) {
             self::logFailedAttempt($username);
             return false;
         }
@@ -64,6 +64,10 @@ class Auth
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['email'] = $user['email'];
+
+        // Update last login timestamp
+        $sql = "UPDATE person_credentials SET last_login_at = datetime('now') WHERE id = ?";
+        Database::execute($sql, [$user['id']]);
 
         // Clear failed attempts
         self::clearFailedAttempts($username);
@@ -107,7 +111,7 @@ class Auth
         $id = self::generateUuid();
 
         // Insert user
-        $sql = "INSERT INTO person_credentials (id, username, email, password_hash, created_at, updated_at)
+        $sql = "INSERT INTO person_credentials (id, username, email, hashed_password, created_at, updated_at)
                 VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))";
 
         try {

@@ -12,7 +12,8 @@
       "Bash(mkdir:*)",
       "Bash(findstr:*)",
       "Bash(tree:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(if not exist \"C:\\Users\\fwyog\\oom\\public\\pages\\my\" mkdir \"C:\\Users\\fwyog\\oom\\public\\pages\\my\")"
     ],
     "deny": [],
     "ask": []
