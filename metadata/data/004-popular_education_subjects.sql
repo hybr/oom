@@ -3,7 +3,7 @@
 -- Common academic subjects across different fields
 -- ============================================
 
-INSERT INTO popular_education_subject (id, name, created_at, updated_at)
+INSERT OR IGNORE INTO popular_education_subject (id, name, created_at, updated_at)
 VALUES
 -- STEM - Science, Technology, Engineering, Mathematics
 ('subj-001-a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c', 'Mathematics', datetime('now'), datetime('now')),

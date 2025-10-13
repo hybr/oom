@@ -31,7 +31,7 @@ class Auth
         }
 
         $userId = self::id();
-        $sql = "SELECT * FROM person_credentials WHERE id = ? AND deleted_at IS NULL";
+        $sql = "SELECT * FROM person_credential WHERE id = ? AND deleted_at IS NULL";
         return Database::fetchOne($sql, [$userId]);
     }
 
@@ -40,7 +40,7 @@ class Auth
      */
     public static function attempt($username, $password)
     {
-        $sql = "SELECT * FROM person_credentials WHERE username = ? AND deleted_at IS NULL";
+        $sql = "SELECT * FROM person_credential WHERE username = ? AND deleted_at IS NULL";
         $user = Database::fetchOne($sql, [$username]);
 
         if (!$user) {
@@ -66,7 +66,7 @@ class Auth
         $_SESSION['email'] = $user['email'];
 
         // Update last login timestamp
-        $sql = "UPDATE person_credentials SET last_login_at = datetime('now') WHERE id = ?";
+        $sql = "UPDATE person_credential SET last_login_at = datetime('now') WHERE id = ?";
         Database::execute($sql, [$user['id']]);
 
         // Clear failed attempts
@@ -91,14 +91,14 @@ class Auth
     public static function register($username, $email, $password)
     {
         // Check if username exists
-        $sql = "SELECT COUNT(*) as cnt FROM person_credentials WHERE username = ?";
+        $sql = "SELECT COUNT(*) as cnt FROM person_credential WHERE username = ?";
         $result = Database::fetchOne($sql, [$username]);
         if ($result['cnt'] > 0) {
             return ['success' => false, 'error' => 'Username already exists'];
         }
 
         // Check if email exists
-        $sql = "SELECT COUNT(*) as cnt FROM person_credentials WHERE email = ?";
+        $sql = "SELECT COUNT(*) as cnt FROM person_credential WHERE email = ?";
         $result = Database::fetchOne($sql, [$email]);
         if ($result['cnt'] > 0) {
             return ['success' => false, 'error' => 'Email already exists'];
@@ -111,7 +111,7 @@ class Auth
         $id = self::generateUuid();
 
         // Insert user
-        $sql = "INSERT INTO person_credentials (id, username, email, hashed_password, created_at, updated_at)
+        $sql = "INSERT INTO person_credential (id, username, email, hashed_password, created_at, updated_at)
                 VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))";
 
         try {

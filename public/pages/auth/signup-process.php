@@ -84,14 +84,14 @@ try {
     Database::beginTransaction();
 
     // Check if username already exists
-    $sql = "SELECT COUNT(*) as cnt FROM person_credentials WHERE username = ?";
+    $sql = "SELECT COUNT(*) as cnt FROM person_credential WHERE username = ?";
     $result = Database::fetchOne($sql, [$username]);
     if ($result['cnt'] > 0) {
         throw new Exception('Username already exists');
     }
 
     // Check if email already exists
-    $sql = "SELECT COUNT(*) as cnt FROM person_credentials WHERE email = ?";
+    $sql = "SELECT COUNT(*) as cnt FROM person_credential WHERE email = ?";
     $result = Database::fetchOne($sql, [$personData['primary_email']]);
     if ($result['cnt'] > 0) {
         throw new Exception('Email already exists');
@@ -101,7 +101,7 @@ try {
     $personId = Auth::generateUuid();
 
     // Insert person record
-    $sql = "INSERT INTO persons (
+    $sql = "INSERT INTO person (
         id, name_prefix, first_name, middle_name, last_name, name_suffix,
         gender, date_of_birth, primary_email, primary_phone,
         created_at, updated_at
@@ -129,7 +129,7 @@ try {
     $securityAnswer2Hash = password_hash(strtolower(trim($securityAnswer2)), PASSWORD_ARGON2ID);
 
     // Insert credential record
-    $sql = "INSERT INTO person_credentials (
+    $sql = "INSERT INTO person_credential (
         id, person_id, username, email, hashed_password,
         security_question_1, security_answer_1_hash,
         security_question_2, security_answer_2_hash,

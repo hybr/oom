@@ -38,7 +38,7 @@ try {
     $userId = Auth::id();
 
     // Get current user credentials
-    $sql = "SELECT * FROM person_credentials WHERE id = ? AND deleted_at IS NULL";
+    $sql = "SELECT * FROM person_credential WHERE id = ? AND deleted_at IS NULL";
     $user = Database::fetchOne($sql, [$userId]);
 
     if (!$user) {
@@ -54,7 +54,7 @@ try {
     $newPasswordHash = password_hash($newPassword, PASSWORD_ARGON2ID);
 
     // Update password
-    $sql = "UPDATE person_credentials
+    $sql = "UPDATE person_credential
             SET hashed_password = ?, updated_at = datetime('now')
             WHERE id = ?";
 

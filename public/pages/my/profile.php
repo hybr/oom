@@ -8,7 +8,7 @@ $userId = Auth::id();
 $credential = Auth::user();
 
 // Get person data
-$sql = "SELECT * FROM persons WHERE id = ? AND deleted_at IS NULL";
+$sql = "SELECT * FROM person WHERE id = ? AND deleted_at IS NULL";
 $person = Database::fetchOne($sql, [$credential['person_id']]);
 
 if (!$person) {

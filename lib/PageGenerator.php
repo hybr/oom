@@ -116,6 +116,13 @@ class PageGenerator
         // Display all attributes
         foreach ($this->attributes as $attr) {
             $value = $record[$attr['code']] ?? '';
+
+            // Check if this attribute is a foreign key
+            $fkLabel = $this->resolveForeignKeyLabel($attr['code'], $value);
+            if ($fkLabel !== null) {
+                $value = $fkLabel;
+            }
+
             $html .= '<dt class="col-sm-3">' . htmlspecialchars($attr['name']) . ':</dt>';
             $html .= '<dd class="col-sm-9">' . htmlspecialchars($value) . '</dd>';
         }

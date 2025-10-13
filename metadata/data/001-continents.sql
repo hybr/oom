@@ -3,7 +3,7 @@
 -- Initial data for continent entity
 -- ============================================
 
-INSERT INTO continents (id, name, code, area_sq_km, population, gdp_usd, description, created_at, updated_at)
+INSERT OR IGNORE INTO continent (id, name, code, area_sq_km, population, gdp_usd, description, created_at, updated_at)
 VALUES
 ('c1a2b3c4-d5e6-4f7a-8b9c-0d1e2f3a4b5c', 'Africa', 'AF', 30370000, 1340000000, 2960000000000, 'The second-largest and second-most populous continent', datetime('now'), datetime('now')),
 ('c2a3b4c5-d6e7-4f8a-9b0c-1d2e3f4a5b6c', 'Antarctica', 'AN', 14000000, 1000, 0, 'The southernmost continent containing the geographic South Pole', datetime('now'), datetime('now')),

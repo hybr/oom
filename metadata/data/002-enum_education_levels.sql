@@ -3,7 +3,7 @@
 -- Enumeration of education levels
 -- ============================================
 
-INSERT INTO enum_education_levels (id, code, name, created_at, updated_at)
+INSERT OR IGNORE INTO enum_education_level (id, code, name, created_at, updated_at)
 VALUES
 ('e1a2b3c4-d5e6-4f7a-8b9c-0d1e2f3a4b5c', 'PRIMARY', 'Primary School', datetime('now'), datetime('now')),
 ('e2a3b4c5-d6e7-4f8a-9b0c-1d2e3f4a5b6c', 'SECONDARY', 'Secondary School', datetime('now'), datetime('now')),

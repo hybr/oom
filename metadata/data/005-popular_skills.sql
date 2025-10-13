@@ -8,7 +8,7 @@
 -- Table: popular_skill
 -- Columns: id (uuid), name (text), created_at (datetime), updated_at (datetime)
 
-INSERT INTO popular_skill (id, name, created_at, updated_at)
+INSERT OR IGNORE INTO popular_skill (id, name, created_at, updated_at)
 VALUES
 -- =============================================================================
 -- PROGRAMMING LANGUAGES (20 skills)

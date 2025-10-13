@@ -3,7 +3,7 @@
 -- Comprehensive list of world countries
 -- ============================================
 
-INSERT INTO countries (id, name, code, continent_id, iso_alpha2, iso_alpha3, iso_numeric, population, area_sq_km, official_languages, gdp_usd, flag_url, description, created_at, updated_at)
+INSERT OR IGNORE INTO country (id, name, code, continent_id, iso_alpha2, iso_alpha3, iso_numeric, population, area_sq_km, official_languages, gdp_usd, flag_url, description, created_at, updated_at)
 VALUES
 -- AFRICA (continent_id: c1a2b3c4-d5e6-4f7a-8b9c-0d1e2f3a4b5c)
 ('a1f2e3d4-c5b6-47a8-9b0c-1d2e3f4a5b6c', 'Algeria', 'DZA', 'c1a2b3c4-d5e6-4f7a-8b9c-0d1e2f3a4b5c', 'DZ', 'DZA', 12, 44000000, 2381741, 'Arabic,Berber', 169000000000, NULL, 'Largest country in Africa', datetime('now'), datetime('now')),
