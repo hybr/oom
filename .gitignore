@@ -4,8 +4,6 @@
 .env
 
 # Databases
-database/*.sqlite
-database/*.db
 
 # Logs
 logs/
