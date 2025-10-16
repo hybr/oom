@@ -13,7 +13,10 @@
       "Bash(findstr:*)",
       "Bash(tree:*)",
       "Bash(dir:*)",
-      "Bash(if not exist \"C:\\Users\\fwyog\\oom\\public\\pages\\my\" mkdir \"C:\\Users\\fwyog\\oom\\public\\pages\\my\")"
+      "Bash(if not exist \"C:\\Users\\fwyog\\oom\\public\\pages\\my\" mkdir \"C:\\Users\\fwyog\\oom\\public\\pages\\my\")",
+      "Bash(for file in metadata/001-initial.sql metadata/002-person.sql metadata/003-person_education_and_skills.sql metadata/004-popular_organization.sql metadata/005-organization_positions_and_requirements.sql metadata/006-entity_permissions.sql)",
+      "Bash(do echo \"Running $file...\")",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []
