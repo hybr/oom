@@ -194,16 +194,32 @@ class PageGenerator
             // Check if this is a foreign key to add link to label
             $isForeignKey = false;
             $fkRelationship = null;
-            foreach ($this->relationships as $rel) {
-                if ($rel['fk_field'] === $attr['code']) {
-                    $isForeignKey = true;
-                    $fkRelationship = $rel;
-                    break;
+            $isEntityIdField = ($attr['code'] === 'entity_id');
+            $isPermissionTypeField = ($attr['code'] === 'permission_type_id');
+            $isPositionField = ($attr['code'] === 'position_id');
+
+            if ($isEntityIdField || $isPermissionTypeField || $isPositionField) {
+                $isForeignKey = true;
+                // Special handling for specific foreign key fields - no relationship needed
+            } else {
+                foreach ($this->relationships as $rel) {
+                    if ($rel['fk_field'] === $attr['code']) {
+                        $isForeignKey = true;
+                        $fkRelationship = $rel;
+                        break;
+                    }
                 }
             }
 
             // Generate label with link for FK fields
-            if ($isForeignKey && $fkRelationship) {
+            if ($isEntityIdField || $isPermissionTypeField || $isPositionField) {
+                // Special label for specific foreign key fields
+                $html .= '<label for="' . $attr['code'] . '" class="form-label">' . htmlspecialchars($attr['name']);
+                if ($required) {
+                    $html .= ' <span class="text-danger">*</span>';
+                }
+                $html .= '</label>';
+            } elseif ($isForeignKey && $fkRelationship) {
                 // Determine target entity
                 $targetEntityId = ($this->entity['id'] === $fkRelationship['from_entity_id'])
                     ? $fkRelationship['to_entity_id']
@@ -239,11 +255,15 @@ class PageGenerator
             }
 
             // Generate field
-            if ($isForeignKey && $fkRelationship) {
+            if ($isEntityIdField) {
+                $html .= $this->generateEntityIdSelect($value, $required);
+            } elseif ($isPermissionTypeField) {
+                $html .= $this->generatePermissionTypeSelect($value, $required);
+            } elseif ($isPositionField) {
+                $html .= $this->generatePositionSelect($value, $required);
+            } elseif ($isForeignKey && $fkRelationship) {
                 $html .= $this->generateForeignKeySelect($fkRelationship, $value, $required);
-            }
-
-            if (!$isForeignKey) {
+            } else {
                 $html .= $this->generateFormField($attr, $value, $required);
             }
 
@@ -497,6 +517,31 @@ class PageGenerator
             return null;
         }
 
+        // Special handling for specific foreign key fields
+        if ($fieldCode === 'entity_id') {
+            $entity = EntityManager::getEntityById($value);
+            if ($entity) {
+                return $entity['name'];
+            }
+            return null;
+        }
+
+        if ($fieldCode === 'permission_type_id') {
+            $record = EntityManager::read('ENUM_ENTITY_PERMISSION_TYPE', $value);
+            if ($record) {
+                return $record['name'];
+            }
+            return null;
+        }
+
+        if ($fieldCode === 'position_id') {
+            $record = EntityManager::read('POPULAR_ORGANIZATION_POSITION', $value);
+            if ($record) {
+                return $record['position_name'];
+            }
+            return null;
+        }
+
         // Check if this field is a foreign key
         $relationship = null;
         foreach ($this->relationships as $rel) {
@@ -555,5 +600,71 @@ class PageGenerator
         }
 
         return implode(' - ', $displayParts);
+    }
+
+    /**
+     * Generate entity selection dropdown for entity_id field
+     */
+    private function generateEntityIdSelect($value, $required)
+    {
+        $entities = EntityManager::loadEntities();
+
+        $html = '<select name="entity_id" id="entity_id" class="form-select" ' . $required . '>';
+        $html .= '<option value="">-- Select Entity --</option>';
+
+        foreach ($entities as $entity) {
+            $selected = $value == $entity['id'] ? 'selected' : '';
+            $html .= '<option value="' . htmlspecialchars($entity['id']) . '" ' . $selected . '>';
+            $html .= htmlspecialchars($entity['name']);
+            $html .= '</option>';
+        }
+
+        $html .= '</select>';
+
+        return $html;
+    }
+
+    /**
+     * Generate permission type selection dropdown for permission_type_id field
+     */
+    private function generatePermissionTypeSelect($value, $required)
+    {
+        $permissionTypes = EntityManager::search('ENUM_ENTITY_PERMISSION_TYPE', [], 100);
+
+        $html = '<select name="permission_type_id" id="permission_type_id" class="form-select" ' . $required . '>';
+        $html .= '<option value="">-- Select Permission Type --</option>';
+
+        foreach ($permissionTypes as $permType) {
+            $selected = $value == $permType['id'] ? 'selected' : '';
+            $html .= '<option value="' . htmlspecialchars($permType['id']) . '" ' . $selected . '>';
+            $html .= htmlspecialchars($permType['name']);
+            $html .= '</option>';
+        }
+
+        $html .= '</select>';
+
+        return $html;
+    }
+
+    /**
+     * Generate position selection dropdown for position_id field
+     */
+    private function generatePositionSelect($value, $required)
+    {
+        $positions = EntityManager::search('POPULAR_ORGANIZATION_POSITION', [], 100);
+
+        $html = '<select name="position_id" id="position_id" class="form-select" ' . $required . '>';
+        $html .= '<option value="">-- Select Position --</option>';
+
+        foreach ($positions as $position) {
+            $selected = $value == $position['id'] ? 'selected' : '';
+            $html .= '<option value="' . htmlspecialchars($position['id']) . '" ' . $selected . '>';
+            $html .= htmlspecialchars($position['position_name']);
+            $html .= '</option>';
+        }
+
+        $html .= '</select>';
+
+        return $html;
     }
 }
