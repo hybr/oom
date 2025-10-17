@@ -1,5 +1,5 @@
 -- ============================================
--- ENTITY METADATA: PERSON (for meta.sqlite)
+-- ENTITY METADATA: PERSON (for v4l.sqlite)
 -- ============================================
 
 INSERT OR IGNORE INTO entity_definition (id, code, name, description, domain, table_name)
@@ -48,7 +48,7 @@ VALUES
 
 
 -- ============================================
--- ENTITY METADATA: PERSON_CREDENTIAL (for meta.sqlite)
+-- ENTITY METADATA: PERSON_CREDENTIAL (for v4l.sqlite)
 -- ============================================
 
 INSERT OR IGNORE INTO entity_definition (id, code, name, description, domain, table_name)

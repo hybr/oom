@@ -38,7 +38,7 @@ Data seeds are automatically executed by the migration script:
 php scripts/migrate.php
 ```
 
-Seeds are tracked in the `data_seeds` table in `meta.sqlite` to ensure they only run once.
+Seeds are tracked in the `data_seeds` table in `v4l.sqlite` to ensure they only run once.
 
 ## Best Practices
 

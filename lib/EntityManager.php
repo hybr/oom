@@ -1,7 +1,7 @@
 <?php
 /**
  * Entity Manager - Metadata-driven entity framework
- * Reads entity definitions from meta database and provides entity operations
+ * Reads entity definitions from v4l.sqlite database and provides entity operations
  */
 
 class EntityManager
@@ -11,13 +11,13 @@ class EntityManager
     private static $relationships = null;
 
     /**
-     * Load all entity definitions from meta database
+     * Load all entity definitions from database
      */
     public static function loadEntities()
     {
         if (self::$entities === null) {
             $sql = "SELECT * FROM entity_definition WHERE is_active = 1";
-            self::$entities = Database::fetchAll($sql, [], 'meta');
+            self::$entities = Database::fetchAll($sql);
         }
         return self::$entities;
     }
@@ -57,7 +57,7 @@ class EntityManager
     {
         if (!isset(self::$attributes[$entityId])) {
             $sql = "SELECT * FROM entity_attribute WHERE entity_id = ? ORDER BY display_order";
-            self::$attributes[$entityId] = Database::fetchAll($sql, [$entityId], 'meta');
+            self::$attributes[$entityId] = Database::fetchAll($sql, [$entityId]);
         }
         return self::$attributes[$entityId];
     }
@@ -70,7 +70,7 @@ class EntityManager
     {
         if (!isset(self::$relationships[$entityId])) {
             $sql = "SELECT * FROM entity_relationship WHERE from_entity_id = ? OR to_entity_id = ?";
-            self::$relationships[$entityId] = Database::fetchAll($sql, [$entityId, $entityId], 'meta');
+            self::$relationships[$entityId] = Database::fetchAll($sql, [$entityId, $entityId]);
         }
         return self::$relationships[$entityId];
     }
@@ -81,7 +81,7 @@ class EntityManager
     public static function getFunctions($entityId)
     {
         $sql = "SELECT * FROM entity_function WHERE entity_id = ? AND is_active = 1";
-        return Database::fetchAll($sql, [$entityId], 'meta');
+        return Database::fetchAll($sql, [$entityId]);
     }
 
     /**
@@ -90,7 +90,7 @@ class EntityManager
     public static function getFunctionHandlers($functionId)
     {
         $sql = "SELECT * FROM entity_function_handler WHERE function_id = ? AND is_active = 1";
-        return Database::fetchAll($sql, [$functionId], 'meta');
+        return Database::fetchAll($sql, [$functionId]);
     }
 
     /**
@@ -99,7 +99,7 @@ class EntityManager
     public static function getValidationRules($entityId)
     {
         $sql = "SELECT * FROM entity_validation_rule WHERE entity_id = ?";
-        return Database::fetchAll($sql, [$entityId], 'meta');
+        return Database::fetchAll($sql, [$entityId]);
     }
 
     /**

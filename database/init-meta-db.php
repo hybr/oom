@@ -1,33 +1,33 @@
 <?php
 /**
- * Meta Database Initialization Script
- * Creates the SQLite meta database with all entity definitions from metadata.txt
+ * Database Initialization Script
+ * Creates the SQLite database with all entity definitions from metadata.txt
  */
 
 require_once __DIR__ . '/../bootstrap.php';
 
-echo "Initializing Meta Database...\n";
+echo "Initializing Database...\n";
 
 try {
-    $metaDbPath = Config::get('database.meta.path');
-    $metaDir = dirname($metaDbPath);
+    $dbPath = Config::get('database.default.database');
+    $dbDir = dirname($dbPath);
 
     // Ensure directory exists
-    if (!is_dir($metaDir)) {
-        mkdir($metaDir, 0755, true);
+    if (!is_dir($dbDir)) {
+        mkdir($dbDir, 0755, true);
     }
 
     // Remove existing database if present
-    if (file_exists($metaDbPath)) {
-        unlink($metaDbPath);
-        echo "Removed existing meta database.\n";
+    if (file_exists($dbPath)) {
+        unlink($dbPath);
+        echo "Removed existing database.\n";
     }
 
     // Create new SQLite database connection
-    $db = new PDO('sqlite:' . $metaDbPath);
+    $db = new PDO('sqlite:' . $dbPath);
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-    echo "Created new meta database at: {$metaDbPath}\n";
+    echo "Created new database at: {$dbPath}\n";
 
     // Read and execute the metadata SQL script
     $metadataFile = BASE_PATH . '/metadata.txt';
@@ -63,7 +63,7 @@ try {
     }
 
     echo str_repeat('=', 50) . "\n";
-    echo "\nMeta database initialized successfully!\n";
+    echo "\nDatabase initialized successfully!\n";
 
 } catch (Exception $e) {
     echo "ERROR: " . $e->getMessage() . "\n";

@@ -38,7 +38,7 @@ $securityAnswer2 = $_POST['security_answer_2'] ?? '';
 $validator = Validator::make($personData, [
     'first_name' => 'required|min:2|max:50',
     'last_name' => 'required|min:2|max:50',
-    'primary_email' => 'required|email',
+    'primary_email' => 'email',
 ]);
 
 if ($validator->fails()) {
@@ -90,11 +90,13 @@ try {
         throw new Exception('Username already exists');
     }
 
-    // Check if email already exists
-    $sql = "SELECT COUNT(*) as cnt FROM person_credential WHERE email = ?";
-    $result = Database::fetchOne($sql, [$personData['primary_email']]);
-    if ($result['cnt'] > 0) {
-        throw new Exception('Email already exists');
+    // Check if email already exists (only if email is provided)
+    if (!empty($personData['primary_email'])) {
+        $sql = "SELECT COUNT(*) as cnt FROM person_credential WHERE email = ?";
+        $result = Database::fetchOne($sql, [$personData['primary_email']]);
+        if ($result['cnt'] > 0) {
+            throw new Exception('Email already exists');
+        }
     }
 
     // Generate person ID

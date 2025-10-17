@@ -46,13 +46,13 @@ cp .env.example .env
 nano .env
 ```
 
-### 2. Initialize Databases
+### 2. Initialize Database
 
 ```bash
-# Initialize meta database (contains entity definitions)
+# Initialize database (contains entity definitions and data)
 php database/init-meta-db.php
 
-# This will create database/meta.sqlite with all entity metadata
+# This will create database/v4l.sqlite with all entity metadata
 ```
 
 ### 3. Set Permissions
@@ -124,7 +124,7 @@ Visit `http://v4l.local/auth/signup` and create an account.
 
 ### Metadata-Driven Framework
 
-V4L uses a **meta database** (SQLite) that defines:
+V4L uses a **single database** (v4l.sqlite) that contains both metadata and operational data:
 
 - **Entities**: Tables and their properties
 - **Attributes**: Columns with data types, validations, and constraints
@@ -135,8 +135,8 @@ V4L uses a **meta database** (SQLite) that defines:
 ### Core Components
 
 1. **EntityManager** (`lib/EntityManager.php`)
-   - Reads metadata from meta database
-   - Dynamically creates operational database tables
+   - Reads metadata from the database
+   - Dynamically creates database tables
    - Provides CRUD operations for all entities
 
 2. **PageGenerator** (`lib/PageGenerator.php`)
@@ -156,7 +156,7 @@ V4L uses a **meta database** (SQLite) that defines:
 
 5. **Database** (`lib/Database.php`)
    - PDO wrapper for safe query execution
-   - Supports both meta and operational databases
+   - Supports v4l.sqlite database
    - Prepared statements prevent SQL injection
 
 6. **Validator** (`lib/Validator.php`)
@@ -177,8 +177,8 @@ v4l/
 ├── config/
 │   └── app.php             # Configuration loader
 ├── database/
-│   ├── init-meta-db.php    # Meta database initializer
-│   └── meta.sqlite         # Meta database (created on init)
+│   ├── init-meta-db.php    # Database initializer
+│   └── v4l.sqlite          # Main database (created on init)
 ├── lib/                    # Core framework classes
 │   ├── Auth.php
 │   ├── Database.php
@@ -204,7 +204,7 @@ v4l/
 
 ## Adding New Entities
 
-To add a new entity, simply insert metadata into the meta database:
+To add a new entity, simply insert metadata into the database:
 
 ```sql
 -- 1. Add entity definition
@@ -221,7 +221,7 @@ VALUES ('...uuid...', '...from_id...', '...to_id...', 'ManyToOne', 'parent_id');
 ```
 
 **That's it!** The framework will automatically:
-- Create the operational database table
+- Create the database table
 - Generate list, detail, create, and edit pages
 - Handle CRUD operations
 - Validate inputs based on metadata

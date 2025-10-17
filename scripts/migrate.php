@@ -13,24 +13,22 @@ require_once BASE_PATH . '/lib/Database.php';
 
 class Migrator
 {
-    private $metaDb;
-    private $operationalDb;
+    private $db;
     private $migrationsPath;
 
     public function __construct()
     {
         $this->migrationsPath = BASE_PATH . '/metadata';
 
-        // Initialize databases
-        $this->metaDb = Database::meta();
-        $this->operationalDb = Database::connection('default');
+        // Initialize database connection
+        $this->db = Database::connection('default');
 
         // Create migration tracking table
         $this->createMigrationTable();
     }
 
     /**
-     * Create migrations tracking table in meta database
+     * Create migrations tracking table in database
      */
     private function createMigrationTable()
     {
@@ -40,7 +38,7 @@ class Migrator
             executed_at TEXT DEFAULT (datetime('now'))
         )";
 
-        $this->metaDb->exec($sql);
+        $this->db->exec($sql);
 
         // Also create data seeds tracking table
         $sql = "CREATE TABLE IF NOT EXISTS data_seeds (
@@ -49,7 +47,7 @@ class Migrator
             executed_at TEXT DEFAULT (datetime('now'))
         )";
 
-        $this->metaDb->exec($sql);
+        $this->db->exec($sql);
         echo "✓ Migration tracking tables ready\n";
     }
 
@@ -63,7 +61,7 @@ class Migrator
         sort($files);
 
         // Get completed migrations
-        $stmt = $this->metaDb->query("SELECT migration FROM migrations");
+        $stmt = $this->db->query("SELECT migration FROM migrations");
         $completed = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
         // Filter to get pending only
@@ -104,38 +102,16 @@ class Migrator
             }
         );
 
-        $metaStatements = 0;
-        $operationalStatements = 0;
+        $executedStatements = 0;
 
         foreach ($statements as $statement) {
             $stmt = trim($statement);
             if (empty($stmt)) continue;
 
             try {
-                // Determine which database to use
-                // Table creation goes to operational DB (except entity_ and migrations tables)
-                // Entity metadata INSERT/SELECT goes to meta DB
-                $isCreateTable = preg_match('/^\s*CREATE\s+TABLE/i', $stmt);
-                $isMetaTable = preg_match('/entity_|migrations/i', $stmt);
-                $isInsertOrSelect = preg_match('/^\s*(INSERT|SELECT)/i', $stmt);
-
-                if ($isCreateTable && !$isMetaTable) {
-                    // Operational table creation
-                    $this->operationalDb->exec($stmt);
-                    $operationalStatements++;
-                } elseif ($isCreateTable && $isMetaTable) {
-                    // Meta table creation (entity_definition, etc.)
-                    $this->metaDb->exec($stmt);
-                    $metaStatements++;
-                } elseif ($isInsertOrSelect) {
-                    // All INSERTs and SELECTs go to meta database
-                    $this->metaDb->exec($stmt);
-                    $metaStatements++;
-                } else {
-                    // Default to meta database
-                    $this->metaDb->exec($stmt);
-                    $metaStatements++;
-                }
+                // Execute all statements in the same database
+                $this->db->exec($stmt);
+                $executedStatements++;
             } catch (PDOException $e) {
                 // Skip if already exists or is a SELECT statement
                 if (strpos($e->getMessage(), 'already exists') === false &&
@@ -146,10 +122,10 @@ class Migrator
         }
 
         // Mark migration as completed
-        $stmt = $this->metaDb->prepare("INSERT INTO migrations (migration) VALUES (?)");
+        $stmt = $this->db->prepare("INSERT INTO migrations (migration) VALUES (?)");
         $stmt->execute([$migration]);
 
-        echo "  ✓ Completed: {$metaStatements} meta statements, {$operationalStatements} operational statements\n";
+        echo "  ✓ Completed: {$executedStatements} statements executed\n";
     }
 
     /**
@@ -191,7 +167,7 @@ class Migrator
     private function ensureEntityTables()
     {
         $sql = "SELECT * FROM entity_definition WHERE is_active = 1 ORDER BY code";
-        $stmt = $this->metaDb->query($sql);
+        $stmt = $this->db->query($sql);
         $entities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $created = 0;
@@ -203,7 +179,7 @@ class Migrator
 
             // Check if table exists
             $sql = "SELECT name FROM sqlite_master WHERE type='table' AND name=?";
-            $stmt = $this->operationalDb->prepare($sql);
+            $stmt = $this->db->prepare($sql);
             $stmt->execute([$tableName]);
             if ($stmt->fetch(PDO::FETCH_ASSOC)) {
                 echo "  ✓ {$entityCode}: table '{$tableName}' exists\n";
@@ -213,7 +189,7 @@ class Migrator
 
             // Get attributes
             $sql = "SELECT * FROM entity_attribute WHERE entity_id = ? ORDER BY display_order";
-            $stmt = $this->metaDb->prepare($sql);
+            $stmt = $this->db->prepare($sql);
             $stmt->execute([$entity['id']]);
             $attributes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -225,7 +201,7 @@ class Migrator
             // Get relationships where this entity has foreign keys
             // Check both directions: where this is "from" entity OR "to" entity
             $sql = "SELECT * FROM entity_relationship WHERE from_entity_id = ? OR to_entity_id = ?";
-            $stmt = $this->metaDb->prepare($sql);
+            $stmt = $this->db->prepare($sql);
             $stmt->execute([$entity['id'], $entity['id']]);
             $relationships = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -272,7 +248,7 @@ class Migrator
                         : $rel['from_entity_id'];
 
                     $sql = "SELECT table_name FROM entity_definition WHERE id = ?";
-                    $stmt = $this->metaDb->prepare($sql);
+                    $stmt = $this->db->prepare($sql);
                     $stmt->execute([$targetEntityId]);
                     $targetEntity = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -286,7 +262,7 @@ class Migrator
             $allConstraints = array_merge($columns, $foreignKeys);
             $createSql = "CREATE TABLE {$tableName} (\n    " . implode(",\n    ", $allConstraints) . "\n)";
 
-            $this->operationalDb->exec($createSql);
+            $this->db->exec($createSql);
             echo "  ✓ {$entityCode}: created table '{$tableName}'\n";
             $created++;
         }
@@ -311,7 +287,7 @@ class Migrator
         sort($files);
 
         // Get already executed seeds
-        $stmt = $this->metaDb->query("SELECT seed_file FROM data_seeds");
+        $stmt = $this->db->query("SELECT seed_file FROM data_seeds");
         $executed = $stmt->fetchAll(PDO::FETCH_COLUMN);
 
         // Filter out executed ones
@@ -353,8 +329,8 @@ class Migrator
             if (empty($stmt)) continue;
 
             try {
-                // All data inserts go to operational database
-                $this->operationalDb->exec($stmt);
+                // All data inserts go to the database
+                $this->db->exec($stmt);
                 $insertCount++;
             } catch (PDOException $e) {
                 echo "  ⚠ Warning: " . $e->getMessage() . "\n";
@@ -363,7 +339,7 @@ class Migrator
         }
 
         // Mark seed as executed
-        $stmt = $this->metaDb->prepare("INSERT INTO data_seeds (seed_file) VALUES (?)");
+        $stmt = $this->db->prepare("INSERT INTO data_seeds (seed_file) VALUES (?)");
         $stmt->execute([$basename]);
 
         echo "  ✓ Completed: {$insertCount} statements executed\n";
@@ -401,7 +377,7 @@ class Migrator
         echo "=== Resetting Migrations ===\n";
 
         // Drop migration tracking
-        $this->metaDb->exec("DROP TABLE IF EXISTS migrations");
+        $this->db->exec("DROP TABLE IF EXISTS migrations");
 
         // Recreate tracking table
         $this->createMigrationTable();

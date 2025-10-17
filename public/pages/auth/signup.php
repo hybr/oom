@@ -88,10 +88,10 @@ require_once __DIR__ . '/../../../includes/header.php';
 
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="primary_email" class="form-label">Email <span class="text-danger">*</span></label>
+                                <label for="primary_email" class="form-label">Email</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                                    <input type="email" class="form-control" id="primary_email" name="primary_email" required>
+                                    <input type="email" class="form-control" id="primary_email" name="primary_email">
                                 </div>
                             </div>
 

@@ -1,7 +1,7 @@
 <?php
 /**
  * Create Entity Tables Script
- * Automatically creates tables in v4l.sqlite for all entities defined in meta.sqlite
+ * Automatically creates tables in v4l.sqlite for all entities defined in the database
  */
 
 require_once __DIR__ . '/../bootstrap.php';

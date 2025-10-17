@@ -20,17 +20,17 @@ cp .env.example .env
 # (Optional) Edit .env if needed
 ```
 
-## Step 2: Initialize Meta Database
+## Step 2: Initialize Database
 
 ```bash
-# Run the meta database initializer
+# Run the database initializer
 php database/init-meta-db.php
 ```
 
 Expected output:
 ```
-Initializing Meta Database...
-Created new meta database at: database/meta.sqlite
+Initializing Database...
+Created new database at: database/v4l.sqlite
 Executed metadata SQL script.
 
 Verification:
@@ -43,7 +43,7 @@ entity_function_handler     :   XX records
 entity_validation_rule      :    3 records
 ==================================================
 
-Meta database initialized successfully!
+Database initialized successfully!
 ```
 
 ## Step 3: Set Permissions

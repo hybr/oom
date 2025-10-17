@@ -58,10 +58,6 @@ class Config
                 'timezone' => self::env('APP_TIMEZONE', 'UTC'),
             ],
             'database' => [
-                'meta' => [
-                    'driver' => 'sqlite',
-                    'path' => BASE_PATH . '/' . self::env('META_DB_PATH', 'database/meta.sqlite'),
-                ],
                 'default' => [
                     'driver' => self::env('DB_CONNECTION', 'sqlite'),
                     'host' => self::env('DB_HOST', 'localhost'),

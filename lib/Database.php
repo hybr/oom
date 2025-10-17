@@ -1,39 +1,15 @@
 <?php
 /**
  * Database Connection Manager
- * Handles both meta and operational database connections
+ * Handles database connections to v4l.sqlite
  */
 
 class Database
 {
-    private static $metaConnection = null;
     private static $defaultConnection = null;
 
     /**
-     * Get meta database connection (SQLite)
-     */
-    public static function meta()
-    {
-        if (self::$metaConnection === null) {
-            $config = Config::get('database.meta');
-            $dsn = 'sqlite:' . $config['path'];
-
-            try {
-                self::$metaConnection = new PDO($dsn);
-                self::$metaConnection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-                self::$metaConnection->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-                self::$metaConnection->exec('PRAGMA foreign_keys = ON');
-            } catch (PDOException $e) {
-                self::logError('Meta database connection failed: ' . $e->getMessage());
-                throw $e;
-            }
-        }
-
-        return self::$metaConnection;
-    }
-
-    /**
-     * Get default operational database connection
+     * Get default database connection
      */
     public static function connection($name = 'default')
     {
@@ -70,7 +46,7 @@ class Database
      */
     public static function query($sql, $params = [], $connection = 'default')
     {
-        $db = $connection === 'meta' ? self::meta() : self::connection();
+        $db = self::connection();
 
         try {
             $stmt = $db->prepare($sql);
@@ -114,7 +90,7 @@ class Database
      */
     public static function lastInsertId($connection = 'default')
     {
-        $db = $connection === 'meta' ? self::meta() : self::connection();
+        $db = self::connection();
         return $db->lastInsertId();
     }
 
@@ -123,7 +99,7 @@ class Database
      */
     public static function beginTransaction($connection = 'default')
     {
-        $db = $connection === 'meta' ? self::meta() : self::connection();
+        $db = self::connection();
         return $db->beginTransaction();
     }
 
@@ -132,7 +108,7 @@ class Database
      */
     public static function commit($connection = 'default')
     {
-        $db = $connection === 'meta' ? self::meta() : self::connection();
+        $db = self::connection();
         return $db->commit();
     }
 
@@ -141,7 +117,7 @@ class Database
      */
     public static function rollback($connection = 'default')
     {
-        $db = $connection === 'meta' ? self::meta() : self::connection();
+        $db = self::connection();
         return $db->rollBack();
     }
 
@@ -167,7 +143,6 @@ class Database
      */
     public static function close()
     {
-        self::$metaConnection = null;
         self::$defaultConnection = null;
     }
 }

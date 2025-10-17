@@ -81,8 +81,8 @@ v4l/
 │   └── app.php                      ✓ Configuration loader
 │
 ├── database/
-│   ├── init-meta-db.php            ✓ Meta DB initializer
-│   └── meta.sqlite                  ✓ Meta database (created by setup)
+│   ├── init-meta-db.php            ✓ Database initializer
+│   └── v4l.sqlite                   ✓ Main database (created by setup)
 │
 ├── lib/                             ✓ Core framework
 │   ├── Auth.php                     ✓ Authentication & sessions

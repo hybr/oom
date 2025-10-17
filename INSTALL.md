@@ -509,11 +509,11 @@ DATE=$(date +%Y%m%d_%H%M%S)
 # Create backup directory
 mkdir -p $BACKUP_DIR
 
-# Backup databases
-cp /var/www/v4l/database/meta.sqlite $BACKUP_DIR/meta_$DATE.sqlite
+# Backup database
+cp /var/www/v4l/database/v4l.sqlite $BACKUP_DIR/v4l_$DATE.sqlite
 
-# Backup PostgreSQL (if using)
-sudo -u postgres pg_dump v4l_production > $BACKUP_DIR/v4l_$DATE.sql
+# Backup PostgreSQL (if using production database)
+sudo -u postgres pg_dump v4l_production > $BACKUP_DIR/v4l_prod_$DATE.sql
 
 # Backup application files
 tar -czf $BACKUP_DIR/v4l_files_$DATE.tar.gz /var/www/v4l
@@ -565,7 +565,7 @@ $status = [
 
 // Check database
 try {
-    $db = new PDO('sqlite:../database/meta.sqlite');
+    $db = new PDO('sqlite:../database/v4l.sqlite');
     $status['database'] = 'connected';
 } catch (PDOException $e) {
     $status['database'] = 'error';
