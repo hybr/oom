@@ -13,18 +13,18 @@ VALUES (
 );
 
 -- PERSON ATTRIBUTES
-INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_label, description, display_order)
+INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_label, enum_values, description, display_order)
 VALUES
-('fae8c84e-bb91-4d24-8e9c-98254c5f9d5b','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','name_prefix','Name Prefix','text',0,0,'Prefix such as Mr., Ms., Dr.',1),
-('ea5ce5d0-798c-4cc5-a9c0-616544d18d51','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','first_name','First Name','text',1,1,'Given name',2),
-('c0f58e08-84b9-4eb3-8b4c-07ff17b98651','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','middle_name','Middle Name','text',0,0,'Middle name',3),
-('7d2e64d1-6633-4a39-bde7-37c527985c8e','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','last_name','Last Name','text',1,1,'Surname or family name',4),
-('8a7a64d8-5d37-4715-8ac3-cb7b74bbdb1f','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','name_suffix','Name Suffix','text',0,0,'Suffix such as Jr., Sr.',5),
-('35ef2f4c-69b1-4055-bb90-1cb2e84f5c7c','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','gender','Gender','text',0,0,'Male / Female / Other',6),
-('6d4ef2ff-b77c-4a7f-bbc2-36216c7aef16','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','date_of_birth','Date of Birth','date',0,0,'Birth date',7),
-('4a65a67d-2745-458a-9916-37ef27cb3a5d','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','primary_email','Primary Email','text',0,0,'Main contact email',8),
-('bcb37a4a-dfa4-496a-bbc1-f37c3e9620ab','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','primary_phone','Primary Phone','text',0,0,'Main contact number',9),
-('a8c2171a-c9ff-4726-8b3b-0b534a848e8c','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','organization_id','Organization ID','text',0,0,'Reference to organization entity',10);
+('fae8c84e-bb91-4d24-8e9c-98254c5f9d5b','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','name_prefix','Name Prefix','text',0,0,NULL,'Prefix such as Mr., Ms., Dr.',1),
+('ea5ce5d0-798c-4cc5-a9c0-616544d18d51','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','first_name','First Name','text',1,1,NULL,'Given name',2),
+('c0f58e08-84b9-4eb3-8b4c-07ff17b98651','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','middle_name','Middle Name','text',0,0,NULL,'Middle name',3),
+('7d2e64d1-6633-4a39-bde7-37c527985c8e','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','last_name','Last Name','text',1,1,NULL,'Surname or family name',4),
+('8a7a64d8-5d37-4715-8ac3-cb7b74bbdb1f','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','name_suffix','Name Suffix','text',0,0,NULL,'Suffix such as Jr., Sr.',5),
+('35ef2f4c-69b1-4055-bb90-1cb2e84f5c7c','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','gender','Gender','enum_strings',0,0,'["Male","Female","Other","Prefer not to say"]','Gender of the person',6),
+('6d4ef2ff-b77c-4a7f-bbc2-36216c7aef16','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','date_of_birth','Date of Birth','date',0,0,NULL,'Birth date',7),
+('4a65a67d-2745-458a-9916-37ef27cb3a5d','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','primary_email','Primary Email','text',0,0,NULL,'Main contact email',8),
+('bcb37a4a-dfa4-496a-bbc1-f37c3e9620ab','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','primary_phone','Primary Phone','text',0,0,NULL,'Main contact number',9),
+('a8c2171a-c9ff-4726-8b3b-0b534a848e8c','2d6fcb36-5c93-4e4d-b4b3-3c145aa093e3','organization_id','Organization ID','text',0,0,NULL,'Reference to organization entity',10);
 
 -- PERSON FUNCTIONS
 INSERT OR IGNORE INTO entity_function (id, entity_id, function_code, function_name, function_description, parameters, return_type)

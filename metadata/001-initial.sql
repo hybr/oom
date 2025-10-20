@@ -103,7 +103,8 @@ INSERT OR IGNORE INTO entity_definition (id, code, name, description, domain, ta
 ('8bfa24c6-9a3e-4f56-b2d7-cc93baf6e523', 'CONTINENT', 'Continent', 'Continents of the world', 'GEOGRAPHY', 'continent'),
 ('2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0', 'COUNTRY', 'Country', 'Countries within continents', 'GEOGRAPHY', 'country'),
 ('9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c', 'STATE', 'State / Province', 'States or provinces within a country', 'GEOGRAPHY', 'state'),
-('aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad', 'CITY', 'City / Town', 'Cities or towns within a state', 'GEOGRAPHY', 'city'),
+('b5c3a8d9-4f7e-4a2b-9c31-7d8f1b3e5a9c', 'DISTRICT', 'District / County', 'Districts or counties within a state', 'GEOGRAPHY', 'district'),
+('aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad', 'CITY', 'City / Town', 'Cities or towns within a district', 'GEOGRAPHY', 'city'),
 ('f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e', 'POSTAL_ADDRESS', 'Postal Address', 'Street-level postal addresses', 'GEOGRAPHY', 'postal_address'),
 ('0d2a8f01-5c8a-49d9-8b2e-6c5c1a2d2e3f', 'LANGUAGE', 'Language', 'Languages spoken in countries', 'GEOGRAPHY', 'language'),
 ('5b12c9e4-0a2f-4b4b-8eaa-953d7adf8c2a', 'CURRENCY', 'Currency', 'Currencies used in countries', 'GEOGRAPHY', 'currency'),
@@ -151,18 +152,28 @@ INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is
 ('e3c8a8b9-7b3a-4d1b-9382-0b4a3d5a0017','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','capital','Capital City','text',0,0,0,'Name of state capital',7),
 ('e3c8a8b9-7b3a-4d1b-9382-0b4a3d5a0018','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','description','Description','text',0,0,0,'Free-text',8);
 
+-- DISTRICT attributes
+INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_unique, is_label, description, display_order) VALUES
+('g5a9c7b1-3b4a-4e2b-8c91-1a2b3c4d5e6f','b5c3a8d9-4f7e-4a2b-9c31-7d8f1b3e5a9c','name','District / County Name','text',1,0,1,'Name of district or county',1),
+('g5a9c7b1-3b4a-4e2b-8c91-1a2b3c4d5e70','b5c3a8d9-4f7e-4a2b-9c31-7d8f1b3e5a9c','code','District Code','text',0,0,1,'Optional district code',2),
+('g5a9c7b1-3b4a-4e2b-8c91-1a2b3c4d5e71','b5c3a8d9-4f7e-4a2b-9c31-7d8f1b3e5a9c','state_id','State / Province','text',1,0,0,'FK to State',3),
+('g5a9c7b1-3b4a-4e2b-8c91-1a2b3c4d5e72','b5c3a8d9-4f7e-4a2b-9c31-7d8f1b3e5a9c','population','Population','number',0,0,0,'Population estimate',4),
+('g5a9c7b1-3b4a-4e2b-8c91-1a2b3c4d5e73','b5c3a8d9-4f7e-4a2b-9c31-7d8f1b3e5a9c','area_sq_km','Area (sq km)','number',0,0,0,'Area in sq km',5),
+('g5a9c7b1-3b4a-4e2b-8c91-1a2b3c4d5e74','b5c3a8d9-4f7e-4a2b-9c31-7d8f1b3e5a9c','description','Description','text',0,0,0,'Free-text',6);
+
 -- CITY attributes
 INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_unique, is_label, description, display_order) VALUES
 ('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0011','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','name','City / Town Name','text',1,0,1,'Name of city or town',1),
 ('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0012','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','code','City Code','text',0,0,0,'Optional city code',2),
-('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0013','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','state_id','State / Province','text',1,0,0,'FK to State',3),
-('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0014','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','country_id','Country','text',1,0,0,'FK to Country',4),
-('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0015','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','population','Population','number',0,0,0,'Population',5),
-('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0016','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','area_sq_km','Area (sq km)','number',0,0,0,'Area in sq km',6),
-('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0017','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','latitude','Latitude','number',0,0,0,'Decimal degrees',7),
-('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0018','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','longitude','Longitude','number',0,0,0,'Decimal degrees',8),
-('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0019','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','timezone_id','Time Zone','text',0,0,0,'FK to Timezone',9),
-('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0020','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','description','Description','text',0,0,0,'Free-text',10);
+('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0021','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','district_id','District / County','text',1,0,0,'FK to District',3),
+('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0013','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','state_id','State / Province','text',1,0,0,'FK to State',4),
+('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0014','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','country_id','Country','text',1,0,0,'FK to Country',5),
+('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0015','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','population','Population','number',0,0,0,'Population',6),
+('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0016','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','area_sq_km','Area (sq km)','number',0,0,0,'Area in sq km',7),
+('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0017','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','latitude','Latitude','text',0,0,0,'Decimal degrees',8),
+('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0018','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','longitude','Longitude','text',0,0,0,'Decimal degrees',9),
+('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0019','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','timezone_id','Time Zone','text',0,0,0,'FK to Timezone',10),
+('f4d9b7a2-2a31-4d6f-8b2d-0c3a1b2d0020','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','description','Description','text',0,0,0,'Free-text',11);
 
 -- POSTAL_ADDRESS attributes
 INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_unique, is_label, enum_values, validation_regex, description, display_order) VALUES
@@ -171,13 +182,14 @@ INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is
 ('a5e1b2c3-1111-4c6d-9999-001122334457','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','area','Area / Locality','text',1,0,0,NULL,NULL,'Neighborhood / locality',3),
 ('a5e1b2c3-1111-4c6d-9999-001122334458','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','landmark','Landmark','text',0,0,0,NULL,NULL,'Nearby landmark',4),
 ('a5e1b2c3-1111-4c6d-9999-001122334459','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','postal_code','Postal Code / PIN','text',1,0,0,NULL,'^[A-Za-z0-9\\- ]{3,20}$','Post code or PIN',5),
-('a5e1b2c3-1111-4c6d-9999-001122334460','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','latitude','Latitude','number',0,0,0,NULL,NULL,'Decimal degrees',6),
-('a5e1b2c3-1111-4c6d-9999-001122334461','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','longitude','Longitude','number',0,0,0,NULL,NULL,'Decimal degrees',7),
-('a5e1b2c3-1111-4c6d-9999-001122334462','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','address_type','Address Type','text',1,0,0,'["Home","Office","Warehouse","Other"]',NULL,'Type of address',8),
-('a5e1b2c3-1111-4c6d-9999-001122334463','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','is_primary','Is Primary','boolean',1,0,0,'0','0','Primary address flag',9),
-('a5e1b2c3-1111-4c6d-9999-001122334464','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','contact_person','Contact Person','text',0,0,0,NULL,NULL,'Contact for deliveries',10),
-('a5e1b2c3-1111-4c6d-9999-001122334465','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','contact_phone','Contact Phone','text',0,0,0,NULL,'^[A-Za-z0-9\\s\\-]{7,20}$','Phone number',11),
-('a5e1b2c3-1111-4c6d-9999-001122334466','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','delivery_instructions','Delivery Instructions','text',0,0,0,NULL,NULL,'Extra delivery notes',12);
+('a5e1b2c3-1111-4c6d-9999-001122334468','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','city_id','City','text',1,0,0,NULL,NULL,'FK to City',6),
+('a5e1b2c3-1111-4c6d-9999-001122334460','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','latitude','Latitude','text',0,0,0,NULL,NULL,'Decimal degrees',7),
+('a5e1b2c3-1111-4c6d-9999-001122334461','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','longitude','Longitude','text',0,0,0,NULL,NULL,'Decimal degrees',8),
+('a5e1b2c3-1111-4c6d-9999-001122334462','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','address_type','Address Type','text',1,0,0,'["Home","Office","Warehouse","Other"]',NULL,'Type of address',9),
+('a5e1b2c3-1111-4c6d-9999-001122334463','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','is_primary','Is Primary','boolean',1,0,0,'0','0','Primary address flag',10),
+('a5e1b2c3-1111-4c6d-9999-001122334464','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','contact_person','Contact Person','text',0,0,0,NULL,NULL,'Contact for deliveries',11),
+('a5e1b2c3-1111-4c6d-9999-001122334465','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','contact_phone','Contact Phone','text',0,0,0,NULL,'^[A-Za-z0-9\\s\\-]{7,20}$','Phone number',12),
+('a5e1b2c3-1111-4c6d-9999-001122334466','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','delivery_instructions','Delivery Instructions','text',0,0,0,NULL,NULL,'Extra delivery notes',13);
 
 -- LANGUAGE attributes
 INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_unique, is_label, description, display_order) VALUES
@@ -208,7 +220,8 @@ INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is
 INSERT OR IGNORE INTO entity_relationship (id, from_entity_id, to_entity_id, relation_type, relation_name, fk_field, description) VALUES
 ('rel-0001','8bfa24c6-9a3e-4f56-b2d7-cc93baf6e523','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','OneToMany','countries','continent_id','A continent has multiple countries'),
 ('rel-0002','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','OneToMany','states','country_id','A country has multiple states/provinces'),
-('rel-0003','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','OneToMany','cities','state_id','A state has multiple cities'),
+('rel-0003','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','b5c3a8d9-4f7e-4a2b-9c31-7d8f1b3e5a9c','OneToMany','districts','state_id','A state has multiple districts'),
+('rel-0009','b5c3a8d9-4f7e-4a2b-9c31-7d8f1b3e5a9c','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','OneToMany','cities','district_id','A district has multiple cities'),
 ('rel-0004','aa6d1f77-2c4d-4ef3-8b63-22e2e9b2f4ad','f34c3a2b-7f94-4fa7-9a33-8d9f0b1c7d2e','OneToMany','postal_addresses','city_id','A city has multiple postal addresses'),
 ('rel-0005','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','0d2a8f01-5c8a-49d9-8b2e-6c5c1a2d2e3f','OneToMany','languages','country_id','A country can have multiple languages'),
 ('rel-0006','2e7b36f6-4b21-4e4a-aaf8-1d3d29c9b4f0','5b12c9e4-0a2f-4b4b-8eaa-953d7adf8c2a','OneToMany','currencies','country_id','A country can have multiple currencies'),
@@ -252,6 +265,15 @@ INSERT OR IGNORE INTO entity_function (id, entity_id, function_code, function_na
 ('func-st-delete','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','delete','Delete State','Delete state','[{"name":"id","type":"text"}]','void',0),
 ('func-st-search','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','search','Search States','Search states','[{"name":"filters","type":"json"}]','json',0),
 ('func-st-validate-code','9b5f0b8a-3a93-40e8-9c58-4f9b2b1d6a1c','validate_state_code','Validate State Code','Ensure unique within country','[{"name":"state_code","type":"text"},{"name":"country_id","type":"text"}]','boolean',1);
+
+-- DISTRICT functions
+INSERT OR IGNORE INTO entity_function (id, entity_id, function_code, function_name, function_description, parameters, return_type, is_system) VALUES
+('func-dt-create','b5c3a8d9-4f7e-4a2b-9c31-7d8f1b3e5a9c','create','Create District','Create a district record','[{"name":"data","type":"json"}]','void',0),
+('func-dt-read','b5c3a8d9-4f7e-4a2b-9c31-7d8f1b3e5a9c','read','Read District','Read district by id','[{"name":"id","type":"text"}]','json',0),
+('func-dt-update','b5c3a8d9-4f7e-4a2b-9c31-7d8f1b3e5a9c','update','Update District','Update district','[{"name":"id","type":"text"},{"name":"data","type":"json"}]','void',0),
+('func-dt-delete','b5c3a8d9-4f7e-4a2b-9c31-7d8f1b3e5a9c','delete','Delete District','Delete district','[{"name":"id","type":"text"}]','void',0),
+('func-dt-search','b5c3a8d9-4f7e-4a2b-9c31-7d8f1b3e5a9c','search','Search Districts','Search districts','[{"name":"filters","type":"json"}]','json',0),
+('func-dt-validate-code','b5c3a8d9-4f7e-4a2b-9c31-7d8f1b3e5a9c','validate_district_code','Validate District Code','Ensure unique within state','[{"name":"district_code","type":"text"},{"name":"state_id","type":"text"}]','boolean',1);
 
 -- CITY functions
 INSERT OR IGNORE INTO entity_function (id, entity_id, function_code, function_name, function_description, parameters, return_type, is_system) VALUES
@@ -334,6 +356,15 @@ INSERT OR IGNORE INTO entity_function_handler (id, function_id, handler_type, ha
 ('h-st-delete','func-st-delete','sql','sp_delete_state'),
 ('h-st-search','func-st-search','sql','sp_search_state'),
 ('h-st-validate-code','func-st-validate-code','sql','sp_validate_state_code');
+
+-- DISTRICT handlers
+INSERT OR IGNORE INTO entity_function_handler (id, function_id, handler_type, handler_reference) VALUES
+('h-dt-create','func-dt-create','sql','sp_create_district'),
+('h-dt-read','func-dt-read','sql','sp_read_district'),
+('h-dt-update','func-dt-update','sql','sp_update_district'),
+('h-dt-delete','func-dt-delete','sql','sp_delete_district'),
+('h-dt-search','func-dt-search','sql','sp_search_district'),
+('h-dt-validate-code','func-dt-validate-code','sql','sp_validate_district_code');
 
 -- CITY handlers
 INSERT OR IGNORE INTO entity_function_handler (id, function_id, handler_type, handler_reference) VALUES

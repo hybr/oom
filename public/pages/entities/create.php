@@ -16,6 +16,12 @@ try {
 
     require_once __DIR__ . '/../../../includes/header.php';
 
+    // Add geocoding meta tag for postal_address entity
+    if ($entityCode === 'POSTAL_ADDRESS') {
+        $apiKey = Config::get('geocoding.google_api_key', '');
+        echo '<meta name="google-maps-api-key" content="' . htmlspecialchars($apiKey) . '">' . "\n";
+    }
+
     // Generate and display form
     echo $generator->generateForm(null, 'create');
 

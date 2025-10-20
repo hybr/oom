@@ -45,8 +45,9 @@ VALUES
 -- =========================================================
 -- ENTITY_PERMISSION_DEFINITION Relationships
 -- =========================================================
-INSERT OR IGNORE INTO entity_relationship (id, from_entity_id, to_entity_id, relation_type, relation_name, fk_field)
+-- Note: entity_id does not need a relationship definition as it's handled
+-- specially by PageGenerator for selecting from entity_definition table
+INSERT OR IGNORE INTO entity_relationship (id, from_entity_id, to_entity_id, relation_type, relation_name, fk_field, description)
 VALUES
-('rel-epd-entity', 'b7c8d9e0-f1a2-43b3-5c4d-6e7f8a9b0c1d', 'entity_definition', 'ManyToOne', 'entity', 'entity_id'),
-('rel-epd-permtype', 'b7c8d9e0-f1a2-43b3-5c4d-6e7f8a9b0c1d', 'a9c2d4e6-f7b8-49a0-1c2d-3e4f5a6b7c8d', 'ManyToOne', 'permission_type', 'permission_type_id'),
-('rel-epd-position', 'b7c8d9e0-f1a2-43b3-5c4d-6e7f8a9b0c1d', 'f6a7b8c9-d0e1-42f3-4a5b-6c7d8e9f0a1b', 'ManyToOne', 'position', 'position_id');
+('rel-epd-permtype', 'b7c8d9e0-f1a2-43b3-5c4d-6e7f8a9b0c1d', 'a9c2d4e6-f7b8-49a0-1c2d-3e4f5a6b7c8d', 'ManyToOne', 'permission_type', 'permission_type_id', NULL),
+('rel-epd-position', 'b7c8d9e0-f1a2-43b3-5c4d-6e7f8a9b0c1d', 'f6a7b8c9-d0e1-42f3-4a5b-6c7d8e9f0a1b', 'ManyToOne', 'position', 'position_id', NULL);

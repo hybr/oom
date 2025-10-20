@@ -92,6 +92,11 @@ class Config
                 'max_size' => (int) self::env('MAX_UPLOAD_SIZE', '10485760'),
                 'allowed_extensions' => explode(',', self::env('ALLOWED_EXTENSIONS', 'jpg,jpeg,png,gif,pdf')),
             ],
+            'geocoding' => [
+                'provider' => self::env('GEOCODING_PROVIDER', 'google'),
+                'google_api_key' => self::env('GOOGLE_MAPS_API_KEY', ''),
+                'auto_fill' => self::env('GEOCODING_AUTO_FILL', 'false') === 'true',
+            ],
         ];
 
         self::$loaded = true;

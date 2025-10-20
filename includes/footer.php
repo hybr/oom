@@ -43,6 +43,9 @@
     <!-- FK Autocomplete -->
     <script src="/assets/js/fk-autocomplete.js"></script>
 
+    <!-- Geocoding for Postal Address -->
+    <script src="/assets/js/geocoding.js"></script>
+
     <!-- Form Validation -->
     <script>
         // Bootstrap form validation

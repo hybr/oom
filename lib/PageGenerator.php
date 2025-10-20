@@ -54,10 +54,21 @@ class PageGenerator
             foreach ($displayAttrs as $attr) {
                 $value = $record[$attr['code']] ?? '';
 
+                // Check if this is an enum_objects field and resolve to label
+                if ($attr['data_type'] === 'enum_objects') {
+                    $displayValue = $this->resolveEnumObjectLabel($attr, $value);
+                    $value = $displayValue !== null ? $displayValue : $value;
+                }
+                // Check if this is an enum_strings field with multiple values
+                elseif ($attr['data_type'] === 'enum_strings') {
+                    $value = $this->resolveEnumStringsDisplay($value);
+                }
                 // Check if this attribute is a foreign key
-                $fkLabel = $this->resolveForeignKeyLabel($attr['code'], $value);
-                if ($fkLabel !== null) {
-                    $value = $fkLabel;
+                else {
+                    $fkLabel = $this->resolveForeignKeyLabel($attr['code'], $value);
+                    if ($fkLabel !== null) {
+                        $value = $fkLabel;
+                    }
                 }
 
                 if (strlen($value) > 50) {
@@ -117,10 +128,21 @@ class PageGenerator
         foreach ($this->attributes as $attr) {
             $value = $record[$attr['code']] ?? '';
 
+            // Check if this is an enum_objects field and resolve to label
+            if ($attr['data_type'] === 'enum_objects') {
+                $displayValue = $this->resolveEnumObjectLabel($attr, $value);
+                $value = $displayValue !== null ? $displayValue : $value;
+            }
+            // Check if this is an enum_strings field with multiple values
+            elseif ($attr['data_type'] === 'enum_strings') {
+                $value = $this->resolveEnumStringsDisplay($value);
+            }
             // Check if this attribute is a foreign key
-            $fkLabel = $this->resolveForeignKeyLabel($attr['code'], $value);
-            if ($fkLabel !== null) {
-                $value = $fkLabel;
+            else {
+                $fkLabel = $this->resolveForeignKeyLabel($attr['code'], $value);
+                if ($fkLabel !== null) {
+                    $value = $fkLabel;
+                }
             }
 
             $html .= '<dt class="col-sm-3">' . htmlspecialchars($attr['name']) . ':</dt>';
@@ -296,9 +318,19 @@ class PageGenerator
         $code = $attr['code'];
 
         switch ($attr['data_type']) {
+            case 'enum_strings':
+                // Radio buttons or checkboxes for list of strings
+                $html .= $this->generateEnumStringsField($attr, $value, $required);
+                break;
+
+            case 'enum_objects':
+                // Select dropdown or radio buttons for list of {value, label} objects
+                $html .= $this->generateEnumObjectsField($attr, $value, $required);
+                break;
+
             case 'text':
                 if ($attr['enum_values']) {
-                    // Select dropdown
+                    // Select dropdown (legacy support)
                     $options = json_decode($attr['enum_values'], true);
                     $html .= '<select name="' . $code . '" id="' . $code . '" class="form-select" ' . $required . '>';
                     $html .= '<option value="">-- Select --</option>';
@@ -342,6 +374,178 @@ class PageGenerator
 
             default:
                 $html .= '<textarea name="' . $code . '" id="' . $code . '" class="form-control" rows="3" ' . $required . '>' . htmlspecialchars($value) . '</textarea>';
+        }
+
+        return $html;
+    }
+
+    /**
+     * Generate enum_strings field (radio for single, checkbox for multiple)
+     * enum_values format: ["Option1", "Option2", "Option3"] or {"allow_multiple": true, "options": ["A", "B", "C"]}
+     */
+    private function generateEnumStringsField($attr, $value, $required)
+    {
+        $html = '';
+        $code = $attr['code'];
+
+        if (!$attr['enum_values']) {
+            return '<input type="text" name="' . $code . '" id="' . $code . '" class="form-control" value="' . htmlspecialchars($value) . '" ' . $required . '>';
+        }
+
+        $enumData = json_decode($attr['enum_values'], true);
+
+        // Determine if it's multi-select and get options
+        $allowMultiple = false;
+        $options = [];
+
+        if (is_array($enumData) && isset($enumData['allow_multiple'])) {
+            $allowMultiple = $enumData['allow_multiple'];
+            $options = $enumData['options'] ?? [];
+        } else {
+            $options = $enumData;
+        }
+
+        // For multiple selection, value is stored as JSON array
+        $selectedValues = [];
+        if ($allowMultiple && !empty($value)) {
+            $selectedValues = json_decode($value, true) ?? [];
+            if (!is_array($selectedValues)) {
+                $selectedValues = [$value];
+            }
+        }
+
+        $inputType = $allowMultiple ? 'checkbox' : 'radio';
+        $fieldName = $allowMultiple ? $code . '[]' : $code;
+
+        $html .= '<div class="enum-strings-group">';
+
+        foreach ($options as $option) {
+            $optionValue = htmlspecialchars($option);
+            $fieldId = $code . '_' . preg_replace('/[^a-zA-Z0-9]/', '_', $option);
+
+            if ($allowMultiple) {
+                $checked = in_array($option, $selectedValues) ? 'checked' : '';
+            } else {
+                $checked = $value == $option ? 'checked' : '';
+            }
+
+            $html .= '<div class="form-check">';
+            $html .= '<input type="' . $inputType . '" class="form-check-input" name="' . $fieldName . '" ';
+            $html .= 'id="' . $fieldId . '" value="' . $optionValue . '" ' . $checked;
+
+            if (!$allowMultiple && $required) {
+                $html .= ' ' . $required;
+            }
+
+            $html .= '>';
+            $html .= '<label class="form-check-label" for="' . $fieldId . '">';
+            $html .= $optionValue;
+            $html .= '</label>';
+            $html .= '</div>';
+        }
+
+        $html .= '</div>';
+
+        return $html;
+    }
+
+    /**
+     * Generate enum_objects field (select dropdown or radio buttons)
+     * enum_values format: [{"value": "1", "label": "One"}, {"value": "2", "label": "Two"}]
+     * or {"allow_multiple": true, "options": [{...}]}
+     */
+    private function generateEnumObjectsField($attr, $value, $required)
+    {
+        $html = '';
+        $code = $attr['code'];
+
+        if (!$attr['enum_values']) {
+            return '<input type="text" name="' . $code . '" id="' . $code . '" class="form-control" value="' . htmlspecialchars($value) . '" ' . $required . '>';
+        }
+
+        $enumData = json_decode($attr['enum_values'], true);
+
+        // Determine if it's multi-select, rendering type, and get options
+        $allowMultiple = false;
+        $renderAs = 'select'; // 'select' or 'radio'
+        $options = [];
+
+        if (is_array($enumData) && isset($enumData['options'])) {
+            $allowMultiple = $enumData['allow_multiple'] ?? false;
+            $renderAs = $enumData['render_as'] ?? 'select';
+            $options = $enumData['options'];
+        } else {
+            $options = $enumData;
+        }
+
+        // For multiple selection, value is stored as JSON array
+        $selectedValues = [];
+        if ($allowMultiple && !empty($value)) {
+            $selectedValues = json_decode($value, true) ?? [];
+            if (!is_array($selectedValues)) {
+                $selectedValues = [$value];
+            }
+        }
+
+        // Render as radio buttons or checkboxes
+        if ($renderAs === 'radio' || ($renderAs === 'auto' && count($options) < 8)) {
+            $inputType = $allowMultiple ? 'checkbox' : 'radio';
+            $fieldName = $allowMultiple ? $code . '[]' : $code;
+
+            $html .= '<div class="enum-objects-group">';
+
+            foreach ($options as $option) {
+                $optionValue = htmlspecialchars($option['value']);
+                $optionLabel = htmlspecialchars($option['label']);
+                $fieldId = $code . '_' . preg_replace('/[^a-zA-Z0-9]/', '_', $option['value']);
+
+                if ($allowMultiple) {
+                    $checked = in_array($option['value'], $selectedValues) ? 'checked' : '';
+                } else {
+                    $checked = $value == $option['value'] ? 'checked' : '';
+                }
+
+                $html .= '<div class="form-check">';
+                $html .= '<input type="' . $inputType . '" class="form-check-input" name="' . $fieldName . '" ';
+                $html .= 'id="' . $fieldId . '" value="' . $optionValue . '" ' . $checked;
+
+                if (!$allowMultiple && $required) {
+                    $html .= ' ' . $required;
+                }
+
+                $html .= '>';
+                $html .= '<label class="form-check-label" for="' . $fieldId . '">';
+                $html .= $optionLabel;
+                $html .= '</label>';
+                $html .= '</div>';
+            }
+
+            $html .= '</div>';
+        } else {
+            // Render as select dropdown
+            if ($allowMultiple) {
+                $html .= '<select name="' . $code . '[]" id="' . $code . '" class="form-select" multiple ' . $required . '>';
+            } else {
+                $html .= '<select name="' . $code . '" id="' . $code . '" class="form-select" ' . $required . '>';
+                $html .= '<option value="">-- Select --</option>';
+            }
+
+            foreach ($options as $option) {
+                $optionValue = htmlspecialchars($option['value']);
+                $optionLabel = htmlspecialchars($option['label']);
+
+                if ($allowMultiple) {
+                    $selected = in_array($option['value'], $selectedValues) ? 'selected' : '';
+                } else {
+                    $selected = $value == $option['value'] ? 'selected' : '';
+                }
+
+                $html .= '<option value="' . $optionValue . '" ' . $selected . '>';
+                $html .= $optionLabel;
+                $html .= '</option>';
+            }
+
+            $html .= '</select>';
         }
 
         return $html;
@@ -504,6 +708,78 @@ class PageGenerator
         }
 
         return implode(' - ', $displayParts);
+    }
+
+    /**
+     * Resolve enum_objects value to display label
+     * Returns null if not found or invalid
+     */
+    private function resolveEnumObjectLabel($attr, $value)
+    {
+        if (empty($value) || !$attr['enum_values']) {
+            return null;
+        }
+
+        $enumData = json_decode($attr['enum_values'], true);
+
+        // Handle wrapped format
+        $options = [];
+        if (is_array($enumData) && isset($enumData['options'])) {
+            $options = $enumData['options'];
+            $allowMultiple = $enumData['allow_multiple'] ?? false;
+        } else {
+            $options = $enumData;
+            $allowMultiple = false;
+        }
+
+        // Handle multiple values
+        if ($allowMultiple) {
+            $values = json_decode($value, true);
+            if (!is_array($values)) {
+                $values = [$value];
+            }
+
+            $labels = [];
+            foreach ($values as $val) {
+                foreach ($options as $option) {
+                    if ($option['value'] == $val) {
+                        $labels[] = $option['label'];
+                        break;
+                    }
+                }
+            }
+
+            return implode(', ', $labels);
+        }
+
+        // Single value
+        foreach ($options as $option) {
+            if ($option['value'] == $value) {
+                return $option['label'];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve enum_strings value to display
+     * Handles both single and multiple values
+     */
+    private function resolveEnumStringsDisplay($value)
+    {
+        if (empty($value)) {
+            return '';
+        }
+
+        // Try to decode as JSON array (for multiple values)
+        $decoded = json_decode($value, true);
+        if (is_array($decoded)) {
+            return implode(', ', $decoded);
+        }
+
+        // Single value
+        return $value;
     }
 
     /**
