@@ -1,8 +1,13 @@
+-- =========================================================
+-- DISTRICTS FOR: Maharashtra, Manipur, Meghalaya, Tamil Nadu
+-- =========================================================
 
 -- ============================================
 -- MAHARASHTRA (36 districts)
 -- State ID: s00000000-0041-4000-0000-000410000000
 -- ============================================
+INSERT OR IGNORE INTO district (id, name, code, state_id, population, area_sq_km, description, created_at, updated_at)
+VALUES
 ('d00000000-0151-4000-0000-0000000001510000000', 'Ahmednagar', 'AHM', 's00000000-0041-4000-0000-000410000000', 1916227, 17048, 'Sugar bowl of Maharashtra', datetime('now'), datetime('now')),
 ('d00000000-0152-4000-0000-0000000001520000000', 'Akola', 'AKO', 's00000000-0041-4000-0000-000410000000', 1818617, 5428, 'Cotton city', datetime('now'), datetime('now')),
 ('d00000000-0153-4000-0000-0000000001530000000', 'Amravati', 'AMR', 's00000000-0041-4000-0000-000410000000', 2888445, 12212, 'Cultural capital of Vidarbha', datetime('now'), datetime('now')),
@@ -119,4 +124,4 @@
 ('d00000000-01b3-4000-0000-0000000001b30000000', 'Tiruvarur', 'TVR', 's00000000-004a-4000-0000-0004a0000000', 1264009, 2377, 'Temple town', datetime('now'), datetime('now')),
 ('d00000000-01b4-4000-0000-0000000001b40000000', 'Vellore', 'VEL', 's00000000-004a-4000-0000-0004a0000000', 1614242, 2287, 'Leather and healthcare hub', datetime('now'), datetime('now')),
 ('d00000000-01b5-4000-0000-0000000001b50000000', 'Viluppuram', 'VIL', 's00000000-004a-4000-0000-0004a0000000', 2093003, 4109, 'Agricultural district', datetime('now'), datetime('now')),
-('d00000000-01b6-4000-0000-0000000001b60000000', 'Virudhunagar', 'VIR', 's00000000-004a-4000-0000-0004a0000000', 1943309, 4288, 'Cracker city', datetime('now'), datetime('now')),
+('d00000000-01b6-4000-0000-0000000001b60000000', 'Virudhunagar', 'VIR', 's00000000-004a-4000-0000-0004a0000000', 1943309, 4288, 'Cracker city', datetime('now'), datetime('now'));

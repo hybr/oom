@@ -20,7 +20,9 @@
       "Bash(move /Y \"metadata\\data\\015-states-provinces-fixed.sql\" \"metadata\\data\\015-states-provinces.sql\")",
       "Bash(copy /Y \"metadata\\data\\015-states-provinces-fixed.sql\" \"metadata\\data\\015-states-provinces.sql\")",
       "Bash(python:*)",
-      "Bash(del test_api.php)"
+      "Bash(del test_api.php)",
+      "Bash(powershell -Command \"(Get-Content ''C:\\Users\\fwyog\\oom\\metadata\\data\\022-major-universities-colleges.sql'') -replace ''3e9e1f42-2c00-4c48-b503-4d3581ca536e'', ''00000000-0000-4000-8000-000000000001'' | Set-Content ''C:\\Users\\fwyog\\oom\\metadata\\data\\022-major-universities-colleges.sql''\")",
+      "Bash(powershell -Command \"(Get-Content ''C:\\Users\\fwyog\\oom\\metadata\\data\\023-rajasthan-universities-colleges.sql'') -replace ''3e9e1f42-2c00-4c48-b503-4d3581ca536e'', ''00000000-0000-4000-8000-000000000001'' | Set-Content ''C:\\Users\\fwyog\\oom\\metadata\\data\\023-rajasthan-universities-colleges.sql''\")"
     ],
     "deny": [],
     "ask": []

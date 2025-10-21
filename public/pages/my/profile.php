@@ -148,8 +148,16 @@ require_once __DIR__ . '/../../../includes/header.php';
             </div>
 
             <?php
-            // Get person's education records
-            $sql = "SELECT * FROM person_education WHERE person_id = ? AND deleted_at IS NULL ORDER BY start_date DESC";
+            // Get person's education records with organization and education level names
+            $sql = "SELECT
+                        pe.*,
+                        o.short_name as institution,
+                        eel.name as education_level_name
+                    FROM person_education pe
+                    LEFT JOIN organization o ON pe.organization_id = o.id
+                    LEFT JOIN enum_education_level eel ON pe.education_level = eel.id
+                    WHERE pe.person_id = ? AND pe.deleted_at IS NULL
+                    ORDER BY pe.start_date DESC";
             $educations = Database::fetchAll($sql, [$person['id']]);
             ?>
 
@@ -181,8 +189,8 @@ require_once __DIR__ . '/../../../includes/header.php';
                                 <tbody>
                                     <?php foreach ($educations as $edu): ?>
                                     <tr>
-                                        <td><?= htmlspecialchars($edu['institution']) ?></td>
-                                        <td><?= htmlspecialchars($edu['education_level']) ?></td>
+                                        <td><?= htmlspecialchars($edu['institution'] ?? 'N/A') ?></td>
+                                        <td><?= htmlspecialchars($edu['education_level_name'] ?? 'N/A') ?></td>
                                         <td><?= htmlspecialchars($edu['start_date'] ?? '-') ?></td>
                                         <td><?= htmlspecialchars($edu['complete_date'] ?? 'In Progress') ?></td>
                                         <td>
@@ -203,10 +211,15 @@ require_once __DIR__ . '/../../../includes/header.php';
             </div>
 
             <?php
-            // Get person's skills
-            $sql = "SELECT ps.*, sk.name as skill_name
+            // Get person's skills with organization and level names
+            $sql = "SELECT ps.*,
+                        sk.name as skill_name,
+                        o.short_name as institution,
+                        esl.name as level_name
                     FROM person_skill ps
                     LEFT JOIN popular_skill sk ON ps.subject_id = sk.id
+                    LEFT JOIN organization o ON ps.organization_id = o.id
+                    LEFT JOIN enum_skill_level esl ON ps.level = esl.id
                     WHERE ps.person_id = ? AND ps.deleted_at IS NULL
                     ORDER BY ps.start_date DESC";
             $skills = Database::fetchAll($sql, [$person['id']]);
@@ -242,8 +255,8 @@ require_once __DIR__ . '/../../../includes/header.php';
                                     <tr>
                                         <td><?= htmlspecialchars($skill['skill_name'] ?? 'N/A') ?></td>
                                         <td>
-                                            <?php if (!empty($skill['level'])): ?>
-                                                <span class="badge bg-primary"><?= htmlspecialchars($skill['level']) ?></span>
+                                            <?php if (!empty($skill['level_name'])): ?>
+                                                <span class="badge bg-primary"><?= htmlspecialchars($skill['level_name']) ?></span>
                                             <?php else: ?>
                                                 -
                                             <?php endif; ?>

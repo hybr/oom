@@ -1,8 +1,10 @@
-
--- ============================================
--- MADHYA PRADESH (55 districts)
+-- =========================================================
+-- MADHYA PRADESH DISTRICTS (55 districts)
+-- =========================================================
 -- State ID: s00000000-0040-4000-0000-000400000000
--- ============================================
+
+INSERT OR IGNORE INTO district (id, name, code, state_id, population, area_sq_km, description, created_at, updated_at)
+VALUES
 ('d00000000-011a-4000-0000-00000000011a0000000', 'Agar Malwa', 'AGM', 's00000000-0040-4000-0000-000400000000', 1000000, 3000, 'Soybean hub', datetime('now'), datetime('now')),
 ('d00000000-011b-4000-0000-00000000011b0000000', 'Alirajpur', 'ALR', 's00000000-0040-4000-0000-000400000000', 728999, 3182, 'Tribal district', datetime('now'), datetime('now')),
 ('d00000000-011c-4000-0000-00000000011c0000000', 'Anuppur', 'ANP', 's00000000-0040-4000-0000-000400000000', 749521, 3947, 'Coal and forest district', datetime('now'), datetime('now')),
@@ -57,4 +59,4 @@
 ('d00000000-014d-4000-0000-00000000014d0000000', 'Vidisha', 'VDS', 's00000000-0040-4000-0000-000400000000', 1458875, 7371, 'Historical district', datetime('now'), datetime('now')),
 ('d00000000-014e-4000-0000-00000000014e0000000', 'Chachaura', 'CHC', 's00000000-0040-4000-0000-000400000000', 350000, 1800, 'Newest district 2022', datetime('now'), datetime('now')),
 ('d00000000-014f-4000-0000-00000000014f0000000', 'Maihar', 'MHR', 's00000000-0040-4000-0000-000400000000', 400000, 2000, 'Temple city district', datetime('now'), datetime('now')),
-('d00000000-0150-4000-0000-0000000001500000000', 'Nagda', 'NGD', 's00000000-0040-4000-0000-000400000000', 350000, 1500, 'Industrial district', datetime('now'), datetime('now')),
+('d00000000-0150-4000-0000-0000000001500000000', 'Nagda', 'NGD', 's00000000-0040-4000-0000-000400000000', 350000, 1500, 'Industrial district', datetime('now'), datetime('now'));

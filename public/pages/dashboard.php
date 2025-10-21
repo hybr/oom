@@ -6,6 +6,12 @@ Auth::requireAuth();
 $pageTitle = 'Dashboard';
 $user = Auth::user();
 
+// If user is false or null, redirect to login
+if (!$user || !is_array($user)) {
+    Router::redirect('/login');
+    exit;
+}
+
 // Get statistics
 $entities = EntityManager::loadEntities();
 
@@ -21,7 +27,7 @@ require_once __DIR__ . '/../../includes/header.php';
         <div class="col-md-8">
             <div class="card">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="bi bi-person-circle"></i> Welcome, <?php echo htmlspecialchars($user['username']); ?>!</h5>
+                    <h5 class="mb-0"><i class="bi bi-person-circle"></i> Welcome, <?php echo htmlspecialchars($user['username'] ?? $user['email'] ?? 'User'); ?>!</h5>
                 </div>
                 <div class="card-body">
                     <p class="lead">Welcome to your V4L dashboard. From here you can manage your entities and explore the platform.</p>
@@ -40,7 +46,13 @@ require_once __DIR__ . '/../../includes/header.php';
                             <div class="card bg-light">
                                 <div class="card-body">
                                     <h6><i class="bi bi-clock-history"></i> Member Since</h6>
-                                    <h5><?php echo date('M d, Y', strtotime($user['created_at'])); ?></h5>
+                                    <h5><?php
+                                        if (!empty($user['created_at'])) {
+                                            echo date('M d, Y', strtotime($user['created_at']));
+                                        } else {
+                                            echo 'N/A';
+                                        }
+                                    ?></h5>
                                 </div>
                             </div>
                         </div>

@@ -163,12 +163,26 @@ class PageGenerator
             $html .= '<div class="mt-4">';
             $html .= '<h4>Related Records</h4>';
             foreach ($this->relationships as $rel) {
-                $toEntity = EntityManager::getEntityById($rel['to_entity_id']);
-                $html .= '<div class="card mb-2">';
-                $html .= '<div class="card-header">' . htmlspecialchars($rel['relation_name']) . '</div>';
-                $html .= '<div class="card-body">';
-                $html .= '<a href="/entities/' . strtolower($toEntity['code']) . '/list?filter=' . $rel['fk_field'] . '=' . $record['id'] . '" class="btn btn-sm btn-primary">View ' . htmlspecialchars($toEntity['name']) . ' Records</a>';
-                $html .= '</div></div>';
+                // For ManyToOne relationships, the FK is on the "from" entity
+                // When viewing the "to" entity (target), we show "from" entities filtered by FK
+                if ($this->entity['id'] === $rel['to_entity_id']) {
+                    // This entity is the target - show the source entities that reference it
+                    $relatedEntity = EntityManager::getEntityById($rel['from_entity_id']);
+                    $filterField = $rel['fk_field'];
+
+                    if (!$relatedEntity) {
+                        continue;
+                    }
+
+                    $html .= '<div class="card mb-2">';
+                    $html .= '<div class="card-header">' . htmlspecialchars($rel['relation_name']) . '</div>';
+                    $html .= '<div class="card-body">';
+                    $html .= '<a href="/entities/' . strtolower($relatedEntity['code']) . '/list?filter=' . $filterField . '=' . $record['id'] . '" class="btn btn-sm btn-primary">View ' . htmlspecialchars($relatedEntity['name']) . ' Records</a>';
+                    $html .= '</div></div>';
+                }
+                // If this entity is the source (from_entity), the FK is on this entity
+                // We could show the parent/target record, but it's just one record (ManyToOne)
+                // So we skip showing it in the related records section
             }
             $html .= '</div>';
         }
@@ -191,7 +205,7 @@ class PageGenerator
         $html .= '<h2>' . ($isEdit ? 'Edit' : 'Create') . ' ' . $entityName . '</h2>';
 
         $formAction = $isEdit ? "/entities/" . strtolower($entityCode) . "/update" : "/entities/" . strtolower($entityCode) . "/store";
-        $html .= '<form method="POST" action="' . $formAction . '" class="needs-validation" novalidate>';
+        $html .= '<form method="POST" action="' . $formAction . '" class="needs-validation" enctype="multipart/form-data" novalidate>';
 
         // CSRF token
         $html .= '<input type="hidden" name="csrf_token" value="' . Auth::generateCsrfToken() . '">';
@@ -370,6 +384,13 @@ class PageGenerator
 
             case 'datetime':
                 $html .= '<input type="datetime-local" name="' . $code . '" id="' . $code . '" class="form-control" value="' . htmlspecialchars($value) . '" ' . $required . '>';
+                break;
+
+            case 'file':
+                $html .= '<input type="file" name="' . $code . '" id="' . $code . '" class="form-control" ' . $required . '>';
+                if (!empty($value)) {
+                    $html .= '<div class="mt-2"><small class="text-muted">Current file: ' . htmlspecialchars($value) . '</small></div>';
+                }
                 break;
 
             default:
@@ -605,7 +626,13 @@ class PageGenerator
 
         foreach ($records as $record) {
             $checked = $value == $record['id'] ? 'checked' : '';
-            $displayLabel = $this->buildDisplayLabel($record, $labelFields);
+
+            // Special formatting for postal addresses
+            if ($targetEntity['code'] === 'POSTAL_ADDRESS') {
+                $displayLabel = $this->formatPostalAddressLabel($record);
+            } else {
+                $displayLabel = $this->buildDisplayLabel($record, $labelFields);
+            }
 
             $html .= '<div class="form-check">';
             $html .= '<input type="radio" class="form-check-input" name="' . $fieldName . '" ';
@@ -635,7 +662,13 @@ class PageGenerator
 
         foreach ($records as $record) {
             $selected = $value == $record['id'] ? 'selected' : '';
-            $displayLabel = $this->buildDisplayLabel($record, $labelFields);
+
+            // Special formatting for postal addresses
+            if ($targetEntity['code'] === 'POSTAL_ADDRESS') {
+                $displayLabel = $this->formatPostalAddressLabel($record);
+            } else {
+                $displayLabel = $this->buildDisplayLabel($record, $labelFields);
+            }
 
             $html .= '<option value="' . htmlspecialchars($record['id']) . '" ' . $selected . '>';
             $html .= htmlspecialchars($displayLabel);
@@ -659,7 +692,12 @@ class PageGenerator
         if (!empty($value)) {
             $record = EntityManager::read($targetEntity['code'], $value);
             if ($record) {
-                $displayValue = $this->buildDisplayLabel($record, $labelFields);
+                // Special formatting for postal addresses
+                if ($targetEntity['code'] === 'POSTAL_ADDRESS') {
+                    $displayValue = $this->formatPostalAddressLabel($record);
+                } else {
+                    $displayValue = $this->buildDisplayLabel($record, $labelFields);
+                }
             }
         }
 
@@ -848,6 +886,11 @@ class PageGenerator
             return null;
         }
 
+        // Special formatting for postal addresses
+        if ($targetEntity['code'] === 'POSTAL_ADDRESS') {
+            return $this->formatPostalAddressLabel($record);
+        }
+
         // Get label fields from target entity
         $targetAttributes = EntityManager::getAttributes($targetEntityId);
         $labelFields = [];
@@ -876,6 +919,71 @@ class PageGenerator
         }
 
         return implode(' - ', $displayParts);
+    }
+
+    /**
+     * Format postal address as a readable single line with full location hierarchy
+     */
+    private function formatPostalAddressLabel($record)
+    {
+        $parts = [];
+
+        // Street address
+        if (!empty($record['first_street'])) {
+            $parts[] = $record['first_street'];
+        }
+        if (!empty($record['second_street'])) {
+            $parts[] = $record['second_street'];
+        }
+
+        // Area/Locality
+        if (!empty($record['area'])) {
+            $parts[] = $record['area'];
+        }
+
+        // Landmark
+        if (!empty($record['landmark'])) {
+            $parts[] = 'Near ' . $record['landmark'];
+        }
+
+        // City, District, State, Country (resolve from FK chain)
+        if (!empty($record['city_id'])) {
+            $city = EntityManager::read('CITY', $record['city_id']);
+            if ($city && !empty($city['name'])) {
+                $parts[] = $city['name'];
+
+                // District
+                if (!empty($city['district_id'])) {
+                    $district = EntityManager::read('DISTRICT', $city['district_id']);
+                    if ($district && !empty($district['name'])) {
+                        $parts[] = $district['name'];
+                    }
+                }
+
+                // State
+                if (!empty($city['state_id'])) {
+                    $state = EntityManager::read('STATE', $city['state_id']);
+                    if ($state && !empty($state['name'])) {
+                        $parts[] = $state['name'];
+                    }
+                }
+
+                // Country
+                if (!empty($city['country_id'])) {
+                    $country = EntityManager::read('COUNTRY', $city['country_id']);
+                    if ($country && !empty($country['name'])) {
+                        $parts[] = $country['name'];
+                    }
+                }
+            }
+        }
+
+        // Postal code
+        if (!empty($record['postal_code'])) {
+            $parts[] = $record['postal_code'];
+        }
+
+        return !empty($parts) ? implode(', ', $parts) : 'Address #' . substr($record['id'], 0, 8);
     }
 
     /**
