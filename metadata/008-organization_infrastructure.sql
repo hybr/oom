@@ -433,18 +433,6 @@ VALUES -- Foreign Keys
         6
     ),
     (
-        '4b6c7d8e-9f0a-1b2c-3d4e-5f6a7b8c9d0e',
-        '4a5b6c7d-8e9f-0a1b-2c3d-4e5f6a7b8c9d',
-        'department',
-        'Department',
-        'text',
-        0,
-        0,
-        0,
-        'Department or team using this workstation',
-        7
-    ),
-    (
         '4c6d7e8f-9a0b-1c2d-3e4f-5a6b7c8d9e0f',
         '4a5b6c7d-8e9f-0a1b-2c3d-4e5f6a7b8c9d',
         'equipment',

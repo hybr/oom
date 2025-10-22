@@ -22,8 +22,20 @@ try {
         echo '<meta name="google-maps-api-key" content="' . htmlspecialchars($apiKey) . '">' . "\n";
     }
 
-    // Generate and display form
-    echo $generator->generateForm(null, 'create');
+    // Check for pre-populated values from query parameters
+    $prePopulatedRecord = null;
+    if (!empty($_GET)) {
+        $prePopulatedRecord = [];
+        foreach ($_GET as $key => $value) {
+            // Only include valid attribute codes (alphanumeric and underscore)
+            if (preg_match('/^[a-z0-9_]+$/i', $key)) {
+                $prePopulatedRecord[$key] = $value;
+            }
+        }
+    }
+
+    // Generate and display form with pre-populated values
+    echo $generator->generateForm($prePopulatedRecord, 'create');
 
     require_once __DIR__ . '/../../../includes/footer.php';
 

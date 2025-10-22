@@ -222,7 +222,15 @@ class PageGenerator
                 continue;
             }
 
-            $value = $isEdit && $record ? ($record[$attr['code']] ?? '') : ($attr['default_value'] ?? '');
+            // Get value: prioritize record data, then pre-populated values, then default
+            if ($isEdit && $record) {
+                $value = $record[$attr['code']] ?? '';
+            } elseif ($record && isset($record[$attr['code']])) {
+                // Create mode with pre-populated values
+                $value = $record[$attr['code']];
+            } else {
+                $value = $attr['default_value'] ?? '';
+            }
             $required = $attr['is_required'] == 1 ? 'required' : '';
 
             $html .= '<div class="col-md-6 mb-3">';
@@ -627,9 +635,11 @@ class PageGenerator
         foreach ($records as $record) {
             $checked = $value == $record['id'] ? 'checked' : '';
 
-            // Special formatting for postal addresses
+            // Special formatting for specific entity types
             if ($targetEntity['code'] === 'POSTAL_ADDRESS') {
                 $displayLabel = $this->formatPostalAddressLabel($record);
+            } elseif ($targetEntity['code'] === 'VACANCY_APPLICATION') {
+                $displayLabel = $this->formatVacancyApplicationLabel($record);
             } else {
                 $displayLabel = $this->buildDisplayLabel($record, $labelFields);
             }
@@ -663,9 +673,11 @@ class PageGenerator
         foreach ($records as $record) {
             $selected = $value == $record['id'] ? 'selected' : '';
 
-            // Special formatting for postal addresses
+            // Special formatting for specific entity types
             if ($targetEntity['code'] === 'POSTAL_ADDRESS') {
                 $displayLabel = $this->formatPostalAddressLabel($record);
+            } elseif ($targetEntity['code'] === 'VACANCY_APPLICATION') {
+                $displayLabel = $this->formatVacancyApplicationLabel($record);
             } else {
                 $displayLabel = $this->buildDisplayLabel($record, $labelFields);
             }
@@ -692,9 +704,11 @@ class PageGenerator
         if (!empty($value)) {
             $record = EntityManager::read($targetEntity['code'], $value);
             if ($record) {
-                // Special formatting for postal addresses
+                // Special formatting for specific entity types
                 if ($targetEntity['code'] === 'POSTAL_ADDRESS') {
                     $displayValue = $this->formatPostalAddressLabel($record);
+                } elseif ($targetEntity['code'] === 'VACANCY_APPLICATION') {
+                    $displayValue = $this->formatVacancyApplicationLabel($record);
                 } else {
                     $displayValue = $this->buildDisplayLabel($record, $labelFields);
                 }
@@ -984,6 +998,54 @@ class PageGenerator
         }
 
         return !empty($parts) ? implode(', ', $parts) : 'Address #' . substr($record['id'], 0, 8);
+    }
+
+    /**
+     * Format vacancy application label with meaningful information
+     */
+    private function formatVacancyApplicationLabel($record)
+    {
+        $parts = [];
+
+        // Get applicant name
+        if (!empty($record['applicant_id'])) {
+            $applicant = EntityManager::read('PERSON', $record['applicant_id']);
+            if ($applicant) {
+                $applicantName = trim(($applicant['first_name'] ?? '') . ' ' . ($applicant['last_name'] ?? ''));
+                if (!empty($applicantName)) {
+                    $parts[] = $applicantName;
+                }
+            }
+        }
+
+        // Get vacancy/position information
+        if (!empty($record['vacancy_id'])) {
+            $vacancy = EntityManager::read('ORGANIZATION_VACANCY', $record['vacancy_id']);
+            if ($vacancy) {
+                // Get position name (note: column is popular_position_id, not position_id)
+                if (!empty($vacancy['popular_position_id'])) {
+                    $position = EntityManager::read('POPULAR_ORGANIZATION_POSITION', $vacancy['popular_position_id']);
+                    if ($position && !empty($position['position_name'])) {
+                        $parts[] = 'for ' . $position['position_name'];
+                    }
+                }
+
+                // Get organization name
+                if (!empty($vacancy['organization_id'])) {
+                    $organization = EntityManager::read('ORGANIZATION', $vacancy['organization_id']);
+                    if ($organization && !empty($organization['short_name'])) {
+                        $parts[] = 'at ' . $organization['short_name'];
+                    }
+                }
+            }
+        }
+
+        // Add application date if available
+        if (!empty($record['application_date'])) {
+            $parts[] = '(' . date('M d, Y', strtotime($record['application_date'])) . ')';
+        }
+
+        return !empty($parts) ? implode(' ', $parts) : 'Application #' . substr($record['id'], 0, 8);
     }
 
     /**

@@ -15,6 +15,34 @@ if (!$user || !is_array($user)) {
 // Get statistics
 $entities = EntityManager::loadEntities();
 
+// Get published process graphs
+$sql = "SELECT id, code, name, description, category, version_number
+        FROM process_graph
+        WHERE is_active = 1 AND is_published = 1
+        ORDER BY category, name";
+$processes = Database::fetchAll($sql);
+
+// Get user's organization (if any)
+$userOrganizationId = null;
+if (!empty($user['person_id'])) {
+    $sql = "SELECT organization_id FROM employment_contract
+            WHERE employee_id = ? AND status = 'ACTIVE' AND deleted_at IS NULL
+            LIMIT 1";
+    $empContract = Database::fetchOne($sql, [$user['person_id']]);
+    if ($empContract) {
+        $userOrganizationId = $empContract['organization_id'];
+    }
+}
+
+// Get user's pending tasks count
+$pendingTasksCount = 0;
+if (!empty($user['person_id'])) {
+    $sql = "SELECT COUNT(*) as cnt FROM task_instance
+            WHERE assigned_to = ? AND status IN ('PENDING', 'IN_PROGRESS') AND deleted_at IS NULL";
+    $result = Database::fetchOne($sql, [$user['person_id']]);
+    $pendingTasksCount = $result['cnt'] ?? 0;
+}
+
 require_once __DIR__ . '/../../includes/header.php';
 ?>
 
@@ -60,6 +88,53 @@ require_once __DIR__ . '/../../includes/header.php';
                 </div>
             </div>
 
+            <!-- Process Flows -->
+            <div class="card mt-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="bi bi-diagram-3"></i> Process Flows</h5>
+                </div>
+                <div class="card-body">
+                    <?php if (count($processes) > 0): ?>
+                        <div class="list-group">
+                            <?php
+                            $currentCategory = null;
+                            foreach ($processes as $process):
+                                if ($currentCategory !== $process['category']):
+                                    if ($currentCategory !== null) echo '</div>';
+                                    $currentCategory = $process['category'];
+                                    echo '<h6 class="mt-3 mb-2 text-muted">' . htmlspecialchars($currentCategory ?: 'General') . '</h6>';
+                                    echo '<div class="mb-3">';
+                                endif;
+                            ?>
+                                <a href="/pages/process/process-viewer.php?graph_id=<?php echo urlencode($process['id']); ?>"
+                                   class="list-group-item list-group-item-action">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">
+                                            <i class="bi bi-flow-chart"></i>
+                                            <?php echo htmlspecialchars($process['name']); ?>
+                                        </h6>
+                                        <small class="text-muted">v<?php echo $process['version_number']; ?></small>
+                                    </div>
+                                    <?php if ($process['description']): ?>
+                                        <p class="mb-1 small text-muted"><?php echo htmlspecialchars($process['description']); ?></p>
+                                    <?php endif; ?>
+                                    <small class="text-primary">
+                                        <i class="bi bi-arrow-right-circle"></i> View Diagram & Start Process
+                                    </small>
+                                </a>
+                            <?php endforeach; ?>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <div class="alert alert-info mb-0">
+                            <i class="bi bi-info-circle"></i> No process flows available.
+                            <a href="/entities/process_graph/list">Create a process</a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
             <div class="card mt-4">
                 <div class="card-header">
                     <h5 class="mb-0"><i class="bi bi-list-check"></i> Quick Actions</h5>
@@ -67,23 +142,26 @@ require_once __DIR__ . '/../../includes/header.php';
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <a href="/entities/continent/list" class="btn btn-outline-primary w-100">
+                            <a href="/pages/process/my-tasks.php" class="btn btn-outline-success w-100">
+                                <i class="bi bi-list-task"></i> My Tasks
+                                <?php if ($pendingTasksCount > 0): ?>
+                                    <span class="badge bg-danger"><?php echo $pendingTasksCount; ?></span>
+                                <?php endif; ?>
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="/entities/process_graph/list" class="btn btn-outline-primary w-100">
+                                <i class="bi bi-diagram-3"></i> Manage Processes
+                            </a>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <a href="/entities/continent/list" class="btn btn-outline-secondary w-100">
                                 <i class="bi bi-globe"></i> Manage Continents
                             </a>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <a href="/entities/country/list" class="btn btn-outline-primary w-100">
-                                <i class="bi bi-flag"></i> Manage Countries
-                            </a>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <a href="/entities/state/list" class="btn btn-outline-primary w-100">
-                                <i class="bi bi-map"></i> Manage States
-                            </a>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <a href="/entities/city/list" class="btn btn-outline-primary w-100">
-                                <i class="bi bi-building"></i> Manage Cities
+                            <a href="/entities/organization/list" class="btn btn-outline-secondary w-100">
+                                <i class="bi bi-building"></i> Manage Organizations
                             </a>
                         </div>
                     </div>

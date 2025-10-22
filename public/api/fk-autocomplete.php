@@ -76,6 +76,62 @@ function formatPostalAddress($record, $db) {
     return !empty($parts) ? implode(', ', $parts) : 'Address #' . substr($record['id'], 0, 8);
 }
 
+/**
+ * Format vacancy application with meaningful information
+ */
+function formatVacancyApplication($record, $db) {
+    $parts = [];
+
+    // Get applicant name
+    if (!empty($record['applicant_id'])) {
+        $stmt = $db->prepare("SELECT first_name, last_name FROM person WHERE id = :id");
+        $stmt->execute(['id' => $record['applicant_id']]);
+        $applicant = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($applicant) {
+            $applicantName = trim(($applicant['first_name'] ?? '') . ' ' . ($applicant['last_name'] ?? ''));
+            if (!empty($applicantName)) {
+                $parts[] = $applicantName;
+            }
+        }
+    }
+
+    // Get vacancy/position information
+    if (!empty($record['vacancy_id'])) {
+        $stmt = $db->prepare("SELECT popular_position_id, organization_id FROM organization_vacancy WHERE id = :id");
+        $stmt->execute(['id' => $record['vacancy_id']]);
+        $vacancy = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($vacancy) {
+            // Get position name (note: column is popular_position_id, not position_id)
+            if (!empty($vacancy['popular_position_id'])) {
+                $stmt = $db->prepare("SELECT position_name FROM popular_organization_position WHERE id = :id");
+                $stmt->execute(['id' => $vacancy['popular_position_id']]);
+                $position = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($position && !empty($position['position_name'])) {
+                    $parts[] = 'for ' . $position['position_name'];
+                }
+            }
+
+            // Get organization name
+            if (!empty($vacancy['organization_id'])) {
+                $stmt = $db->prepare("SELECT short_name FROM organization WHERE id = :id");
+                $stmt->execute(['id' => $vacancy['organization_id']]);
+                $organization = $stmt->fetch(PDO::FETCH_ASSOC);
+                if ($organization && !empty($organization['short_name'])) {
+                    $parts[] = 'at ' . $organization['short_name'];
+                }
+            }
+        }
+    }
+
+    // Add application date if available
+    if (!empty($record['application_date'])) {
+        $parts[] = '(' . date('M d, Y', strtotime($record['application_date'])) . ')';
+    }
+
+    return !empty($parts) ? implode(' ', $parts) : 'Application #' . substr($record['id'], 0, 8);
+}
+
 // Require authentication
 if (!Auth::check()) {
     http_response_code(401);
@@ -122,6 +178,11 @@ try {
         $labelFields = ['first_street', 'second_street', 'area', 'postal_code', 'landmark'];
     }
 
+    // Special handling for vacancy application search - search across applicant and status fields
+    if ($entityCode === 'VACANCY_APPLICATION') {
+        $labelFields = ['status', 'application_date'];
+    }
+
     // Use database-level search for better performance
     // Build WHERE clause for searching across label fields
     $db = Database::connection();
@@ -155,9 +216,11 @@ try {
         // Build display label
         $displayLabel = '';
 
-        // Special formatting for postal addresses
+        // Special formatting for specific entity types
         if ($entityCode === 'POSTAL_ADDRESS') {
             $displayLabel = formatPostalAddress($record, $db);
+        } elseif ($entityCode === 'VACANCY_APPLICATION') {
+            $displayLabel = formatVacancyApplication($record, $db);
         } else {
             $displayParts = [];
             foreach ($labelFields as $field) {
