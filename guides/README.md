@@ -1,9 +1,43 @@
-# V4L (Vocal 4 Local)
+# V4L (Vocal 4 Local) - Guides & Documentation
 
 **Tagline:** *Your Community, Your Marketplace*
 
 **Version:** 1.0
 **Domain:** https://v4l.app
+
+---
+
+> **📏 Note:** This is the **guides** directory. For system architecture rules and standards, see the `/rules` folder.
+
+---
+
+## Available Guides
+
+This directory contains comprehensive guides for implementing and using the V4L system:
+
+### Getting Started
+- **`INSTALL.md`** - Installation and setup instructions
+- **`QUICK_START.md`** - Quick start guide for developers
+- **`BUILD_SUMMARY.md`** - Build process and architecture overview
+
+### Database & Migrations
+- **`MIGRATION_GUIDE.md`** - Complete database migration system guide
+- **`MIGRATION_UPDATE_SUMMARY.md`** - Migration system updates and enhancements
+
+### Process Flow System
+- **`VACANCY_CREATION_PROCESS.md`** - Vacancy creation workflow implementation guide
+- **`VACANCY_PROCESS_ENTITIES.md`** - Supporting entities for vacancy workflow
+
+### Features & Modules
+- **`POSTAL_ADDRESS_UPDATES.md`** - Postal address system documentation
+- **`GEOCODING_SETUP.md`** - Geocoding integration guide
+
+### For System Architecture & Standards
+See **`/rules`** directory for:
+- Entity creation rules
+- Process flow architecture
+- Quick reference sheets
+- Technical specifications
 
 ---
 

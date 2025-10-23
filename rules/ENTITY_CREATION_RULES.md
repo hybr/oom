@@ -1,5 +1,7 @@
 # Entity Creation Rules - Metadata Folder
 
+> **📚 Note:** This is a rules reference document. For detailed guides, tutorials, and complete documentation, see the `/guides` folder.
+
 ## Overview
 
 This document defines the complete set of rules and conventions for creating entity metadata files in the `/metadata` folder. All entity definitions, attributes, relationships, functions, and validation rules follow these standards.

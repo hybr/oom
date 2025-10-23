@@ -488,20 +488,9 @@ VALUES
 -- =========================================
 -- Sample Data: Simple Approval Process
 -- =========================================
-
--- Create a sample process graph
-INSERT INTO process_graph (id, code, name, description, version_number, is_active, is_published, category, created_by)
-VALUES (
-    '20000000-0000-4000-8000-000000000001',
-    'SIMPLE_APPROVAL',
-    'Simple Approval Process',
-    'Basic two-step approval process with manager approval',
-    1,
-    1,
-    1,
-    'APPROVAL',
-    '00000000-0000-4000-8000-000000000001'  -- System admin
-);
+-- NOTE: Sample process graphs have been moved to metadata/processes/ directory
+-- This avoids foreign key issues with person table during initial migration
+-- Example: See metadata/processes/vacancy_creation_process.sql
 
 -- =========================================
 -- End of Process Flow System Migration

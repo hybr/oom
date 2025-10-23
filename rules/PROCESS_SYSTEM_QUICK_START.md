@@ -1,5 +1,10 @@
 # Quick Start: Process Flow System
 
+> **📚 Note:** This is a quick start reference. For detailed guides, see the `/guides` folder:
+> - `MIGRATION_GUIDE.md` - Database migration guide
+> - `VACANCY_CREATION_PROCESS.md` - Complete vacancy process guide
+> - `VACANCY_PROCESS_ENTITIES.md` - Process entities documentation
+
 ## ✅ Installation Complete!
 
 The Task-based Process Flow System has been successfully installed with:

@@ -22,7 +22,11 @@
       "Bash(python:*)",
       "Bash(del test_api.php)",
       "Bash(powershell -Command \"(Get-Content ''C:\\Users\\fwyog\\oom\\metadata\\data\\022-major-universities-colleges.sql'') -replace ''3e9e1f42-2c00-4c48-b503-4d3581ca536e'', ''00000000-0000-4000-8000-000000000001'' | Set-Content ''C:\\Users\\fwyog\\oom\\metadata\\data\\022-major-universities-colleges.sql''\")",
-      "Bash(powershell -Command \"(Get-Content ''C:\\Users\\fwyog\\oom\\metadata\\data\\023-rajasthan-universities-colleges.sql'') -replace ''3e9e1f42-2c00-4c48-b503-4d3581ca536e'', ''00000000-0000-4000-8000-000000000001'' | Set-Content ''C:\\Users\\fwyog\\oom\\metadata\\data\\023-rajasthan-universities-colleges.sql''\")"
+      "Bash(powershell -Command \"(Get-Content ''C:\\Users\\fwyog\\oom\\metadata\\data\\023-rajasthan-universities-colleges.sql'') -replace ''3e9e1f42-2c00-4c48-b503-4d3581ca536e'', ''00000000-0000-4000-8000-000000000001'' | Set-Content ''C:\\Users\\fwyog\\oom\\metadata\\data\\023-rajasthan-universities-colleges.sql''\")",
+      "Bash(if [ -d \"C:\\Users\\fwyog\\oom\\metadata\\processes\" ])",
+      "Bash(then echo \"Directory exists\")",
+      "Bash(else echo \"Directory does not exist\")",
+      "Bash(fi)"
     ],
     "deny": [],
     "ask": []

@@ -159,6 +159,10 @@ class Migrator
         // Run data seeds
         echo "\n=== Running Data Seeds ===\n";
         $this->runDataSeeds();
+
+        // Run process definitions
+        echo "\n=== Running Process Definitions ===\n";
+        $this->runProcessDefinitions();
     }
 
     /**
@@ -215,8 +219,15 @@ class Migrator
                 "changed_by TEXT"
             ];
 
+            // Standard field names that are already included above
+            $standardFields = ['id', 'created_at', 'updated_at', 'deleted_at', 'version_no', 'changed_by'];
+
             foreach ($attributes as $attr) {
+                // Skip system attributes
                 if (isset($attr['is_system']) && $attr['is_system'] == 1) continue;
+
+                // Skip attributes that conflict with standard field names
+                if (in_array($attr['code'], $standardFields)) continue;
 
                 $colDef = $attr['code'] . ' ';
                 $colDef .= match($attr['data_type']) {
@@ -316,7 +327,8 @@ class Migrator
         $lines = explode("\n", $sql);
         $cleanedLines = array_filter($lines, function($line) {
             $trimmed = trim($line);
-            return !empty($trimmed) && !preg_match('/^--/', $trimmed);
+            // Keep line if it's not empty (checking length, not truthiness) and doesn't start with --
+            return strlen($trimmed) > 0 && !preg_match('/^--/', $trimmed);
         });
         $sql = implode("\n", $cleanedLines);
 
@@ -367,6 +379,131 @@ class Migrator
         }
 
         echo "\n  ✓ All data seeds completed successfully!\n";
+    }
+
+    /**
+     * Get list of pending process definition files
+     */
+    private function getPendingProcessDefinitions()
+    {
+        $processPath = $this->migrationsPath . '/processes';
+
+        // Check if processes directory exists
+        if (!is_dir($processPath)) {
+            return [];
+        }
+
+        // Get all .sql files in processes directory
+        $files = glob($processPath . '/*.sql');
+        sort($files);
+
+        // Get already executed process definitions
+        $stmt = $this->db->query("SELECT seed_file FROM data_seeds WHERE seed_file LIKE 'process_%'");
+        $executed = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        // Filter out executed ones
+        $pending = [];
+        foreach ($files as $file) {
+            $basename = basename($file);
+            // Use 'process_' prefix to distinguish from data seeds
+            $trackingName = 'process_' . $basename;
+            if (!in_array($trackingName, $executed)) {
+                $pending[] = $file;
+            }
+        }
+
+        return $pending;
+    }
+
+    /**
+     * Execute a process definition file
+     */
+    private function executeProcessDefinition($file)
+    {
+        $basename = basename($file);
+        echo "\n  Installing process: {$basename}\n";
+
+        // Temporarily disable foreign key constraints for process installation
+        $this->db->exec("PRAGMA foreign_keys = OFF");
+
+        $sql = file_get_contents($file);
+
+        // Remove comments and split into statements
+        $lines = explode("\n", $sql);
+        $cleanedLines = array_filter($lines, function($line) {
+            $trimmed = trim($line);
+            // Keep line if it's not empty (checking length, not truthiness) and doesn't start with --
+            return strlen($trimmed) > 0 && !preg_match('/^--/', $trimmed);
+        });
+        $sql = implode("\n", $cleanedLines);
+
+        // Split by semicolon
+        $statements = array_filter(array_map('trim', explode(';', $sql)));
+
+        $executedCount = 0;
+
+        foreach ($statements as $stmt) {
+            if (empty($stmt)) continue;
+
+            try {
+                // Execute process definition statements
+                $this->db->exec($stmt);
+                $executedCount++;
+            } catch (PDOException $e) {
+                // Check if it's a SELECT statement (result message)
+                if (preg_match('/^\s*SELECT/i', $stmt)) {
+                    // Execute SELECT and display results
+                    $result = $this->db->query($stmt)->fetch(PDO::FETCH_ASSOC);
+                    if ($result) {
+                        foreach ($result as $key => $value) {
+                            echo "    ➜ {$key}: {$value}\n";
+                        }
+                    }
+                } else if (strpos($e->getMessage(), 'already exists') === false &&
+                           strpos($e->getMessage(), 'UNIQUE constraint') === false) {
+                    echo "    ⚠ Warning: " . $e->getMessage() . "\n";
+                    // Only show statement preview if it contains "syntax error"
+                    if (strpos($e->getMessage(), 'syntax error') !== false) {
+                        // Show full statement for syntax errors
+                        echo "       Full statement:\n" . $stmt . "\n";
+                    }
+                }
+            }
+        }
+
+        // Re-enable foreign key constraints
+        $this->db->exec("PRAGMA foreign_keys = ON");
+
+        // Mark process definition as executed (with 'process_' prefix)
+        $trackingName = 'process_' . $basename;
+        $stmt = $this->db->prepare("INSERT INTO data_seeds (seed_file) VALUES (?)");
+        $stmt->execute([$trackingName]);
+
+        echo "    ✓ Completed: {$executedCount} statements executed\n";
+    }
+
+    /**
+     * Run all pending process definitions
+     */
+    private function runProcessDefinitions()
+    {
+        $pending = $this->getPendingProcessDefinitions();
+
+        if (empty($pending)) {
+            echo "  ✓ No pending process definitions\n";
+            return;
+        }
+
+        echo "  Found " . count($pending) . " pending process definition(s):\n";
+        foreach ($pending as $file) {
+            echo "    - " . basename($file) . "\n";
+        }
+
+        foreach ($pending as $file) {
+            $this->executeProcessDefinition($file);
+        }
+
+        echo "\n  ✓ All process definitions installed successfully!\n";
     }
 
     /**

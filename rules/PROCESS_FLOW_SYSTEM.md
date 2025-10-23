@@ -1,5 +1,7 @@
 # Process Flow System - Complete Documentation
 
+> **📚 Note:** This is a rules and architecture reference. For implementation guides, tutorials, and examples, see the `/guides` folder (e.g., `VACANCY_CREATION_PROCESS.md`, `VACANCY_PROCESS_ENTITIES.md`).
+
 ## Overview
 
 A comprehensive task-based workflow engine with graph-based processes, position-based permissions, parallel execution support, and complete audit trails.

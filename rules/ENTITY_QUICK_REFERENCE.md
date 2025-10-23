@@ -1,5 +1,7 @@
 # Entity Creation - Quick Reference
 
+> **📚 Note:** This is a quick reference for entity creation rules. For detailed guides and examples, see the `/guides` folder.
+
 ## File Template
 
 ```sql
