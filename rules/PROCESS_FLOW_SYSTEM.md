@@ -265,6 +265,41 @@ This creates:
 - Archive completed flows after retention period
 - Monitor audit log growth
 
+## Important Implementation Notes
+
+### Transaction Management
+- **DO NOT nest transactions** in ProcessEngine methods
+- `startProcess()` manages the outer transaction
+- Helper methods like `transitionToNode()` and `handleFork()` should NOT start their own transactions
+- SQLite does not support true nested transactions - attempting to nest will cause "no active transaction" errors
+
+### Authentication & Person IDs
+- Use `Auth::user()['person_id']` NOT `Auth::id()` for foreign keys
+- `Auth::id()` returns the credential ID from `person_credential.id`
+- Foreign keys in process tables reference `person.id` (the person_id field)
+- Always validate that user has an associated person record before starting processes
+
+### Audit Log Schema
+- `task_audit_log` has NO `deleted_at` column (audit logs are immutable)
+- `task_audit_log` has NO single `node_id` column
+- Use `from_node_id` and `to_node_id` to track state transitions
+- Never filter audit logs by deletion status
+
+### Process Node Schema
+- `process_node` has NO `display_order` column
+- Use `display_x` and `display_y` for visual positioning
+- Order nodes by `node_type DESC, created_at` for logical display
+
+### Organization Admin Field
+- Organization table uses `main_admin_id` NOT `admin_id`
+- Update all queries to use the correct column name
+
+### Position Resolution Fallback
+- `organization_vacancy` table does not exist yet
+- All position resolution queries are wrapped in try-catch blocks
+- When position lookup fails, system falls back to organization main admin
+- This allows processes to run even without full vacancy/hiring workflow implementation
+
 ## Support
 
 For issues or questions:
@@ -272,3 +307,5 @@ For issues or questions:
 - Verify position → person resolution chain
 - Test condition evaluation with sample data
 - Review fallback assignments
+- Ensure user has person_id before starting processes
+- Verify no nested transactions in process engine methods

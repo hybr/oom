@@ -406,6 +406,7 @@ INSERT INTO process_edge (
     to_node_id,
     edge_label,
     edge_order,
+    is_default,
     description
 )
 VALUES (
@@ -415,6 +416,7 @@ VALUES (
     'VC000004-0000-4000-8000-000000000001',  -- BUDGET_CHECK
     'HR Approved',
     1,
+    1,  -- Default edge (fallback when no condition matches)
     'HR approved, proceed to budget check'
 );
 
@@ -488,6 +490,7 @@ INSERT INTO process_edge (
     to_node_id,
     edge_label,
     edge_order,
+    is_default,
     description
 )
 VALUES (
@@ -497,6 +500,7 @@ VALUES (
     'VC000006-0000-4000-8000-000000000001',  -- DEPT_HEAD_APPROVAL
     'Finance Approved',
     1,
+    1,  -- Default edge (fallback when no condition matches)
     'Finance approved, proceed to department head'
 );
 
@@ -528,6 +532,7 @@ INSERT INTO process_edge (
     to_node_id,
     edge_label,
     edge_order,
+    is_default,
     description
 )
 VALUES (
@@ -537,6 +542,7 @@ VALUES (
     'VC000007-0000-4000-8000-000000000001',  -- PUBLISH_VACANCY
     'Approved',
     1,
+    1,  -- Default edge (fallback when no condition matches)
     'Department head approved, ready to publish'
 );
 

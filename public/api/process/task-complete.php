@@ -33,12 +33,17 @@ try {
     $comments = $data['comments'] ?? null;
     $completionData = $data['completion_data'] ?? [];
 
-    $userId = Auth::id();
+    // Get the current user's person_id (required for foreign key constraint)
+    $user = Auth::user();
+    if (empty($user['person_id'])) {
+        throw new Exception('User does not have an associated person record');
+    }
+    $personId = $user['person_id'];
 
     // Complete the task
     $result = TaskManager::completeTask(
         $taskInstanceId,
-        $userId,
+        $personId,
         $completionAction,
         $comments,
         $completionData

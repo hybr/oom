@@ -95,26 +95,22 @@ class Auth
                            WHEN o.main_admin_id = ? THEN 'MAIN_ADMIN'
                            WHEN oa.role IS NOT NULL THEN oa.role
                            ELSE 'EMPLOYEE'
-                       END as role,
-                       ec.job_title
+                       END as role
                 FROM organization o
                 LEFT JOIN organization_admin oa ON o.id = oa.organization_id
                     AND oa.person_id = ? AND oa.is_active = 1 AND oa.deleted_at IS NULL
-                LEFT JOIN employment_contract ec ON o.id = ec.organization_id
-                    AND ec.employee_id = ? AND ec.status = 'ACTIVE' AND ec.deleted_at IS NULL
-                WHERE (o.main_admin_id = ? OR oa.person_id IS NOT NULL OR ec.employee_id IS NOT NULL)
+                WHERE (o.main_admin_id = ? OR oa.person_id IS NOT NULL)
                   AND o.deleted_at IS NULL
                 ORDER BY priority ASC, o.short_name ASC
                 LIMIT 1";
 
         $personId = $user['person_id'];
-        $org = Database::fetchOne($sql, [$personId, $personId, $personId, $personId, $personId]);
+        $org = Database::fetchOne($sql, [$personId, $personId, $personId, $personId]);
 
         if ($org) {
             self::setCurrentOrganization($org['id'], [
                 'name' => $org['name'],
-                'role' => $org['role'],
-                'job_title' => $org['job_title'] ?? null
+                'role' => $org['role']
             ]);
         }
     }

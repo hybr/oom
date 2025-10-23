@@ -27,7 +27,8 @@
       "Bash(then echo \"Directory exists\")",
       "Bash(else echo \"Directory does not exist\")",
       "Bash(fi)",
-      "Bash(powershell -Command:*)"
+      "Bash(powershell -Command:*)",
+      "Bash(find:*)"
     ],
     "deny": [],
     "ask": []

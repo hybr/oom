@@ -235,11 +235,6 @@ require_once __DIR__ . '/../../../includes/header.php';
     </div>
 </div>
 
-<!-- Cytoscape.js Library -->
-<script src="https://cdn.jsdelivr.net/npm/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"></script>
-
 <!-- Start Process Modal -->
 <div class="modal fade" id="startProcessModal" tabindex="-1">
     <div class="modal-dialog">
@@ -274,20 +269,22 @@ require_once __DIR__ . '/../../../includes/header.php';
     </div>
 </div>
 
+<?php
+// Set variables for the process graph visualizer
+$currentNodeId = null; // No current node in viewer mode
+$graphContainerId = 'cy';
+require_once __DIR__ . '/../../../includes/process-graph-visualizer.php';
+?>
+
 <script>
-// Process data
+// Process data for starting new instances
 const graphData = {
-    nodes: <?php echo json_encode($nodes); ?>,
-    edges: <?php echo json_encode($edges); ?>,
     graphId: <?php echo json_encode($graphId); ?>,
     organizationId: <?php echo json_encode($userOrganizationId); ?>
 };
 
-// Cytoscape instance
-let cyInstance = null;
-
 // Initialize Cytoscape graph
-function initCytoscape() {
+function initCytoscape_OLD() {
     // Register dagre layout
     if (typeof cytoscape !== 'undefined' && typeof dagre !== 'undefined' && typeof cytoscapeDagre !== 'undefined') {
         cytoscapeDagre(cytoscape);
@@ -499,7 +496,7 @@ async function startProcess() {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
-    initCytoscape();
+    initProcessGraph();
 });
 </script>
 

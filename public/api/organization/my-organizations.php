@@ -80,11 +80,12 @@ try {
             o.subdomain,
             'EMPLOYEE' as membership_type,
             NULL as role,
-            ec.job_title,
-            ec.position_id,
+            jo.position_title as job_title,
+            NULL as position_id,
             6 as priority
         FROM employment_contract ec
         INNER JOIN organization o ON ec.organization_id = o.id
+        LEFT JOIN job_offer jo ON ec.job_offer_id = jo.id
         WHERE ec.employee_id = ?
           AND ec.status = 'ACTIVE'
           AND ec.deleted_at IS NULL

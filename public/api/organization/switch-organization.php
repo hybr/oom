@@ -60,9 +60,11 @@ try {
     // Get job title if employee
     $jobTitle = null;
     if ($membershipType === 'EMPLOYEE' || $permissionLevel === 'EMPLOYEE') {
-        $sql = "SELECT job_title FROM employment_contract
-                WHERE organization_id = ? AND employee_id = ?
-                  AND status = 'ACTIVE' AND deleted_at IS NULL";
+        $sql = "SELECT jo.position_title as job_title
+                FROM employment_contract ec
+                LEFT JOIN job_offer jo ON ec.job_offer_id = jo.id
+                WHERE ec.organization_id = ? AND ec.employee_id = ?
+                  AND ec.status = 'ACTIVE' AND ec.deleted_at IS NULL";
         $empContract = Database::fetchOne($sql, [$organizationId, $user['person_id']]);
         $jobTitle = $empContract['job_title'] ?? null;
     }

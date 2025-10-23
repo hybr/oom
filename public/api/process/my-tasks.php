@@ -16,12 +16,18 @@ if (!Auth::check()) {
 }
 
 try {
-    $userId = Auth::id();
+    // Get the current user's person_id (required for foreign key constraint)
+    $user = Auth::user();
+    if (empty($user['person_id'])) {
+        throw new Exception('User does not have an associated person record');
+    }
+    $personId = $user['person_id'];
+
     $status = $_GET['status'] ?? null;
     $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 50;
 
     // Get tasks
-    $tasks = TaskManager::getMyTasks($userId, $status, $limit);
+    $tasks = TaskManager::getMyTasks($personId, $status, $limit);
 
     // Format response
     $formattedTasks = [];

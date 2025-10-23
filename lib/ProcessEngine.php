@@ -165,12 +165,11 @@ class ProcessEngine
 
     /**
      * Transition to a specific node
+     * Note: This method does not manage transactions - it expects to be called within an existing transaction
      */
     private static function transitionToNode($flowInstanceId, $fromNodeId, $toNode, $actorId)
     {
         try {
-            Database::beginTransaction();
-
             // Update flow instance current node
             $sql = "UPDATE task_flow_instance
                     SET current_node_id = ?, updated_at = datetime('now')
@@ -191,16 +190,12 @@ class ProcessEngine
                 return self::completeProcess($flowInstanceId, $actorId);
             } elseif (in_array($toNode['node_type'], ['DECISION', 'FORK', 'JOIN'])) {
                 // Auto-transition through control nodes
-                Database::commit();
                 return self::moveToNextNode($flowInstanceId, $toNode['id'], $actorId);
             }
-
-            Database::commit();
 
             return ['success' => true];
 
         } catch (Exception $e) {
-            Database::rollback();
             return [
                 'success' => false,
                 'error' => $e->getMessage()
@@ -210,12 +205,11 @@ class ProcessEngine
 
     /**
      * Handle FORK node - create multiple parallel tasks
+     * Note: This method does not manage transactions - it expects to be called within an existing transaction
      */
     private static function handleFork($flowInstanceId, $targetNodes, $actorId)
     {
         try {
-            Database::beginTransaction();
-
             foreach ($targetNodes as $targetNode) {
                 if ($targetNode['node_type'] === 'TASK') {
                     $taskResult = TaskManager::createTask($flowInstanceId, $targetNode['id'], $actorId);
@@ -231,12 +225,9 @@ class ProcessEngine
                     WHERE id = ?";
             Database::execute($sql, [$targetNodes[0]['id'], $flowInstanceId]);
 
-            Database::commit();
-
             return ['success' => true];
 
         } catch (Exception $e) {
-            Database::rollback();
             return [
                 'success' => false,
                 'error' => $e->getMessage()

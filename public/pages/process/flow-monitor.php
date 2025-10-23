@@ -46,19 +46,22 @@ $sql = "SELECT ti.*, pn.node_name, pn.node_type, pn.instructions, pn.sla_hours,
 $tasks = Database::fetchAll($sql, [$flowId]);
 
 // Get audit log
-$sql = "SELECT tal.*, p.first_name || ' ' || p.last_name as actor_name,
-               pn.node_name
+$sql = "SELECT tal.*,
+               p.first_name || ' ' || p.last_name as actor_name,
+               pn_from.node_name as from_node_name,
+               pn_to.node_name as to_node_name
         FROM task_audit_log tal
         LEFT JOIN person p ON tal.actor_id = p.id
-        LEFT JOIN process_node pn ON tal.node_id = pn.id
-        WHERE tal.flow_instance_id = ? AND tal.deleted_at IS NULL
+        LEFT JOIN process_node pn_from ON tal.from_node_id = pn_from.id
+        LEFT JOIN process_node pn_to ON tal.to_node_id = pn_to.id
+        WHERE tal.flow_instance_id = ?
         ORDER BY tal.created_at DESC";
 $auditLog = Database::fetchAll($sql, [$flowId]);
 
 // Get process graph structure for visualization
 $sql = "SELECT * FROM process_node
         WHERE graph_id = ? AND deleted_at IS NULL
-        ORDER BY display_order, created_at";
+        ORDER BY node_type DESC, created_at";
 $nodes = Database::fetchAll($sql, [$flowInstance['graph_id']]);
 
 $sql = "SELECT * FROM process_edge
@@ -275,10 +278,20 @@ require_once __DIR__ . '/../../../includes/header.php';
             <!-- Flow Diagram -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="bi bi-diagram-3"></i> Process Flow Diagram</h5>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-diagram-3"></i> Process Flow Diagram</h5>
+                        <div>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="fitProcessGraph()">
+                                <i class="bi bi-arrows-fullscreen"></i> Fit
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="centerProcessGraph()">
+                                <i class="bi bi-bullseye"></i> Center
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <div id="flowDiagram" class="border rounded p-3" style="min-height: 500px; background: #f8f9fa;"></div>
+                    <div id="cy" style="width: 100%; height: 600px; border: 1px solid #ddd; background: #f8f9fa;"></div>
                     <div class="mt-3">
                         <small class="text-muted">
                             <strong>Legend:</strong>
@@ -288,7 +301,7 @@ require_once __DIR__ . '/../../../includes/header.php';
                             <span class="badge bg-info ms-2">FORK</span>
                             <span class="badge" style="background-color: #6f42c1;">JOIN</span>
                             <span class="badge bg-danger ms-2">END</span>
-                            <span class="badge bg-dark ms-2">CURRENT</span>
+                            <span class="badge" style="background-color: #ff6b6b; border: 3px double #fff;">CURRENT</span>
                         </small>
                     </div>
                 </div>
@@ -328,8 +341,16 @@ require_once __DIR__ . '/../../../includes/header.php';
                                             <small class="text-muted"><?php echo date('M d, h:i A', strtotime($log['created_at'])); ?></small>
                                         </div>
                                         <div><strong><?php echo str_replace('_', ' ', $log['action']); ?></strong></div>
-                                        <?php if ($log['node_name']): ?>
-                                            <small class="text-muted">Node: <?php echo htmlspecialchars($log['node_name']); ?></small><br>
+                                        <?php if ($log['from_node_name'] || $log['to_node_name']): ?>
+                                            <small class="text-muted">
+                                                <?php if ($log['from_node_name'] && $log['to_node_name']): ?>
+                                                    <?php echo htmlspecialchars($log['from_node_name']); ?> → <?php echo htmlspecialchars($log['to_node_name']); ?>
+                                                <?php elseif ($log['to_node_name']): ?>
+                                                    Node: <?php echo htmlspecialchars($log['to_node_name']); ?>
+                                                <?php elseif ($log['from_node_name']): ?>
+                                                    Node: <?php echo htmlspecialchars($log['from_node_name']); ?>
+                                                <?php endif; ?>
+                                            </small><br>
                                         <?php endif; ?>
                                         <?php if ($log['actor_name']): ?>
                                             <small class="text-muted">By: <?php echo htmlspecialchars($log['actor_name']); ?></small><br>
@@ -386,14 +407,21 @@ require_once __DIR__ . '/../../../includes/header.php';
 }
 </style>
 
-<script>
-const graphData = {
-    nodes: <?php echo json_encode($nodes); ?>,
-    edges: <?php echo json_encode($edges); ?>,
-    currentNodeId: <?php echo json_encode($flowInstance['current_node_id']); ?>
-};
+<?php
+// Set variables for the process graph visualizer
+$currentNodeId = $flowInstance['current_node_id'];
+$graphContainerId = 'cy';
+require_once __DIR__ . '/../../../includes/process-graph-visualizer.php';
+?>
 
-function drawFlowDiagram() {
+<script>
+// Initialize the process graph on page load
+document.addEventListener('DOMContentLoaded', function() {
+    initProcessGraph();
+});
+
+// Placeholder for old function (remove this entire function later)
+function drawFlowDiagram_OLD() {
     const container = document.getElementById('flowDiagram');
     container.innerHTML = ''; // Clear existing content
 
@@ -583,9 +611,6 @@ function drawFlowDiagram() {
     container.appendChild(svg);
 }
 
-// Draw diagram when page loads
-document.addEventListener('DOMContentLoaded', drawFlowDiagram);
-window.addEventListener('resize', drawFlowDiagram);
 </script>
 
 <?php require_once __DIR__ . '/../../../includes/footer.php'; ?>

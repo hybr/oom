@@ -65,24 +65,31 @@ class PositionResolver
      * Find a person currently holding a position in an organization
      *
      * Uses the chain: employment_contract → job_offer → vacancy_application → organization_vacancy → position
+     * Note: Currently returns null as organization_vacancy table is not yet implemented
      */
     private static function findPersonInPosition($positionId, $organizationId)
     {
-        $sql = "SELECT DISTINCT ec.employee_id
-                FROM employment_contract ec
-                JOIN job_offer jo ON ec.job_offer_id = jo.id
-                JOIN vacancy_application va ON jo.application_id = va.id
-                JOIN organization_vacancy ov ON va.vacancy_id = ov.id
-                WHERE ov.popular_position_id = ?
-                AND ec.organization_id = ?
-                AND ec.status = 'ACTIVE'
-                AND ec.deleted_at IS NULL
-                AND (ec.end_date IS NULL OR ec.end_date > datetime('now'))
-                LIMIT 1";
+        try {
+            // TODO: Implement when organization_vacancy table is created
+            // For now, this will always return null and fallback to organization admin
+            $sql = "SELECT DISTINCT ec.employee_id
+                    FROM employment_contract ec
+                    JOIN job_offer jo ON ec.job_offer_id = jo.id
+                    JOIN vacancy_application va ON jo.application_id = va.id
+                    JOIN organization_vacancy ov ON va.vacancy_id = ov.id
+                    WHERE ov.popular_position_id = ?
+                    AND ec.organization_id = ?
+                    AND ec.status = 'ACTIVE'
+                    AND ec.deleted_at IS NULL
+                    AND (ec.end_date IS NULL OR ec.end_date > datetime('now'))
+                    LIMIT 1";
 
-        $result = Database::fetchOne($sql, [$positionId, $organizationId]);
-
-        return $result ? $result['employee_id'] : null;
+            $result = Database::fetchOne($sql, [$positionId, $organizationId]);
+            return $result ? $result['employee_id'] : null;
+        } catch (Exception $e) {
+            // Table doesn't exist yet - return null to trigger fallback
+            return null;
+        }
     }
 
     /**
@@ -152,10 +159,10 @@ class PositionResolver
      */
     private static function getOrganizationAdmin($organizationId)
     {
-        $sql = "SELECT admin_id FROM organization WHERE id = ? AND deleted_at IS NULL";
+        $sql = "SELECT main_admin_id FROM organization WHERE id = ? AND deleted_at IS NULL";
         $org = Database::fetchOne($sql, [$organizationId]);
 
-        if (!$org || !$org['admin_id']) {
+        if (!$org || !$org['main_admin_id']) {
             return [
                 'success' => false,
                 'error' => "Organization admin not found for organization: {$organizationId}"
@@ -164,7 +171,7 @@ class PositionResolver
 
         return [
             'success' => true,
-            'person_id' => $org['admin_id'],
+            'person_id' => $org['main_admin_id'],
             'assignment_type' => 'FALLBACK'
         ];
     }
@@ -174,31 +181,36 @@ class PositionResolver
      */
     public static function getPeopleInPosition($positionId, $organizationId = null)
     {
-        $sql = "SELECT DISTINCT
-                    ec.employee_id,
-                    p.first_name,
-                    p.last_name,
-                    p.email,
-                    o.short_name as organization_name
-                FROM employment_contract ec
-                JOIN job_offer jo ON ec.job_offer_id = jo.id
-                JOIN vacancy_application va ON jo.application_id = va.id
-                JOIN organization_vacancy ov ON va.vacancy_id = ov.id
-                JOIN person p ON ec.employee_id = p.id
-                JOIN organization o ON ec.organization_id = o.id
-                WHERE ov.popular_position_id = ?
-                AND ec.status = 'ACTIVE'
-                AND ec.deleted_at IS NULL
-                AND (ec.end_date IS NULL OR ec.end_date > datetime('now'))";
+        try {
+            $sql = "SELECT DISTINCT
+                        ec.employee_id,
+                        p.first_name,
+                        p.last_name,
+                        p.email,
+                        o.short_name as organization_name
+                    FROM employment_contract ec
+                    JOIN job_offer jo ON ec.job_offer_id = jo.id
+                    JOIN vacancy_application va ON jo.application_id = va.id
+                    JOIN organization_vacancy ov ON va.vacancy_id = ov.id
+                    JOIN person p ON ec.employee_id = p.id
+                    JOIN organization o ON ec.organization_id = o.id
+                    WHERE ov.popular_position_id = ?
+                    AND ec.status = 'ACTIVE'
+                    AND ec.deleted_at IS NULL
+                    AND (ec.end_date IS NULL OR ec.end_date > datetime('now'))";
 
-        $params = [$positionId];
+            $params = [$positionId];
 
-        if ($organizationId) {
-            $sql .= " AND ec.organization_id = ?";
-            $params[] = $organizationId;
+            if ($organizationId) {
+                $sql .= " AND ec.organization_id = ?";
+                $params[] = $organizationId;
+            }
+
+            return Database::fetchAll($sql, $params);
+        } catch (Exception $e) {
+            // Table doesn't exist yet - return empty array
+            return [];
         }
-
-        return Database::fetchAll($sql, $params);
     }
 
     /**
@@ -206,26 +218,31 @@ class PositionResolver
      */
     public static function getPersonPositions($personId, $organizationId)
     {
-        $sql = "SELECT DISTINCT
-                    pop.id as position_id,
-                    pop.position_name,
-                    pop.code as position_code,
-                    pod.name as department_name,
-                    podesig.name as designation_name
-                FROM employment_contract ec
-                JOIN job_offer jo ON ec.job_offer_id = jo.id
-                JOIN vacancy_application va ON jo.application_id = va.id
-                JOIN organization_vacancy ov ON va.vacancy_id = ov.id
-                JOIN popular_organization_position pop ON ov.popular_position_id = pop.id
-                LEFT JOIN popular_organization_department pod ON pop.department_id = pod.id
-                LEFT JOIN popular_organization_designation podesig ON pop.designation_id = podesig.id
-                WHERE ec.employee_id = ?
-                AND ec.organization_id = ?
-                AND ec.status = 'ACTIVE'
-                AND ec.deleted_at IS NULL
-                AND (ec.end_date IS NULL OR ec.end_date > datetime('now'))";
+        try {
+            $sql = "SELECT DISTINCT
+                        pop.id as position_id,
+                        pop.position_name,
+                        pop.code as position_code,
+                        pod.name as department_name,
+                        podesig.name as designation_name
+                    FROM employment_contract ec
+                    JOIN job_offer jo ON ec.job_offer_id = jo.id
+                    JOIN vacancy_application va ON jo.application_id = va.id
+                    JOIN organization_vacancy ov ON va.vacancy_id = ov.id
+                    JOIN popular_organization_position pop ON ov.popular_position_id = pop.id
+                    LEFT JOIN popular_organization_department pod ON pop.department_id = pod.id
+                    LEFT JOIN popular_organization_designation podesig ON pop.designation_id = podesig.id
+                    WHERE ec.employee_id = ?
+                    AND ec.organization_id = ?
+                    AND ec.status = 'ACTIVE'
+                    AND ec.deleted_at IS NULL
+                    AND (ec.end_date IS NULL OR ec.end_date > datetime('now'))";
 
-        return Database::fetchAll($sql, [$personId, $organizationId]);
+            return Database::fetchAll($sql, [$personId, $organizationId]);
+        } catch (Exception $e) {
+            // Table doesn't exist yet - return empty array
+            return [];
+        }
     }
 
     /**
@@ -251,30 +268,35 @@ class PositionResolver
      */
     public static function getPersonPermissions($personId, $organizationId)
     {
-        $sql = "SELECT DISTINCT
-                    epd.entity_id,
-                    ed.code as entity_code,
-                    ed.name as entity_name,
-                    epd.permission_type_id,
-                    ept.code as permission_code,
-                    ept.name as permission_name,
-                    epd.is_allowed
-                FROM employment_contract ec
-                JOIN job_offer jo ON ec.job_offer_id = jo.id
-                JOIN vacancy_application va ON jo.application_id = va.id
-                JOIN organization_vacancy ov ON va.vacancy_id = ov.id
-                JOIN entity_permission_definition epd ON ov.popular_position_id = epd.position_id
-                LEFT JOIN entity_definition ed ON epd.entity_id = ed.id
-                LEFT JOIN enum_entity_permission_type ept ON epd.permission_type_id = ept.id
-                WHERE ec.employee_id = ?
-                AND ec.organization_id = ?
-                AND ec.status = 'ACTIVE'
-                AND epd.is_allowed = 1
-                AND ec.deleted_at IS NULL
-                AND epd.deleted_at IS NULL
-                AND (ec.end_date IS NULL OR ec.end_date > datetime('now'))";
+        try {
+            $sql = "SELECT DISTINCT
+                        epd.entity_id,
+                        ed.code as entity_code,
+                        ed.name as entity_name,
+                        epd.permission_type_id,
+                        ept.code as permission_code,
+                        ept.name as permission_name,
+                        epd.is_allowed
+                    FROM employment_contract ec
+                    JOIN job_offer jo ON ec.job_offer_id = jo.id
+                    JOIN vacancy_application va ON jo.application_id = va.id
+                    JOIN organization_vacancy ov ON va.vacancy_id = ov.id
+                    JOIN entity_permission_definition epd ON ov.popular_position_id = epd.position_id
+                    LEFT JOIN entity_definition ed ON epd.entity_id = ed.id
+                    LEFT JOIN enum_entity_permission_type ept ON epd.permission_type_id = ept.id
+                    WHERE ec.employee_id = ?
+                    AND ec.organization_id = ?
+                    AND ec.status = 'ACTIVE'
+                    AND epd.is_allowed = 1
+                    AND ec.deleted_at IS NULL
+                    AND epd.deleted_at IS NULL
+                    AND (ec.end_date IS NULL OR ec.end_date > datetime('now'))";
 
-        return Database::fetchAll($sql, [$personId, $organizationId]);
+            return Database::fetchAll($sql, [$personId, $organizationId]);
+        } catch (Exception $e) {
+            // Table doesn't exist yet - return empty array
+            return [];
+        }
     }
 
     /**
@@ -296,29 +318,34 @@ class PositionResolver
         }
 
         // Check if person has this permission through their position
-        $sql = "SELECT COUNT(*) as cnt
-                FROM employment_contract ec
-                JOIN job_offer jo ON ec.job_offer_id = jo.id
-                JOIN vacancy_application va ON jo.application_id = va.id
-                JOIN organization_vacancy ov ON va.vacancy_id = ov.id
-                JOIN entity_permission_definition epd ON ov.popular_position_id = epd.position_id
-                WHERE ec.employee_id = ?
-                AND ec.organization_id = ?
-                AND epd.entity_id = ?
-                AND epd.permission_type_id = ?
-                AND epd.is_allowed = 1
-                AND ec.status = 'ACTIVE'
-                AND ec.deleted_at IS NULL
-                AND epd.deleted_at IS NULL
-                AND (ec.end_date IS NULL OR ec.end_date > datetime('now'))";
+        try {
+            $sql = "SELECT COUNT(*) as cnt
+                    FROM employment_contract ec
+                    JOIN job_offer jo ON ec.job_offer_id = jo.id
+                    JOIN vacancy_application va ON jo.application_id = va.id
+                    JOIN organization_vacancy ov ON va.vacancy_id = ov.id
+                    JOIN entity_permission_definition epd ON ov.popular_position_id = epd.position_id
+                    WHERE ec.employee_id = ?
+                    AND ec.organization_id = ?
+                    AND epd.entity_id = ?
+                    AND epd.permission_type_id = ?
+                    AND epd.is_allowed = 1
+                    AND ec.status = 'ACTIVE'
+                    AND ec.deleted_at IS NULL
+                    AND epd.deleted_at IS NULL
+                    AND (ec.end_date IS NULL OR ec.end_date > datetime('now'))";
 
-        $result = Database::fetchOne($sql, [
-            $personId,
-            $organizationId,
-            $entity['id'],
-            $permType['id']
-        ]);
+            $result = Database::fetchOne($sql, [
+                $personId,
+                $organizationId,
+                $entity['id'],
+                $permType['id']
+            ]);
 
-        return ($result && $result['cnt'] > 0);
+            return ($result && $result['cnt'] > 0);
+        } catch (Exception $e) {
+            // Table doesn't exist yet - return false
+            return false;
+        }
     }
 }

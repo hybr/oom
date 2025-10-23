@@ -34,7 +34,12 @@ try {
     $organizationId = $data['organization_id'];
     $initialVariables = $data['variables'] ?? [];
 
-    $userId = Auth::id();
+    // Get the current user's person_id (required for foreign key constraint)
+    $user = Auth::user();
+    if (empty($user['person_id'])) {
+        throw new Exception('User does not have an associated person record');
+    }
+    $personId = $user['person_id'];
 
     // Start the process
     $result = ProcessEngine::startProcess(
@@ -42,7 +47,7 @@ try {
         $entityCode,
         $entityRecordId,
         $organizationId,
-        $userId,
+        $personId,
         $initialVariables
     );
 

@@ -214,10 +214,13 @@ function getSessionToken() {
 }
 
 // Initialize WebSocket on page load (if authenticated)
+// Disabled by default - enable in production when WebSocket server is running
 document.addEventListener('DOMContentLoaded', function() {
-    // Only connect if user is authenticated
+    // Only connect if user is authenticated AND WebSocket is enabled
     const userNav = document.querySelector('.navbar-nav .bi-person-circle');
-    if (userNav) {
+    const wsEnabled = window.location.hostname === 'production-domain.com'; // Change this to enable WS
+
+    if (userNav && wsEnabled) {
         connectWebSocket();
     }
 });

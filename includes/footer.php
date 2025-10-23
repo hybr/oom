@@ -61,7 +61,7 @@
                     form.classList.add('was-validated')
                 }, false)
             })
-        })()
+        })();
 
         // Organization Switcher
         <?php if (Auth::check()): ?>
@@ -69,7 +69,7 @@
             let userOrganizations = [];
 
             // Load user organizations when dropdown is shown
-            document.getElementById('orgSelector')?.addEventListener('show.bs.dropdown', async function() {
+            document.getElementById('orgSelectorContainer')?.addEventListener('show.bs.dropdown', async function() {
                 if (userOrganizations.length > 0) {
                     return; // Already loaded
                 }

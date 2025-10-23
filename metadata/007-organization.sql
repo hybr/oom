@@ -33,7 +33,7 @@ VALUES
 ('1f2a3b4c-5d6e-7f8a-9b0c-1d2e3f4a5b6c','1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d','support_phone','Support Phone','text',0,0,0,'Customer support phone number',11),
 
 -- Foreign Keys
-('1a9b0c1d-2e3f-4a5b-6c7d-8e9f0a1b2c3d','1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d','admin_id','Admin ID','text',1,0,0,'Reference to PERSON who administers this organization',18),
+('1a9b0c1d-2e3f-4a5b-6c7d-8e9f0a1b2c3d','1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d','admin_id','Admin ID','uuid',1,0,0,'Reference to PERSON who administers this organization',18),
 ('1b0c1d2e-3f4a-5b6c-7d8e-9f0a1b2c3d4e','1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d','industry_id','Industry ID','text',0,0,0,'Reference to INDUSTRY_CATEGORY',19),
 
 -- Business Details
@@ -122,9 +122,10 @@ SET code = 'main_admin_id',
     display_order = 12
 WHERE id = '1a9b0c1d-2e3f-4a5b-6c7d-8e9f0a1b2c3d';
 
--- Update relationship name
+-- Update relationship name and fk_field
 UPDATE entity_relationship
 SET relation_name = 'main_admin',
+    fk_field = 'main_admin_id',
     description = 'Organization is owned by a main admin person'
 WHERE id = '1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d-rel1';
 
