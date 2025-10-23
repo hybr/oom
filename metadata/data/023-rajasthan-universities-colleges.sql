@@ -4,13 +4,13 @@
 -- Using valid foreign keys:
 -- legal_category_id: l00000000-0006-4000-0000-000060000000 (Non-Profit Corporation)
 -- industry_id: ind-006-education (Education & Training)
--- admin_id: 00000000-0000-4000-8000-000000000001 (Valid person ID)
+-- main_admin_id: 00000000-0000-4000-8000-000000000001 (Valid person ID)
 
 -- ============================================================================
 -- RAJASTHAN - State Government Universities
 -- ============================================================================
 
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('c1d2e3f4-3001-4a5b-8c9d-0e1f2a3b4c5d', 'University of Rajasthan', 'l00000000-0006-4000-0000-000060000000', 'Dharmam Sarvam Samyati', 'University of Rajasthan is the oldest and premier state university in Jaipur', 'https://www.uniraj.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1947-01-08', 'ACTIVE', 1, 1, 4.3, datetime('now'), datetime('now')),
 ('c1d2e3f4-3002-4a5b-8c9d-0e1f2a3b4c5d', 'Rajasthan Technical University', 'l00000000-0006-4000-0000-000060000000', 'Technical Education Excellence', 'Rajasthan Technical University (RTU) is the premier technical university in Kota', 'https://www.rtu.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '2006-01-01', 'ACTIVE', 1, 1, 4.1, datetime('now'), datetime('now')),
@@ -25,7 +25,7 @@ VALUES
 -- RAJASTHAN - Central Universities
 -- ============================================================================
 
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('c1d2e3f4-3009-4a5b-8c9d-0e1f2a3b4c5d', 'Central University of Rajasthan', 'l00000000-0006-4000-0000-000060000000', 'Knowledge Leads to Service', 'CURAJ is a central university established in Ajmer district', 'https://www.curaj.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '2009-03-20', 'ACTIVE', 1, 1, 4.2, datetime('now'), datetime('now'));
 
@@ -33,7 +33,7 @@ VALUES
 -- RAJASTHAN - Engineering & Technical Institutions
 -- ============================================================================
 
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('c1d2e3f4-3010-4a5b-8c9d-0e1f2a3b4c5d', 'Malaviya National Institute of Technology Jaipur', 'l00000000-0006-4000-0000-000060000000', 'MNIT - National Institute of Excellence', 'MNIT Jaipur is one of the premier NITs in India, formerly MBM Engineering College', 'https://www.mnit.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1963-07-26', 'ACTIVE', 1, 1, 4.6, datetime('now'), datetime('now')),
 ('c1d2e3f4-3011-4a5b-8c9d-0e1f2a3b4c5d', 'IIT Jodhpur', 'l00000000-0006-4000-0000-000060000000', 'Innovation and Excellence', 'Indian Institute of Technology Jodhpur is among the newer IITs', 'https://www.iitj.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '2008-08-01', 'ACTIVE', 1, 1, 4.5, datetime('now'), datetime('now')),
@@ -48,7 +48,7 @@ VALUES
 -- RAJASTHAN - Medical Institutions
 -- ============================================================================
 
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('c1d2e3f4-3016-4a5b-8c9d-0e1f2a3b4c5d', 'AIIMS Jodhpur', 'l00000000-0006-4000-0000-000060000000', 'Premier Medical Institute', 'All India Institute of Medical Sciences Jodhpur', 'https://www.aiimsjodhpur.edu.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '2012-09-27', 'ACTIVE', 1, 1, 4.7, datetime('now'), datetime('now')),
 ('c1d2e3f4-3017-4a5b-8c9d-0e1f2a3b4c5d', 'SMS Medical College', 'l00000000-0006-4000-0000-000060000000', 'Excellence in Medical Education', 'Sawai Man Singh Medical College is a premier medical college in Jaipur', 'https://www.smsmedicalcollege.com', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1947-01-01', 'ACTIVE', 1, 1, 4.4, datetime('now'), datetime('now')),
@@ -60,7 +60,7 @@ VALUES
 -- RAJASTHAN - Management Institutions
 -- ============================================================================
 
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('c1d2e3f4-3021-4a5b-8c9d-0e1f2a3b4c5d', 'IIM Udaipur', 'l00000000-0006-4000-0000-000060000000', 'Transcending Boundaries', 'Indian Institute of Management Udaipur is among the newer IIMs', 'https://www.iimu.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '2011-09-01', 'ACTIVE', 1, 1, 4.6, datetime('now'), datetime('now')),
 ('c1d2e3f4-3022-4a5b-8c9d-0e1f2a3b4c5d', 'Department of Management Studies MLSU', 'l00000000-0006-4000-0000-000060000000', 'Management Education', 'DMS MLSU offers MBA programs under MLSU Udaipur', 'https://www.mlsu.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1995-01-01', 'ACTIVE', 1, 0, 3.8, datetime('now'), datetime('now'));
@@ -69,7 +69,7 @@ VALUES
 -- RAJASTHAN - Law Colleges
 -- ============================================================================
 
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('c1d2e3f4-3023-4a5b-8c9d-0e1f2a3b4c5d', 'University Law College Jodhpur', 'l00000000-0006-4000-0000-000060000000', 'Legal Education Excellence', 'ULC Jodhpur is the premier law college in western Rajasthan', 'https://www.jnvu.edu.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1978-01-01', 'ACTIVE', 1, 0, 4.0, datetime('now'), datetime('now')),
 ('c1d2e3f4-3024-4a5b-8c9d-0e1f2a3b4c5d', 'Rajasthan University Law College', 'l00000000-0006-4000-0000-000060000000', 'Justice Through Education', 'RULC is a premier law college affiliated with University of Rajasthan', 'https://www.uniraj.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1964-01-01', 'ACTIVE', 1, 0, 4.1, datetime('now'), datetime('now'));
@@ -78,7 +78,7 @@ VALUES
 -- RAJASTHAN - Private Universities
 -- ============================================================================
 
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('c1d2e3f4-3025-4a5b-8c9d-0e1f2a3b4c5d', 'BITS Pilani Pilani Campus', 'l00000000-0006-4000-0000-000060000000', 'Knowledge is Power', 'Birla Institute of Technology and Science main campus in Pilani', 'https://www.bits-pilani.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1964-07-15', 'ACTIVE', 1, 1, 4.7, datetime('now'), datetime('now')),
 ('c1d2e3f4-3026-4a5b-8c9d-0e1f2a3b4c5d', 'Manipal University Jaipur', 'l00000000-0006-4000-0000-000060000000', 'Inspiring Excellence', 'Manipal University Jaipur is a premier private university', 'https://www.jaipur.manipal.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '2011-07-06', 'ACTIVE', 1, 0, 4.2, datetime('now'), datetime('now')),
@@ -93,7 +93,7 @@ VALUES
 -- RAJASTHAN - Deemed Universities
 -- ============================================================================
 
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('c1d2e3f4-3033-4a5b-8c9d-0e1f2a3b4c5d', 'NIMS University', 'l00000000-0006-4000-0000-000060000000', 'Health Sciences Education', 'NIMS University is a deemed university focused on medical and health sciences in Jaipur', 'https://www.nimsuniversity.org', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '2008-01-01', 'ACTIVE', 1, 0, 4.0, datetime('now'), datetime('now')),
 ('c1d2e3f4-3034-4a5b-8c9d-0e1f2a3b4c5d', 'Jayoti Vidyapeeth Women University', 'l00000000-0006-4000-0000-000060000000', 'Women Empowerment', 'JVWU is a women university in Jaipur', 'https://www.jvwu.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '2008-01-01', 'ACTIVE', 1, 0, 3.8, datetime('now'), datetime('now'));
@@ -102,7 +102,7 @@ VALUES
 -- RAJASTHAN - Agriculture Universities
 -- ============================================================================
 
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('c1d2e3f4-3035-4a5b-8c9d-0e1f2a3b4c5d', 'Maharana Pratap University of Agriculture and Technology', 'l00000000-0006-4000-0000-000060000000', 'Agricultural Excellence', 'MPUAT is the premier agriculture university in Rajasthan, located in Udaipur', 'https://www.mpuat.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1999-11-01', 'ACTIVE', 1, 1, 4.2, datetime('now'), datetime('now')),
 ('c1d2e3f4-3036-4a5b-8c9d-0e1f2a3b4c5d', 'Swami Keshwanand Rajasthan Agricultural University', 'l00000000-0006-4000-0000-000060000000', 'Agriculture for Development', 'SKRAU is an agriculture university in Bikaner', 'https://www.raubikaner.org', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '2013-02-14', 'ACTIVE', 1, 0, 4.0, datetime('now'), datetime('now'));
@@ -111,7 +111,7 @@ VALUES
 -- RAJASTHAN - Veterinary Science
 -- ============================================================================
 
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('c1d2e3f4-3037-4a5b-8c9d-0e1f2a3b4c5d', 'Rajasthan University of Veterinary and Animal Sciences', 'l00000000-0006-4000-0000-000060000000', 'Veterinary Excellence', 'RAJUVAS is the state veterinary university in Bikaner', 'https://www.rajuvas.org', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '2010-12-01', 'ACTIVE', 1, 0, 4.1, datetime('now'), datetime('now'));
 
@@ -119,7 +119,7 @@ VALUES
 -- RAJASTHAN - Sanskrit Universities
 -- ============================================================================
 
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('c1d2e3f4-3038-4a5b-8c9d-0e1f2a3b4c5d', 'Maharshi Dayanand Saraswati University Sanskrit', 'l00000000-0006-4000-0000-000060000000', 'Sanskrit and Vedic Studies', 'Rashtriya Sanskrit Sansthan Jaipur Campus', 'https://www.sanskrit.nic.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1956-10-15', 'ACTIVE', 1, 0, 3.9, datetime('now'), datetime('now'));
 
@@ -127,7 +127,7 @@ VALUES
 -- RAJASTHAN - Ayurveda & Alternative Medicine
 -- ============================================================================
 
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('c1d2e3f4-3039-4a5b-8c9d-0e1f2a3b4c5d', 'National Institute of Ayurveda', 'l00000000-0006-4000-0000-000060000000', 'Ayurveda Excellence', 'NIA is a deemed university for Ayurveda in Jaipur', 'https://www.nia.nic.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1976-02-07', 'ACTIVE', 1, 1, 4.3, datetime('now'), datetime('now'));
 
@@ -135,6 +135,6 @@ VALUES
 -- RAJASTHAN - Open Universities
 -- ============================================================================
 
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('c1d2e3f4-3040-4a5b-8c9d-0e1f2a3b4c5d', 'Vardhman Mahaveer Open University', 'l00000000-0006-4000-0000-000060000000', 'Education for All', 'VMOU is the state open university providing distance education', 'https://www.vmou.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1987-07-23', 'ACTIVE', 1, 0, 3.9, datetime('now'), datetime('now'));

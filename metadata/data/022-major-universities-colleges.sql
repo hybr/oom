@@ -4,14 +4,14 @@
 -- Using valid foreign keys:
 -- legal_category_id: l00000000-0006-4000-0000-000060000000 (Non-Profit Corporation)
 -- industry_id: ind-006-education (Education & Training)
--- admin_id: 00000000-0000-4000-8000-000000000001 (Valid person ID)
+-- main_admin_id: 00000000-0000-4000-8000-000000000001 (Valid person ID)
 
 -- ============================================================================
 -- INDIA - Universities and Colleges
 -- ============================================================================
 
 -- Indian Institutes of Technology (IITs)
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('a1b2c3d4-1001-4a5b-8c9d-0e1f2a3b4c5d', 'IIT Bombay', 'l00000000-0006-4000-0000-000060000000', 'India''s Premier Engineering Institute', 'Indian Institute of Technology Bombay is a public research university in Powai, Mumbai, India', 'https://www.iitb.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1958-01-01', 'ACTIVE', 1, 1, 4.8, datetime('now'), datetime('now')),
 ('a1b2c3d4-1002-4a5b-8c9d-0e1f2a3b4c5d', 'IIT Delhi', 'l00000000-0006-4000-0000-000060000000', 'Engineering Excellence', 'Indian Institute of Technology Delhi is a premier engineering institute in Hauz Khas, New Delhi', 'https://www.iitd.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1961-08-17', 'ACTIVE', 1, 1, 4.7, datetime('now'), datetime('now')),
@@ -23,7 +23,7 @@ VALUES
 ('a1b2c3d4-1008-4a5b-8c9d-0e1f2a3b4c5d', 'IIT Hyderabad', 'l00000000-0006-4000-0000-000060000000', 'Innovation and Excellence', 'Indian Institute of Technology Hyderabad is an autonomous engineering institute', 'https://www.iith.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '2008-08-04', 'ACTIVE', 1, 1, 4.5, datetime('now'), datetime('now'));
 
 -- Indian Institutes of Management (IIMs)
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('a1b2c3d4-1009-4a5b-8c9d-0e1f2a3b4c5d', 'IIM Ahmedabad', 'l00000000-0006-4000-0000-000060000000', 'Top Management Institute', 'Indian Institute of Management Ahmedabad is a premier business school in Gujarat', 'https://www.iima.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1961-12-11', 'ACTIVE', 1, 1, 4.9, datetime('now'), datetime('now')),
 ('a1b2c3d4-1010-4a5b-8c9d-0e1f2a3b4c5d', 'IIM Bangalore', 'l00000000-0006-4000-0000-000060000000', 'Leadership for Tomorrow', 'Indian Institute of Management Bangalore is a premier business school in Karnataka', 'https://www.iimb.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1973-07-01', 'ACTIVE', 1, 1, 4.8, datetime('now'), datetime('now')),
@@ -31,14 +31,14 @@ VALUES
 ('a1b2c3d4-1012-4a5b-8c9d-0e1f2a3b4c5d', 'IIM Lucknow', 'l00000000-0006-4000-0000-000060000000', 'Nurturing Leaders', 'Indian Institute of Management Lucknow is a premier business school in Uttar Pradesh', 'https://www.iiml.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1984-01-01', 'ACTIVE', 1, 1, 4.7, datetime('now'), datetime('now'));
 
 -- National Institutes of Technology (NITs)
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('a1b2c3d4-1013-4a5b-8c9d-0e1f2a3b4c5d', 'NIT Trichy', 'l00000000-0006-4000-0000-000060000000', 'Excellence in Technical Education', 'National Institute of Technology Tiruchirappalli is a premier engineering institute', 'https://www.nitt.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1964-01-01', 'ACTIVE', 1, 1, 4.5, datetime('now'), datetime('now')),
 ('a1b2c3d4-1014-4a5b-8c9d-0e1f2a3b4c5d', 'NIT Warangal', 'l00000000-0006-4000-0000-000060000000', 'Knowledge is Power', 'National Institute of Technology Warangal is a premier engineering institute', 'https://www.nitw.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1959-09-10', 'ACTIVE', 1, 1, 4.5, datetime('now'), datetime('now')),
 ('a1b2c3d4-1015-4a5b-8c9d-0e1f2a3b4c5d', 'NIT Karnataka', 'l00000000-0006-4000-0000-000060000000', 'Engineering with Excellence', 'National Institute of Technology Karnataka, Surathkal is located in Mangalore', 'https://www.nitk.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1960-08-01', 'ACTIVE', 1, 1, 4.4, datetime('now'), datetime('now'));
 
 -- Central Universities
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('a1b2c3d4-1016-4a5b-8c9d-0e1f2a3b4c5d', 'University of Delhi', 'l00000000-0006-4000-0000-000060000000', 'Nishtha Dhriti Satyam', 'University of Delhi is a premier public university in New Delhi', 'https://www.du.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1922-05-01', 'ACTIVE', 1, 1, 4.6, datetime('now'), datetime('now')),
 ('a1b2c3d4-1017-4a5b-8c9d-0e1f2a3b4c5d', 'Jawaharlal Nehru University', 'l00000000-0006-4000-0000-000060000000', 'Promoting Social Sciences', 'JNU is a premier public research university in New Delhi', 'https://www.jnu.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1969-04-22', 'ACTIVE', 1, 1, 4.5, datetime('now'), datetime('now')),
@@ -46,13 +46,13 @@ VALUES
 ('a1b2c3d4-1019-4a5b-8c9d-0e1f2a3b4c5d', 'University of Hyderabad', 'l00000000-0006-4000-0000-000060000000', 'Central University of Excellence', 'University of Hyderabad is a premier research university in Telangana', 'https://www.uohyd.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1974-01-01', 'ACTIVE', 1, 1, 4.4, datetime('now'), datetime('now'));
 
 -- Medical Institutes
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('a1b2c3d4-1020-4a5b-8c9d-0e1f2a3b4c5d', 'AIIMS Delhi', 'l00000000-0006-4000-0000-000060000000', 'Premier Medical Institute', 'All India Institute of Medical Sciences is India''s apex medical institution', 'https://www.aiims.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1956-09-25', 'ACTIVE', 1, 1, 4.9, datetime('now'), datetime('now')),
 ('a1b2c3d4-1021-4a5b-8c9d-0e1f2a3b4c5d', 'PGIMER Chandigarh', 'l00000000-0006-4000-0000-000060000000', 'Medical Excellence', 'Postgraduate Institute of Medical Education and Research, Chandigarh', 'https://www.pgimer.edu.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1962-07-01', 'ACTIVE', 1, 1, 4.7, datetime('now'), datetime('now'));
 
 -- State Universities
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('a1b2c3d4-1022-4a5b-8c9d-0e1f2a3b4c5d', 'University of Mumbai', 'l00000000-0006-4000-0000-000060000000', 'Tejasvi Navadhitamastu', 'University of Mumbai is a premier state university in Maharashtra', 'https://www.mu.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1857-07-18', 'ACTIVE', 1, 1, 4.3, datetime('now'), datetime('now')),
 ('a1b2c3d4-1023-4a5b-8c9d-0e1f2a3b4c5d', 'Savitribai Phule Pune University', 'l00000000-0006-4000-0000-000060000000', 'Enriching Society', 'SPPU is a premier state university in Pune, Maharashtra', 'https://www.unipune.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1949-02-10', 'ACTIVE', 1, 1, 4.3, datetime('now'), datetime('now')),
@@ -60,7 +60,7 @@ VALUES
 ('a1b2c3d4-1025-4a5b-8c9d-0e1f2a3b4c5d', 'Osmania University', 'l00000000-0006-4000-0000-000060000000', 'Knowledge is Power', 'Osmania University is a premier state university in Hyderabad', 'https://www.osmania.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1918-04-26', 'ACTIVE', 1, 1, 4.2, datetime('now'), datetime('now'));
 
 -- Private Universities and Colleges
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('a1b2c3d4-1026-4a5b-8c9d-0e1f2a3b4c5d', 'BITS Pilani', 'l00000000-0006-4000-0000-000060000000', 'Knowledge is Power', 'Birla Institute of Technology and Science, Pilani is a premier private institute', 'https://www.bits-pilani.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1964-07-15', 'ACTIVE', 1, 1, 4.6, datetime('now'), datetime('now')),
 ('a1b2c3d4-1027-4a5b-8c9d-0e1f2a3b4c5d', 'VIT Vellore', 'l00000000-0006-4000-0000-000060000000', 'Innovation and Excellence', 'Vellore Institute of Technology is a premier private university in Tamil Nadu', 'https://www.vit.ac.in', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1984-07-17', 'ACTIVE', 1, 1, 4.4, datetime('now'), datetime('now')),
@@ -72,7 +72,7 @@ VALUES
 -- ============================================================================
 
 -- Ivy League Universities
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('a1b2c3d4-2030-4a5b-8c9d-0e1f2a3b4c5d', 'Harvard University', 'l00000000-0006-4000-0000-000060000000', 'Veritas', 'Harvard University is a private Ivy League research university in Cambridge, Massachusetts', 'https://www.harvard.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1636-09-08', 'ACTIVE', 1, 1, 5.0, datetime('now'), datetime('now')),
 ('a1b2c3d4-2031-4a5b-8c9d-0e1f2a3b4c5d', 'Yale University', 'l00000000-0006-4000-0000-000060000000', 'Lux et Veritas', 'Yale University is a private Ivy League research university in New Haven, Connecticut', 'https://www.yale.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1701-10-09', 'ACTIVE', 1, 1, 4.9, datetime('now'), datetime('now')),
@@ -84,7 +84,7 @@ VALUES
 ('a1b2c3d4-2037-4a5b-8c9d-0e1f2a3b4c5d', 'Dartmouth College', 'l00000000-0006-4000-0000-000060000000', 'Vox clamantis in deserto', 'Dartmouth College is a private Ivy League research university in Hanover, New Hampshire', 'https://www.dartmouth.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1769-12-13', 'ACTIVE', 1, 1, 4.7, datetime('now'), datetime('now'));
 
 -- Top Public Universities
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('a1b2c3d4-2038-4a5b-8c9d-0e1f2a3b4c5d', 'UC Berkeley', 'l00000000-0006-4000-0000-000060000000', 'Fiat Lux', 'University of California, Berkeley is a premier public research university', 'https://www.berkeley.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1868-03-23', 'ACTIVE', 1, 1, 4.9, datetime('now'), datetime('now')),
 ('a1b2c3d4-2039-4a5b-8c9d-0e1f2a3b4c5d', 'UCLA', 'l00000000-0006-4000-0000-000060000000', 'Fiat Lux', 'University of California, Los Angeles is a premier public research university', 'https://www.ucla.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1919-05-23', 'ACTIVE', 1, 1, 4.8, datetime('now'), datetime('now')),
@@ -93,7 +93,7 @@ VALUES
 ('a1b2c3d4-2042-4a5b-8c9d-0e1f2a3b4c5d', 'UNC Chapel Hill', 'l00000000-0006-4000-0000-000060000000', 'Lux Libertas', 'University of North Carolina at Chapel Hill is a premier public research university', 'https://www.unc.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1789-12-11', 'ACTIVE', 1, 1, 4.7, datetime('now'), datetime('now'));
 
 -- Top Private Universities
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('a1b2c3d4-2043-4a5b-8c9d-0e1f2a3b4c5d', 'Stanford University', 'l00000000-0006-4000-0000-000060000000', 'Die Luft der Freiheit weht', 'Stanford University is a premier private research university in Stanford, California', 'https://www.stanford.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1885-10-01', 'ACTIVE', 1, 1, 5.0, datetime('now'), datetime('now')),
 ('a1b2c3d4-2044-4a5b-8c9d-0e1f2a3b4c5d', 'MIT', 'l00000000-0006-4000-0000-000060000000', 'Mens et Manus', 'Massachusetts Institute of Technology is a premier private research university', 'https://www.mit.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1861-04-10', 'ACTIVE', 1, 1, 5.0, datetime('now'), datetime('now')),
@@ -103,7 +103,7 @@ VALUES
 ('a1b2c3d4-2048-4a5b-8c9d-0e1f2a3b4c5d', 'Northwestern University', 'l00000000-0006-4000-0000-000060000000', 'Quaecumque sunt vera', 'Northwestern University is a premier private research university in Evanston, Illinois', 'https://www.northwestern.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1851-01-28', 'ACTIVE', 1, 1, 4.7, datetime('now'), datetime('now'));
 
 -- Top State Universities
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('a1b2c3d4-2049-4a5b-8c9d-0e1f2a3b4c5d', 'UT Austin', 'l00000000-0006-4000-0000-000060000000', 'What starts here changes the world', 'University of Texas at Austin is a premier public research university', 'https://www.utexas.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1883-09-15', 'ACTIVE', 1, 1, 4.7, datetime('now'), datetime('now')),
 ('a1b2c3d4-2050-4a5b-8c9d-0e1f2a3b4c5d', 'UIUC', 'l00000000-0006-4000-0000-000060000000', 'Learning and Labor', 'University of Illinois at Urbana-Champaign is a premier public research university', 'https://www.illinois.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1867-03-02', 'ACTIVE', 1, 1, 4.7, datetime('now'), datetime('now')),
@@ -112,7 +112,7 @@ VALUES
 ('a1b2c3d4-2053-4a5b-8c9d-0e1f2a3b4c5d', 'Georgia Tech', 'l00000000-0006-4000-0000-000060000000', 'Progress and Service', 'Georgia Institute of Technology is a premier public research university in Atlanta', 'https://www.gatech.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1885-10-13', 'ACTIVE', 1, 1, 4.7, datetime('now'), datetime('now'));
 
 -- Business Schools
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('a1b2c3d4-2054-4a5b-8c9d-0e1f2a3b4c5d', 'Wharton School', 'l00000000-0006-4000-0000-000060000000', 'Knowledge for Action', 'The Wharton School of the University of Pennsylvania is a premier business school', 'https://www.wharton.upenn.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1881-01-01', 'ACTIVE', 1, 1, 4.9, datetime('now'), datetime('now')),
 ('a1b2c3d4-2055-4a5b-8c9d-0e1f2a3b4c5d', 'Harvard Business School', 'l00000000-0006-4000-0000-000060000000', 'Educating Leaders', 'Harvard Business School is a premier graduate business school', 'https://www.hbs.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1908-01-01', 'ACTIVE', 1, 1, 5.0, datetime('now'), datetime('now')),
@@ -120,7 +120,7 @@ VALUES
 ('a1b2c3d4-2057-4a5b-8c9d-0e1f2a3b4c5d', 'Chicago Booth', 'l00000000-0006-4000-0000-000060000000', 'Discipline of Thought', 'University of Chicago Booth School of Business is a premier business school', 'https://www.chicagobooth.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1898-01-01', 'ACTIVE', 1, 1, 4.8, datetime('now'), datetime('now'));
 
 -- Liberal Arts Colleges
-INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
+INSERT INTO organization (id, short_name, legal_category_id, tag_line, description, website, main_admin_id, industry_id, established_date, status, is_verified, is_featured, rating, created_at, updated_at)
 VALUES
 ('a1b2c3d4-2058-4a5b-8c9d-0e1f2a3b4c5d', 'Williams College', 'l00000000-0006-4000-0000-000060000000', 'E liberalitate E Williams', 'Williams College is a premier private liberal arts college in Massachusetts', 'https://www.williams.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1793-06-22', 'ACTIVE', 1, 1, 4.7, datetime('now'), datetime('now')),
 ('a1b2c3d4-2059-4a5b-8c9d-0e1f2a3b4c5d', 'Amherst College', 'l00000000-0006-4000-0000-000060000000', 'Terras Irradient', 'Amherst College is a premier private liberal arts college in Massachusetts', 'https://www.amherst.edu', '00000000-0000-4000-8000-000000000001', 'ind-006-education', '1821-09-18', 'ACTIVE', 1, 1, 4.6, datetime('now'), datetime('now')),

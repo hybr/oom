@@ -7,10 +7,10 @@
 -- Note: popular_organization_position requires department_id and designation_id
 -- Create placeholder records first
 
-INSERT OR IGNORE INTO popular_organization_department (id, department_name, code, description, created_at)
+INSERT OR IGNORE INTO popular_organization_department (id, name, code, description, created_at)
 VALUES ('00000000-0000-4000-8000-000000000001', 'Placeholder Department', 'PLACEHOLDER', 'Temporary department for process setup - replace with actual departments', datetime('now'));
 
-INSERT OR IGNORE INTO popular_organization_designation (id, designation_name, code, description, created_at)
+INSERT OR IGNORE INTO popular_organization_designation (id, name, code, description, created_at)
 VALUES ('00000000-0000-4000-8000-000000000001', 'Placeholder Designation', 'PLACEHOLDER', 'Temporary designation for process setup - replace with actual designations', datetime('now'));
 
 -- ============================================
@@ -33,14 +33,13 @@ VALUES
     ('POS00004-0000-4000-8000-000000000001', 'HR Coordinator', '00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-000000000001', 'HR_COORD', 'HR Coordinator responsible for posting vacancies', datetime('now'));
 
 -- ============================================
--- Step 3: Create Permission Types
+-- Step 3: Permission Types
 -- ============================================
-
-INSERT OR IGNORE INTO enum_entity_permission_type (id, code, name, created_at)
-VALUES
-    ('PERM0001-0000-4000-8000-000000000001', 'REQUEST', 'Request/Create', datetime('now')),
-    ('PERM0002-0000-4000-8000-000000000001', 'APPROVER', 'Approve/Review', datetime('now')),
-    ('PERM0003-0000-4000-8000-000000000001', 'IMPLEMENTOR', 'Implement/Execute', datetime('now'));
+-- Note: Permission types are already defined in 014-entity_permission_definitions.sql
+-- Using existing IDs:
+-- REQUEST: a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c
+-- APPROVER: c3d4e5f6-a7b8-49c0-1d2e-3f4a5b6c7d8e
+-- IMPLEMENTOR: a7b8c9d0-e1f2-43a4-5b6c-7d8e9f0a1b2c
 
 -- ============================================
 -- Step 4: Update Process Nodes
@@ -49,32 +48,32 @@ VALUES
 -- Node 1: DRAFT_VACANCY (HR Manager, REQUEST)
 UPDATE process_node
 SET position_id = 'POS00001-0000-4000-8000-000000000001',
-    permission_type_id = 'PERM0001-0000-4000-8000-000000000001',
+    permission_type_id = 'a1b2c3d4-e5f6-47a8-9b0c-1d2e3f4a5b6c',
     escalate_to_position_id = 'POS00001-0000-4000-8000-000000000001'
 WHERE id = 'VC000002-0000-4000-8000-000000000001';
 
 -- Node 2: HR_REVIEW (HR Manager, APPROVER)
 UPDATE process_node
 SET position_id = 'POS00001-0000-4000-8000-000000000001',
-    permission_type_id = 'PERM0002-0000-4000-8000-000000000001'
+    permission_type_id = 'c3d4e5f6-a7b8-49c0-1d2e-3f4a5b6c7d8e'
 WHERE id = 'VC000003-0000-4000-8000-000000000001';
 
 -- Node 3: FINANCE_APPROVAL (Finance Manager, APPROVER)
 UPDATE process_node
 SET position_id = 'POS00002-0000-4000-8000-000000000001',
-    permission_type_id = 'PERM0002-0000-4000-8000-000000000001'
+    permission_type_id = 'c3d4e5f6-a7b8-49c0-1d2e-3f4a5b6c7d8e'
 WHERE id = 'VC000005-0000-4000-8000-000000000001';
 
 -- Node 4: DEPT_HEAD_APPROVAL (Department Head, APPROVER)
 UPDATE process_node
 SET position_id = 'POS00003-0000-4000-8000-000000000001',
-    permission_type_id = 'PERM0002-0000-4000-8000-000000000001'
+    permission_type_id = 'c3d4e5f6-a7b8-49c0-1d2e-3f4a5b6c7d8e'
 WHERE id = 'VC000006-0000-4000-8000-000000000001';
 
 -- Node 5: PUBLISH_VACANCY (HR Coordinator, IMPLEMENTOR)
 UPDATE process_node
 SET position_id = 'POS00004-0000-4000-8000-000000000001',
-    permission_type_id = 'PERM0003-0000-4000-8000-000000000001'
+    permission_type_id = 'a7b8c9d0-e1f2-43a4-5b6c-7d8e9f0a1b2c'
 WHERE id = 'VC000007-0000-4000-8000-000000000001';
 
 -- ============================================
@@ -85,7 +84,7 @@ WHERE id = 'VC000007-0000-4000-8000-000000000001';
 SELECT
     pn.node_code,
     pn.node_name,
-    p.title as position,
+    p.position_name as position,
     ept.name as permission,
     CASE
         WHEN pn.position_id IS NULL THEN '❌ Missing Position'

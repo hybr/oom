@@ -109,3 +109,37 @@ VALUES
 
 -- Create unique constraint for (short_name, legal_category_id)
 -- Note: This will be enforced at the application level or via CREATE UNIQUE INDEX in the table creation
+
+-- =========================================
+-- UPDATE: Rename admin_id to main_admin_id
+-- Added: 2025-01-23
+-- =========================================
+-- Update attribute code and metadata
+UPDATE entity_attribute
+SET code = 'main_admin_id',
+    name = 'Main Admin ID',
+    description = 'Reference to PERSON who is the primary owner/administrator of this organization',
+    display_order = 12
+WHERE id = '1a9b0c1d-2e3f-4a5b-6c7d-8e9f0a1b2c3d';
+
+-- Update relationship name
+UPDATE entity_relationship
+SET relation_name = 'main_admin',
+    description = 'Organization is owned by a main admin person'
+WHERE id = '1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d-rel1';
+
+-- Update validation rule
+UPDATE entity_validation_rule
+SET error_message = 'A main administrator must be assigned.'
+WHERE id = '1a2b3c4d-valid-0006';
+
+-- Add new functions for main admin management
+INSERT OR IGNORE INTO entity_function (id, entity_id, function_code, function_name, function_description, parameters, return_type, is_active)
+VALUES
+('1a2b3c4d-func-0009','1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d','get_main_admin','Get Main Admin','Get the main admin person details','[{"name":"organization_id","type":"text"}]','json',1),
+('1a2b3c4d-func-0010','1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d','is_main_admin','Is Main Admin','Check if person is main admin of organization','[{"name":"organization_id","type":"text"},{"name":"person_id","type":"text"}]','boolean',1);
+
+INSERT OR IGNORE INTO entity_function_handler (id, function_id, handler_type, handler_reference, is_active)
+VALUES
+('1a2b3c4d-handler-0009','1a2b3c4d-func-0009','script','/scripts/organization/get_main_admin.php',1),
+('1a2b3c4d-handler-0010','1a2b3c4d-func-0010','api','/api/organization/is-main-admin',1);

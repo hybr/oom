@@ -327,7 +327,7 @@ CREATE INDEX IF NOT EXISTS idx_fallback_active ON process_fallback_assignment(is
 -- =========================================
 
 -- PROCESS_GRAPH entity
-INSERT INTO entity_definition (id, code, name, description, domain, table_name, is_active)
+INSERT OR IGNORE INTO entity_definition (id, code, name, description, domain, table_name, is_active)
 VALUES (
     '10000000-0000-4000-8000-000000000001',
     'PROCESS_GRAPH',
@@ -339,7 +339,7 @@ VALUES (
 );
 
 -- PROCESS_NODE entity
-INSERT INTO entity_definition (id, code, name, description, domain, table_name, is_active)
+INSERT OR IGNORE INTO entity_definition (id, code, name, description, domain, table_name, is_active)
 VALUES (
     '10000000-0000-4000-8000-000000000002',
     'PROCESS_NODE',
@@ -351,7 +351,7 @@ VALUES (
 );
 
 -- PROCESS_EDGE entity
-INSERT INTO entity_definition (id, code, name, description, domain, table_name, is_active)
+INSERT OR IGNORE INTO entity_definition (id, code, name, description, domain, table_name, is_active)
 VALUES (
     '10000000-0000-4000-8000-000000000003',
     'PROCESS_EDGE',
@@ -363,7 +363,7 @@ VALUES (
 );
 
 -- PROCESS_EDGE_CONDITION entity
-INSERT INTO entity_definition (id, code, name, description, domain, table_name, is_active)
+INSERT OR IGNORE INTO entity_definition (id, code, name, description, domain, table_name, is_active)
 VALUES (
     '10000000-0000-4000-8000-000000000004',
     'PROCESS_EDGE_CONDITION',
@@ -375,7 +375,7 @@ VALUES (
 );
 
 -- TASK_FLOW_INSTANCE entity
-INSERT INTO entity_definition (id, code, name, description, domain, table_name, is_active)
+INSERT OR IGNORE INTO entity_definition (id, code, name, description, domain, table_name, is_active)
 VALUES (
     '10000000-0000-4000-8000-000000000005',
     'TASK_FLOW_INSTANCE',
@@ -387,7 +387,7 @@ VALUES (
 );
 
 -- TASK_INSTANCE entity
-INSERT INTO entity_definition (id, code, name, description, domain, table_name, is_active)
+INSERT OR IGNORE INTO entity_definition (id, code, name, description, domain, table_name, is_active)
 VALUES (
     '10000000-0000-4000-8000-000000000006',
     'TASK_INSTANCE',
@@ -399,7 +399,7 @@ VALUES (
 );
 
 -- TASK_AUDIT_LOG entity
-INSERT INTO entity_definition (id, code, name, description, domain, table_name, is_active)
+INSERT OR IGNORE INTO entity_definition (id, code, name, description, domain, table_name, is_active)
 VALUES (
     '10000000-0000-4000-8000-000000000007',
     'TASK_AUDIT_LOG',
@@ -411,7 +411,7 @@ VALUES (
 );
 
 -- PROCESS_FALLBACK_ASSIGNMENT entity
-INSERT INTO entity_definition (id, code, name, description, domain, table_name, is_active)
+INSERT OR IGNORE INTO entity_definition (id, code, name, description, domain, table_name, is_active)
 VALUES (
     '10000000-0000-4000-8000-000000000008',
     'PROCESS_FALLBACK_ASSIGNMENT',
@@ -425,7 +425,7 @@ VALUES (
 -- =========================================
 -- Attributes for PROCESS_GRAPH
 -- =========================================
-INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_system, is_label, display_order)
+INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_system, is_label, display_order)
 VALUES
     ('10001000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000001', 'code', 'Code', 'text', 1, 0, 1, 1),
     ('10001000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001', 'name', 'Name', 'text', 1, 0, 1, 2),
@@ -440,7 +440,7 @@ VALUES
 -- =========================================
 -- Attributes for PROCESS_NODE
 -- =========================================
-INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_system, is_label, display_order)
+INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_system, is_label, display_order)
 VALUES
     ('10002000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000002', 'graph_id', 'Process Graph', 'uuid', 1, 0, 0, 1),
     ('10002000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000002', 'node_code', 'Node Code', 'text', 1, 0, 1, 2),
@@ -454,7 +454,7 @@ VALUES
 -- =========================================
 -- Attributes for TASK_FLOW_INSTANCE
 -- =========================================
-INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_system, is_label, display_order)
+INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_system, is_label, display_order)
 VALUES
     ('10005000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000005', 'graph_id', 'Process Graph', 'uuid', 1, 0, 0, 1),
     ('10005000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000005', 'entity_code', 'Entity Code', 'text', 0, 0, 0, 2),
@@ -466,7 +466,7 @@ VALUES
 -- =========================================
 -- Attributes for TASK_INSTANCE
 -- =========================================
-INSERT INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_system, is_label, display_order)
+INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_system, is_label, display_order)
 VALUES
     ('10006000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000006', 'flow_instance_id', 'Flow Instance', 'uuid', 1, 0, 0, 1),
     ('10006000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000006', 'node_id', 'Node', 'uuid', 1, 0, 0, 2),
@@ -478,7 +478,7 @@ VALUES
 -- =========================================
 -- Relationships
 -- =========================================
-INSERT INTO entity_relationship (id, from_entity_id, to_entity_id, relation_type, fk_field, relation_name)
+INSERT OR IGNORE INTO entity_relationship (id, from_entity_id, to_entity_id, relation_type, fk_field, relation_name)
 VALUES
     ('10100000-0000-4000-8000-000000000001', '10000000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000001', 'many-to-one', 'graph_id', 'process_node_to_graph'),
     ('10100000-0000-4000-8000-000000000002', '10000000-0000-4000-8000-000000000003', '10000000-0000-4000-8000-000000000001', 'many-to-one', 'graph_id', 'process_edge_to_graph'),

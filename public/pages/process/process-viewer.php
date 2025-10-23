@@ -40,18 +40,8 @@ $sql = "SELECT tfi.*, p.first_name, p.last_name, pn.node_name as current_node_na
         LIMIT 20";
 $runningInstances = Database::fetchAll($sql, [$graphId]);
 
-// Get user's organization
-$userOrganizationId = null;
-$user = Auth::user();
-if (!empty($user['person_id'])) {
-    $sql = "SELECT organization_id FROM employment_contract
-            WHERE employee_id = ? AND status = 'ACTIVE' AND deleted_at IS NULL
-            LIMIT 1";
-    $empContract = Database::fetchOne($sql, [$user['person_id']]);
-    if ($empContract) {
-        $userOrganizationId = $empContract['organization_id'];
-    }
-}
+// Get user's current organization from session
+$userOrganizationId = Auth::currentOrganizationId();
 
 require_once __DIR__ . '/../../../includes/header.php';
 ?>
@@ -107,12 +97,20 @@ require_once __DIR__ . '/../../../includes/header.php';
             <!-- Flow Diagram Card -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <h5 class="mb-0"><i class="bi bi-flowchart"></i> Process Flow Diagram</h5>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-flowchart"></i> Process Flow Diagram</h5>
+                        <div>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="cyInstance.fit()">
+                                <i class="bi bi-arrows-fullscreen"></i> Fit
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="cyInstance.center()">
+                                <i class="bi bi-bullseye"></i> Center
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div class="card-body">
-                    <div id="flowDiagram" style="width: 100%; height: 500px; border: 1px solid #ddd; background: #f8f9fa; position: relative; overflow: auto;">
-                        <!-- SVG will be rendered here -->
-                    </div>
+                    <div id="cy" style="width: 100%; height: 600px; border: 1px solid #ddd; background: #f8f9fa;"></div>
                     <div class="mt-3">
                         <h6>Legend:</h6>
                         <div class="d-flex flex-wrap gap-3">
@@ -237,6 +235,11 @@ require_once __DIR__ . '/../../../includes/header.php';
     </div>
 </div>
 
+<!-- Cytoscape.js Library -->
+<script src="https://cdn.jsdelivr.net/npm/cytoscape@3.28.1/dist/cytoscape.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dagre@0.8.5/dist/dagre.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/cytoscape-dagre@2.5.0/cytoscape-dagre.min.js"></script>
+
 <!-- Start Process Modal -->
 <div class="modal fade" id="startProcessModal" tabindex="-1">
     <div class="modal-dialog">
@@ -280,152 +283,174 @@ const graphData = {
     organizationId: <?php echo json_encode($userOrganizationId); ?>
 };
 
-// Draw flow diagram
-function drawFlowDiagram() {
-    const container = document.getElementById('flowDiagram');
-    const width = container.clientWidth;
-    const height = 500;
+// Cytoscape instance
+let cyInstance = null;
 
-    // Create SVG
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('width', width);
-    svg.setAttribute('height', height);
+// Initialize Cytoscape graph
+function initCytoscape() {
+    // Register dagre layout
+    if (typeof cytoscape !== 'undefined' && typeof dagre !== 'undefined' && typeof cytoscapeDagre !== 'undefined') {
+        cytoscapeDagre(cytoscape);
+    }
 
-    // Calculate positions (simple auto-layout)
-    const nodePositions = new Map();
-    const nodeWidth = 150;
-    const nodeHeight = 60;
-    const horizontalGap = 200;
-    const verticalGap = 100;
+    // Color map for node types
+    const nodeColors = {
+        'START': '#28a745',
+        'TASK': '#007bff',
+        'DECISION': '#ffc107',
+        'FORK': '#17a2b8',
+        'JOIN': '#6f42c1',
+        'END': '#dc3545'
+    };
 
-    // Group nodes by their x position or auto-calculate
-    let currentX = 50;
-    let currentY = 50;
-    let maxY = 0;
+    // Shape map for node types
+    const nodeShapes = {
+        'START': 'ellipse',
+        'TASK': 'roundrectangle',
+        'DECISION': 'diamond',
+        'FORK': 'roundrectangle',
+        'JOIN': 'roundrectangle',
+        'END': 'ellipse'
+    };
 
-    graphData.nodes.forEach((node, index) => {
-        let x = node.display_x || currentX;
-        let y = node.display_y || currentY;
+    // Build Cytoscape elements
+    const elements = [];
 
-        // Auto layout if no position set
-        if (!node.display_x) {
-            if (index > 0 && index % 3 === 0) {
-                currentX = 50;
-                currentY += verticalGap + nodeHeight;
-            } else {
-                currentX += horizontalGap + nodeWidth;
-            }
-            x = currentX;
-            y = currentY;
-        }
-
-        nodePositions.set(node.id, { x, y });
-        maxY = Math.max(maxY, y);
-    });
-
-    // Draw edges first (so they appear behind nodes)
-    graphData.edges.forEach(edge => {
-        const fromPos = nodePositions.get(edge.from_node_id);
-        const toPos = nodePositions.get(edge.to_node_id);
-
-        if (fromPos && toPos) {
-            const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-            const startX = fromPos.x + nodeWidth / 2;
-            const startY = fromPos.y + nodeHeight;
-            const endX = toPos.x + nodeWidth / 2;
-            const endY = toPos.y;
-
-            // Create curved path
-            const midY = (startY + endY) / 2;
-            const d = `M ${startX} ${startY} C ${startX} ${midY}, ${endX} ${midY}, ${endX} ${endY}`;
-
-            line.setAttribute('d', d);
-            line.setAttribute('stroke', '#6c757d');
-            line.setAttribute('stroke-width', '2');
-            line.setAttribute('fill', 'none');
-            line.setAttribute('marker-end', 'url(#arrowhead)');
-
-            svg.appendChild(line);
-
-            // Add edge label if exists
-            if (edge.edge_label) {
-                const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-                text.setAttribute('x', (startX + endX) / 2);
-                text.setAttribute('y', midY - 5);
-                text.setAttribute('text-anchor', 'middle');
-                text.setAttribute('fill', '#495057');
-                text.setAttribute('font-size', '12');
-                text.textContent = edge.edge_label;
-                svg.appendChild(text);
-            }
-        }
-    });
-
-    // Define arrowhead marker
-    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
-    const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
-    marker.setAttribute('id', 'arrowhead');
-    marker.setAttribute('markerWidth', '10');
-    marker.setAttribute('markerHeight', '10');
-    marker.setAttribute('refX', '9');
-    marker.setAttribute('refY', '3');
-    marker.setAttribute('orient', 'auto');
-    const polygon = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
-    polygon.setAttribute('points', '0 0, 10 3, 0 6');
-    polygon.setAttribute('fill', '#6c757d');
-    marker.appendChild(polygon);
-    defs.appendChild(marker);
-    svg.appendChild(defs);
-
-    // Draw nodes
+    // Add nodes
     graphData.nodes.forEach(node => {
-        const pos = nodePositions.get(node.id);
-        if (!pos) return;
-
-        const color = {
-            'START': '#28a745',
-            'TASK': '#007bff',
-            'DECISION': '#ffc107',
-            'FORK': '#17a2b8',
-            'JOIN': '#6f42c1',
-            'END': '#dc3545'
-        }[node.node_type] || '#6c757d';
-
-        // Node rectangle
-        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-        rect.setAttribute('x', pos.x);
-        rect.setAttribute('y', pos.y);
-        rect.setAttribute('width', nodeWidth);
-        rect.setAttribute('height', nodeHeight);
-        rect.setAttribute('fill', color);
-        rect.setAttribute('stroke', '#fff');
-        rect.setAttribute('stroke-width', '2');
-        rect.setAttribute('rx', '5');
-        svg.appendChild(rect);
-
-        // Node text
-        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        text.setAttribute('x', pos.x + nodeWidth / 2);
-        text.setAttribute('y', pos.y + 25);
-        text.setAttribute('text-anchor', 'middle');
-        text.setAttribute('fill', '#fff');
-        text.setAttribute('font-weight', 'bold');
-        text.textContent = node.node_name;
-        svg.appendChild(text);
-
-        // Node type
-        const typeText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
-        typeText.setAttribute('x', pos.x + nodeWidth / 2);
-        typeText.setAttribute('y', pos.y + 45);
-        typeText.setAttribute('text-anchor', 'middle');
-        typeText.setAttribute('fill', '#fff');
-        typeText.setAttribute('font-size', '10');
-        typeText.textContent = node.node_type;
-        svg.appendChild(typeText);
+        elements.push({
+            data: {
+                id: node.id,
+                label: node.node_name,
+                type: node.node_type,
+                instructions: node.instructions,
+                sla_hours: node.sla_hours,
+                color: nodeColors[node.node_type] || '#6c757d',
+                shape: nodeShapes[node.node_type] || 'roundrectangle'
+            }
+        });
     });
 
-    container.innerHTML = '';
-    container.appendChild(svg);
+    // Add edges
+    graphData.edges.forEach(edge => {
+        elements.push({
+            data: {
+                id: `edge-${edge.id}`,
+                source: edge.from_node_id,
+                target: edge.to_node_id,
+                label: edge.edge_label || '',
+                condition: edge.edge_condition
+            }
+        });
+    });
+
+    // Initialize Cytoscape
+    cyInstance = cytoscape({
+        container: document.getElementById('cy'),
+        elements: elements,
+        style: [
+            {
+                selector: 'node',
+                style: {
+                    'background-color': 'data(color)',
+                    'label': 'data(label)',
+                    'text-valign': 'center',
+                    'text-halign': 'center',
+                    'color': '#ffffff',
+                    'text-outline-color': 'data(color)',
+                    'text-outline-width': 2,
+                    'font-size': 14,
+                    'font-weight': 'bold',
+                    'width': 120,
+                    'height': 60,
+                    'shape': 'data(shape)',
+                    'border-width': 3,
+                    'border-color': '#ffffff',
+                    'text-wrap': 'wrap',
+                    'text-max-width': 100
+                }
+            },
+            {
+                selector: 'edge',
+                style: {
+                    'width': 3,
+                    'line-color': '#6c757d',
+                    'target-arrow-color': '#6c757d',
+                    'target-arrow-shape': 'triangle',
+                    'curve-style': 'bezier',
+                    'arrow-scale': 1.5,
+                    'label': 'data(label)',
+                    'font-size': 11,
+                    'text-background-color': '#f8f9fa',
+                    'text-background-opacity': 1,
+                    'text-background-padding': 3,
+                    'color': '#495057',
+                    'text-rotation': 'autorotate'
+                }
+            },
+            {
+                selector: 'node:selected',
+                style: {
+                    'border-width': 4,
+                    'border-color': '#007bff',
+                    'overlay-opacity': 0.2,
+                    'overlay-color': '#007bff'
+                }
+            },
+            {
+                selector: 'edge:selected',
+                style: {
+                    'width': 4,
+                    'line-color': '#007bff',
+                    'target-arrow-color': '#007bff'
+                }
+            }
+        ],
+        layout: {
+            name: 'dagre',
+            rankDir: 'TB',
+            nodeSep: 80,
+            rankSep: 100,
+            padding: 30
+        },
+        minZoom: 0.3,
+        maxZoom: 3,
+        wheelSensitivity: 0.2
+    });
+
+    // Add click event to show node details
+    cyInstance.on('tap', 'node', function(evt) {
+        const node = evt.target;
+        const data = node.data();
+
+        let details = `<strong>${data.label}</strong><br>`;
+        details += `Type: <span class="badge" style="background-color: ${data.color};">${data.type}</span><br>`;
+
+        if (data.instructions) {
+            details += `<small>${data.instructions}</small><br>`;
+        }
+
+        if (data.sla_hours) {
+            details += `<small><i class="bi bi-clock"></i> SLA: ${data.sla_hours} hours</small>`;
+        }
+
+        // Show tooltip (you can replace this with a proper modal or tooltip)
+        console.log('Node clicked:', data);
+    });
+
+    // Add double-click to zoom to node
+    cyInstance.on('dbltap', 'node', function(evt) {
+        cyInstance.animate({
+            fit: {
+                eles: evt.target,
+                padding: 100
+            },
+            duration: 500
+        });
+    });
+
+    // Fit graph to viewport
+    cyInstance.fit(null, 30);
 }
 
 // Show start process modal
@@ -474,7 +499,7 @@ async function startProcess() {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
-    drawFlowDiagram();
+    initCytoscape();
 });
 </script>
 

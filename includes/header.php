@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="V4L - Your Community, Your Marketplace">
     <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' ws://localhost:8080 wss://localhost:8080 https://cdn.jsdelivr.net https://maps.googleapis.com;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net data:; img-src 'self' data: https:; connect-src 'self' ws://localhost:8080 wss://localhost:8080 https://cdn.jsdelivr.net https://maps.googleapis.com;">
 
     <title><?php echo isset($pageTitle) ? htmlspecialchars($pageTitle) . ' - V4L' : 'V4L - Your Community, Your Marketplace'; ?></title>
 
@@ -106,6 +106,63 @@
                 </ul>
 
                 <ul class="navbar-nav">
+                    <?php if (Auth::check()): ?>
+                        <?php
+                        $currentOrg = Auth::currentOrganization();
+                        $currentOrgId = Auth::currentOrganizationId();
+
+                        // Get permission badge for current organization
+                        // Following guide: @guides/ORGANIZATION_MEMBERSHIP_PERMISSIONS.md
+                        $permissionBadge = '';
+                        if ($currentOrgId) {
+                            $level = Auth::getOrganizationPermissionLevel($currentOrgId);
+                            switch ($level) {
+                                case 'MAIN_ADMIN':
+                                    $permissionBadge = '<i class="bi bi-gem text-warning ms-1"></i>';
+                                    break;
+                                case 'SUPER_ADMIN':
+                                    $permissionBadge = '<i class="bi bi-shield-fill-check text-danger ms-1"></i>';
+                                    break;
+                                case 'ADMIN':
+                                    $permissionBadge = '<i class="bi bi-shield-check text-warning ms-1"></i>';
+                                    break;
+                                case 'MODERATOR':
+                                    $permissionBadge = '<i class="bi bi-eye text-info ms-1"></i>';
+                                    break;
+                                case 'EMPLOYEE':
+                                    $permissionBadge = '<i class="bi bi-person-badge text-secondary ms-1"></i>';
+                                    break;
+                            }
+                        }
+                        ?>
+                        <!-- Current Organization Selector -->
+                        <li class="nav-item dropdown" id="orgSelectorContainer">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" id="orgSelector">
+                                <i class="bi bi-building-fill"></i>
+                                <span id="currentOrgName">
+                                    <?php
+                                    if ($currentOrg) {
+                                        echo htmlspecialchars($currentOrg['name']);
+                                        echo $permissionBadge;
+                                    } else {
+                                        echo 'Select Organization';
+                                    }
+                                    ?>
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" id="orgDropdownMenu">
+                                <li><h6 class="dropdown-header">Switch Organization</h6></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li class="px-3 py-2">
+                                    <div class="spinner-border spinner-border-sm" role="status" id="orgLoader">
+                                        <span class="visually-hidden">Loading...</span>
+                                    </div>
+                                    <span id="orgLoadingText">Loading organizations...</span>
+                                </li>
+                            </ul>
+                        </li>
+                    <?php endif; ?>
+
                     <!-- Theme Toggle -->
                     <li class="nav-item">
                         <button class="btn btn-link nav-link" onclick="toggleTheme()" title="Toggle theme">

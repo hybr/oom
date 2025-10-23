@@ -62,6 +62,151 @@
                 }, false)
             })
         })()
+
+        // Organization Switcher
+        <?php if (Auth::check()): ?>
+        (function () {
+            let userOrganizations = [];
+
+            // Load user organizations when dropdown is shown
+            document.getElementById('orgSelector')?.addEventListener('show.bs.dropdown', async function() {
+                if (userOrganizations.length > 0) {
+                    return; // Already loaded
+                }
+
+                try {
+                    const response = await fetch('/api/organization/my-organizations.php');
+                    const data = await response.json();
+
+                    if (data.success) {
+                        userOrganizations = data.organizations;
+                        renderOrganizationList(userOrganizations, data.current_organization_id);
+                    } else {
+                        showError('Failed to load organizations');
+                    }
+                } catch (error) {
+                    showError('Error loading organizations: ' + error.message);
+                }
+            });
+
+            function renderOrganizationList(organizations, currentOrgId) {
+                const menu = document.getElementById('orgDropdownMenu');
+
+                if (organizations.length === 0) {
+                    menu.innerHTML = `
+                        <li><h6 class="dropdown-header">Switch Organization</h6></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li class="px-3 py-2 text-muted">
+                            <small>You are not affiliated with any organizations</small>
+                        </li>
+                    `;
+                    return;
+                }
+
+                let html = '<li><h6 class="dropdown-header">Switch Organization</h6></li>';
+                html += '<li><hr class="dropdown-divider"></li>';
+
+                organizations.forEach(org => {
+                    const isActive = org.id === currentOrgId;
+                    const activeClass = isActive ? 'active' : '';
+                    const checkIcon = isActive ? '<i class="bi bi-check-circle-fill text-success me-2"></i>' : '';
+
+                    // Get permission badge based on highest level
+                    // Following guide: @guides/ORGANIZATION_MEMBERSHIP_PERMISSIONS.md
+                    const badge = getPermissionBadge(org.highest_level);
+
+                    // Get all membership types as pills
+                    const membershipPills = org.memberships.map(m => {
+                        return getMembershipPill(m.type, m.role, m.job_title);
+                    }).join(' ');
+
+                    html += `
+                        <li>
+                            <a class="dropdown-item ${activeClass}" href="#" onclick="switchOrganization('${org.id}', '${escapeHtml(org.name)}'); return false;">
+                                ${checkIcon}
+                                <div>
+                                    <strong>${escapeHtml(org.name)}</strong>
+                                    ${badge}
+                                    <br>
+                                    <small>${membershipPills}</small>
+                                </div>
+                            </a>
+                        </li>
+                    `;
+                });
+
+                menu.innerHTML = html;
+            }
+
+            function getPermissionBadge(level) {
+                // Permission badges following the guide's hierarchy
+                const badges = {
+                    'MAIN_ADMIN': '<span class="badge bg-danger ms-1"><i class="bi bi-gem"></i> Owner</span>',
+                    'SUPER_ADMIN': '<span class="badge bg-danger ms-1"><i class="bi bi-shield-fill-check"></i> Super Admin</span>',
+                    'ADMIN': '<span class="badge bg-warning text-dark ms-1"><i class="bi bi-shield-check"></i> Admin</span>',
+                    'MODERATOR': '<span class="badge bg-info ms-1"><i class="bi bi-eye"></i> Moderator</span>',
+                    'EMPLOYEE': '<span class="badge bg-secondary ms-1"><i class="bi bi-person-badge"></i> Employee</span>'
+                };
+                return badges[level] || '';
+            }
+
+            function getMembershipPill(type, role, jobTitle) {
+                // Small pills showing all membership types
+                if (type === 'MAIN_ADMIN') {
+                    return '<span class="badge rounded-pill bg-danger" style="font-size:0.7em;">Main Admin</span>';
+                } else if (type === 'ORGANIZATION_ADMIN') {
+                    const roleText = role || 'Admin';
+                    return `<span class="badge rounded-pill bg-warning text-dark" style="font-size:0.7em;">${roleText}</span>`;
+                } else if (type === 'EMPLOYEE') {
+                    const title = jobTitle || 'Employee';
+                    return `<span class="badge rounded-pill bg-secondary" style="font-size:0.7em;">${escapeHtml(title)}</span>`;
+                }
+                return '';
+            }
+
+            function showError(message) {
+                const menu = document.getElementById('orgDropdownMenu');
+                menu.innerHTML = `
+                    <li><h6 class="dropdown-header">Error</h6></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li class="px-3 py-2 text-danger">
+                        <small>${escapeHtml(message)}</small>
+                    </li>
+                `;
+            }
+
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+
+            // Make switchOrganization available globally
+            window.switchOrganization = async function(orgId, orgName) {
+                try {
+                    const response = await fetch('/api/organization/switch-organization.php', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ organization_id: orgId })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+                        // Update the displayed organization name
+                        document.getElementById('currentOrgName').textContent = orgName;
+
+                        // Reload the page to reflect changes
+                        window.location.reload();
+                    } else {
+                        alert('Failed to switch organization: ' + data.error);
+                    }
+                } catch (error) {
+                    alert('Error switching organization: ' + error.message);
+                }
+            };
+        })();
+        <?php endif; ?>
     </script>
 </body>
 </html>

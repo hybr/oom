@@ -22,17 +22,8 @@ $sql = "SELECT id, code, name, description, category, version_number
         ORDER BY category, name";
 $processes = Database::fetchAll($sql);
 
-// Get user's organization (if any)
-$userOrganizationId = null;
-if (!empty($user['person_id'])) {
-    $sql = "SELECT organization_id FROM employment_contract
-            WHERE employee_id = ? AND status = 'ACTIVE' AND deleted_at IS NULL
-            LIMIT 1";
-    $empContract = Database::fetchOne($sql, [$user['person_id']]);
-    if ($empContract) {
-        $userOrganizationId = $empContract['organization_id'];
-    }
-}
+// Get user's current organization from session
+$userOrganizationId = Auth::currentOrganizationId();
 
 // Get user's pending tasks count
 $pendingTasksCount = 0;

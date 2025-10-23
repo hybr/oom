@@ -16,7 +16,8 @@
         "php": ">=8.2.0",
         "ext-pdo": "*",
         "ext-json": "*",
-        "ext-mbstring": "*"
+        "ext-mbstring": "*",
+        "cboden/ratchet": "^0.4"
     },
     "require-dev": {
         "phpunit/phpunit": "^10.0"
