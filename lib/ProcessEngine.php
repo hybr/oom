@@ -251,6 +251,8 @@ class ProcessEngine
             $entityData = EntityManager::read($flowInstance['entity_code'], $flowInstance['entity_record_id']) ?? [];
         }
 
+        $defaultEdge = null;
+
         foreach ($edges as $edge) {
             // Get conditions for this edge
             $sql = "SELECT * FROM process_edge_condition
@@ -258,21 +260,24 @@ class ProcessEngine
                     ORDER BY condition_order ASC";
             $conditions = Database::fetchAll($sql, [$edge['id']]);
 
-            // If no conditions, or is default edge, evaluate to true
-            if (empty($conditions)) {
-                if ($edge['is_default'] == 1 && empty($targetNodes)) {
-                    // Default edge only used if no other edge matched
-                    $targetNode = self::getNode($edge['to_node_id']);
-                    if ($targetNode) {
-                        $targetNodes[] = $targetNode;
-                    }
-                } elseif (empty($conditions)) {
-                    // No conditions = always true
-                    $targetNode = self::getNode($edge['to_node_id']);
-                    if ($targetNode) {
-                        $targetNodes[] = $targetNode;
-                    }
+            // If no conditions and not a default edge, always take this path
+            if (empty($conditions) && $edge['is_default'] != 1) {
+                $targetNode = self::getNode($edge['to_node_id']);
+                if ($targetNode) {
+                    $targetNodes[] = $targetNode;
                 }
+
+                // For non-FORK nodes, return first matching edge
+                $fromNode = self::getNode($edge['from_node_id']);
+                if ($fromNode && $fromNode['node_type'] !== 'FORK') {
+                    break;
+                }
+                continue;
+            }
+
+            // If this is a default edge, save it for later
+            if ($edge['is_default'] == 1) {
+                $defaultEdge = $edge;
                 continue;
             }
 
@@ -290,6 +295,14 @@ class ProcessEngine
                 if ($fromNode && $fromNode['node_type'] !== 'FORK') {
                     break;
                 }
+            }
+        }
+
+        // If no edges matched and we have a default edge, use it
+        if (empty($targetNodes) && $defaultEdge) {
+            $targetNode = self::getNode($defaultEdge['to_node_id']);
+            if ($targetNode) {
+                $targetNodes[] = $targetNode;
             }
         }
 

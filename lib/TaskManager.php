@@ -164,11 +164,17 @@ class TaskManager
             );
 
             // Move process to next node
+            // Merge completion_action into taskData so edge conditions can access it
+            $taskData = array_merge($completionData, [
+                'completion_action' => $completionAction,
+                'completion_comments' => $comments
+            ]);
+
             $moveResult = ProcessEngine::moveToNextNode(
                 $task['flow_instance_id'],
                 $task['node_id'],
                 $completedBy,
-                $completionData
+                $taskData
             );
 
             if (!$moveResult['success']) {
