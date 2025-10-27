@@ -21,10 +21,10 @@ VALUES (
 -- ORGANIZATION_VACANCY ATTRIBUTES
 INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_label, is_unique, enum_values, description, display_order)
 VALUES
--- Foreign Keys
-('5b6c7d8e-9f0a-1b2c-3d4e-5f6a7b8c9d0e','5a6b7c8d-9e0f-1a2b-3c4d-5e6f7a8b9c0d','organization_id','Organization ID','text',1,0,0,NULL,'Reference to ORGANIZATION entity',1),
-('5c6d7e8f-9a0b-1c2d-3e4f-5a6b7c8d9e0f','5a6b7c8d-9e0f-1a2b-3c4d-5e6f7a8b9c0d','popular_position_id','Position ID','text',1,0,0,NULL,'Reference to POPULAR_ORGANIZATION_POSITION entity',2),
-('5d6e7f8a-9b0c-1d2e-3f4a-5b6c7d8e9f0a','5a6b7c8d-9e0f-1a2b-3c4d-5e6f7a8b9c0d','created_by','Created By','text',1,0,0,NULL,'Reference to PERSON who created this vacancy',3),
+-- Foreign Keys (using 'uuid' data type for entity references)
+('5b6c7d8e-9f0a-1b2c-3d4e-5f6a7b8c9d0e','5a6b7c8d-9e0f-1a2b-3c4d-5e6f7a8b9c0d','organization_id','Organization','uuid',1,0,0,NULL,'Reference to ORGANIZATION entity',1),
+('5c6d7e8f-9a0b-1c2d-3e4f-5a6b7c8d9e0f','5a6b7c8d-9e0f-1a2b-3c4d-5e6f7a8b9c0d','popular_position_id','Position','uuid',1,0,0,NULL,'Reference to POPULAR_ORGANIZATION_POSITION entity',2),
+('5d6e7f8a-9b0c-1d2e-3f4a-5b6c7d8e9f0a','5a6b7c8d-9e0f-1a2b-3c4d-5e6f7a8b9c0d','created_by','Created By','uuid',1,0,0,NULL,'Reference to PERSON who created this vacancy',3),
 
 -- Core Fields
 ('5e6f7a8b-9c0d-1e2f-3a4b-5c6d7e8f9a0b','5a6b7c8d-9e0f-1a2b-3c4d-5e6f7a8b9c0d','title','Vacancy Title','text',1,1,0,NULL,'Title of the vacancy',4),
@@ -63,9 +63,9 @@ VALUES (
 -- ORGANIZATION_VACANCY_WORKSTATION ATTRIBUTES
 INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_label, is_unique, enum_values, description, display_order)
 VALUES
--- Foreign Keys
-('6b7c8d9e-0f1a-2b3c-4d5e-6f7a8b9c0d1e','6a7b8c9d-0e1f-2a3b-4c5d-6e7f8a9b0c1d','organization_vacancy_id','Vacancy ID','text',1,0,0,NULL,'Reference to ORGANIZATION_VACANCY entity',1),
-('6c7d8e9f-0a1b-2c3d-4e5f-6a7b8c9d0e1f','6a7b8c9d-0e1f-2a3b-4c5d-6e7f8a9b0c1d','organization_workstation_id','Workstation ID','text',1,0,0,NULL,'Reference to WORKSTATION entity',2),
+-- Foreign Keys (using 'uuid' data type for entity references)
+('6b7c8d9e-0f1a-2b3c-4d5e-6f7a8b9c0d1e','6a7b8c9d-0e1f-2a3b-4c5d-6e7f8a9b0c1d','organization_vacancy_id','Vacancy','uuid',1,0,0,NULL,'Reference to ORGANIZATION_VACANCY entity',1),
+('6c7d8e9f-0a1b-2c3d-4e5f-6a7b8c9d0e1f','6a7b8c9d-0e1f-2a3b-4c5d-6e7f8a9b0c1d','organization_workstation_id','Workstation','uuid',1,0,0,NULL,'Reference to WORKSTATION entity',2),
 
 -- Additional Info
 ('6d7e8f9a-0b1c-2d3e-4f5a-6b7c8d9e0f1a','6a7b8c9d-0e1f-2a3b-4c5d-6e7f8a9b0c1d','notes','Notes','text',0,0,0,NULL,'Additional notes about this workstation assignment',3);
@@ -87,9 +87,9 @@ VALUES (
 -- VACANCY_APPLICATION ATTRIBUTES
 INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_label, is_unique, enum_values, description, display_order)
 VALUES
--- Foreign Keys
-('7b8c9d0e-1f2a-3b4c-5d6e-7f8a9b0c1d2e','7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d','vacancy_id','Vacancy ID','text',1,0,0,NULL,'Reference to ORGANIZATION_VACANCY entity',1),
-('7c8d9e0f-1a2b-3c4d-5e6f-7a8b9c0d1e2f','7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d','applicant_id','Applicant ID','text',1,0,0,NULL,'Reference to PERSON entity',2),
+-- Foreign Keys (using 'uuid' data type for entity references)
+('7b8c9d0e-1f2a-3b4c-5d6e-7f8a9b0c1d2e','7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d','vacancy_id','Vacancy','uuid',1,0,0,NULL,'Reference to ORGANIZATION_VACANCY entity',1),
+('7c8d9e0f-1a2b-3c4d-5e6f-7a8b9c0d1e2f','7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d','applicant_id','Applicant','uuid',1,0,0,NULL,'Reference to PERSON entity',2),
 
 -- Application Details
 ('7d8e9f0a-1b2c-3d4e-5f6a-7b8c9d0e1f2a','7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d','application_date','Application Date','datetime',1,0,0,NULL,'Date and time when application was submitted',3),
@@ -119,9 +119,9 @@ VALUES (
 -- APPLICATION_REVIEW ATTRIBUTES
 INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_label, is_unique, enum_values, description, display_order)
 VALUES
--- Foreign Keys
-('8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e','8a9b0c1d-2e3f-4a5b-6c7d-8e9f0a1b2c3d','application_id','Application ID','text',1,0,0,NULL,'Reference to VACANCY_APPLICATION entity',1),
-('8c9d0e1f-2a3b-4c5d-6e7f-8a9b0c1d2e3f','8a9b0c1d-2e3f-4a5b-6c7d-8e9f0a1b2c3d','reviewed_by','Reviewed By','text',1,0,0,NULL,'Reference to PERSON who reviewed',2),
+-- Foreign Keys (using 'uuid' data type for entity references)
+('8b9c0d1e-2f3a-4b5c-6d7e-8f9a0b1c2d3e','8a9b0c1d-2e3f-4a5b-6c7d-8e9f0a1b2c3d','application_id','Application','uuid',1,0,0,NULL,'Reference to VACANCY_APPLICATION entity',1),
+('8c9d0e1f-2a3b-4c5d-6e7f-8a9b0c1d2e3f','8a9b0c1d-2e3f-4a5b-6c7d-8e9f0a1b2c3d','reviewed_by','Reviewed By','uuid',1,0,0,NULL,'Reference to PERSON who reviewed',2),
 
 -- Review Details
 ('8d9e0f1a-2b3c-4d5e-6f7a-8b9c0d1e2f3a','8a9b0c1d-2e3f-4a5b-6c7d-8e9f0a1b2c3d','review_date','Review Date','datetime',1,0,0,NULL,'Date and time of review',3),
@@ -149,8 +149,8 @@ VALUES (
 -- INTERVIEW_STAGE ATTRIBUTES
 INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_label, is_unique, enum_values, description, display_order)
 VALUES
--- Foreign Keys
-('9b0c1d2e-3f4a-5b6c-7d8e-9f0a1b2c3d4e','9a0b1c2d-3e4f-5a6b-7c8d-9e0f1a2b3c4d','organization_id','Organization ID','text',1,0,0,NULL,'Reference to ORGANIZATION entity',1),
+-- Foreign Keys (using 'uuid' data type for entity references)
+('9b0c1d2e-3f4a-5b6c-7d8e-9f0a1b2c3d4e','9a0b1c2d-3e4f-5a6b-7c8d-9e0f1a2b3c4d','organization_id','Organization','uuid',1,0,0,NULL,'Reference to ORGANIZATION entity',1),
 
 -- Stage Details
 ('9c0d1e2f-3a4b-5c6d-7e8f-9a0b1c2d3e4f','9a0b1c2d-3e4f-5a6b-7c8d-9e0f1a2b3c4d','name','Stage Name','text',1,1,0,NULL,'Name of the interview stage',2),
@@ -176,10 +176,10 @@ VALUES (
 -- APPLICATION_INTERVIEW ATTRIBUTES
 INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_label, is_unique, enum_values, description, display_order)
 VALUES
--- Foreign Keys
-('a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d','a0b1c2d3-4e5f-6a7b-8c9d-0e1f2a3b4c5d','application_id','Application ID','text',1,0,0,NULL,'Reference to VACANCY_APPLICATION entity',1),
-('a2b3c4d5-6e7f-8a9b-0c1d-2e3f4a5b6c7d','a0b1c2d3-4e5f-6a7b-8c9d-0e1f2a3b4c5d','stage_id','Stage ID','text',1,0,0,NULL,'Reference to INTERVIEW_STAGE entity',2),
-('a3b4c5d6-7e8f-9a0b-1c2d-3e4f5a6b7c8d','a0b1c2d3-4e5f-6a7b-8c9d-0e1f2a3b4c5d','interviewer_id','Interviewer ID','text',1,0,0,NULL,'Reference to PERSON conducting the interview',3),
+-- Foreign Keys (using 'uuid' data type for entity references)
+('a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d','a0b1c2d3-4e5f-6a7b-8c9d-0e1f2a3b4c5d','application_id','Application','uuid',1,0,0,NULL,'Reference to VACANCY_APPLICATION entity',1),
+('a2b3c4d5-6e7f-8a9b-0c1d-2e3f4a5b6c7d','a0b1c2d3-4e5f-6a7b-8c9d-0e1f2a3b4c5d','stage_id','Interview Stage','uuid',1,0,0,NULL,'Reference to INTERVIEW_STAGE entity',2),
+('a3b4c5d6-7e8f-9a0b-1c2d-3e4f5a6b7c8d','a0b1c2d3-4e5f-6a7b-8c9d-0e1f2a3b4c5d','interviewer_id','Interviewer','uuid',1,0,0,NULL,'Reference to PERSON conducting the interview',3),
 
 -- Scheduling
 ('a4b5c6d7-8e9f-0a1b-2c3d-4e5f6a7b8c9d','a0b1c2d3-4e5f-6a7b-8c9d-0e1f2a3b4c5d','scheduled_date','Scheduled Date','datetime',1,0,0,NULL,'Scheduled date and time for interview',4),
@@ -214,9 +214,9 @@ VALUES (
 -- JOB_OFFER ATTRIBUTES
 INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_label, is_unique, enum_values, description, display_order)
 VALUES
--- Foreign Keys
-('b1c2d3e4-5f6a-7b8c-9d0e-1f2a3b4c5d6e','b0c1d2e3-4f5a-6b7c-8d9e-0f1a2b3c4d5e','application_id','Application ID','text',1,0,0,NULL,'Reference to VACANCY_APPLICATION entity',1),
-('b2c3d4e5-6f7a-8b9c-0d1e-2f3a4b5c6d7e','b0c1d2e3-4f5a-6b7c-8d9e-0f1a2b3c4d5e','offered_by','Offered By','text',1,0,0,NULL,'Reference to PERSON who made the offer',2),
+-- Foreign Keys (using 'uuid' data type for entity references)
+('b1c2d3e4-5f6a-7b8c-9d0e-1f2a3b4c5d6e','b0c1d2e3-4f5a-6b7c-8d9e-0f1a2b3c4d5e','application_id','Application','uuid',1,0,0,NULL,'Reference to VACANCY_APPLICATION entity',1),
+('b2c3d4e5-6f7a-8b9c-0d1e-2f3a4b5c6d7e','b0c1d2e3-4f5a-6b7c-8d9e-0f1a2b3c4d5e','offered_by','Offered By','uuid',1,0,0,NULL,'Reference to PERSON who made the offer',2),
 
 -- Offer Details
 ('b3c4d5e6-7f8a-9b0c-1d2e-3f4a5b6c7d8e','b0c1d2e3-4f5a-6b7c-8d9e-0f1a2b3c4d5e','offer_date','Offer Date','date',1,0,0,NULL,'Date when offer was made',3),
@@ -249,10 +249,10 @@ VALUES (
 -- EMPLOYMENT_CONTRACT ATTRIBUTES
 INSERT OR IGNORE INTO entity_attribute (id, entity_id, code, name, data_type, is_required, is_label, is_unique, enum_values, description, display_order)
 VALUES
--- Foreign Keys
-('c1d2e3f4-5a6b-7c8d-9e0f-1a2b3c4d5e6f','c0d1e2f3-4a5b-6c7d-8e9f-0a1b2c3d4e5f','job_offer_id','Job Offer ID','text',1,0,0,NULL,'Reference to JOB_OFFER entity',1),
-('c2d3e4f5-6a7b-8c9d-0e1f-2a3b4c5d6e7f','c0d1e2f3-4a5b-6c7d-8e9f-0a1b2c3d4e5f','organization_id','Organization ID','text',1,0,0,NULL,'Reference to ORGANIZATION entity',2),
-('c3d4e5f6-7a8b-9c0d-1e2f-3a4b5c6d7e8f','c0d1e2f3-4a5b-6c7d-8e9f-0a1b2c3d4e5f','employee_id','Employee ID','text',1,0,0,NULL,'Reference to PERSON (employee)',3),
+-- Foreign Keys (using 'uuid' data type for entity references)
+('c1d2e3f4-5a6b-7c8d-9e0f-1a2b3c4d5e6f','c0d1e2f3-4a5b-6c7d-8e9f-0a1b2c3d4e5f','job_offer_id','Job Offer','uuid',1,0,0,NULL,'Reference to JOB_OFFER entity',1),
+('c2d3e4f5-6a7b-8c9d-0e1f-2a3b4c5d6e7f','c0d1e2f3-4a5b-6c7d-8e9f-0a1b2c3d4e5f','organization_id','Organization','uuid',1,0,0,NULL,'Reference to ORGANIZATION entity',2),
+('c3d4e5f6-7a8b-9c0d-1e2f-3a4b5c6d7e8f','c0d1e2f3-4a5b-6c7d-8e9f-0a1b2c3d4e5f','employee_id','Employee','uuid',1,0,0,NULL,'Reference to PERSON (employee)',3),
 
 -- Contract Details
 ('c4d5e6f7-8a9b-0c1d-2e3f-4a5b6c7d8e9f','c0d1e2f3-4a5b-6c7d-8e9f-0a1b2c3d4e5f','contract_number','Contract Number','text',1,1,1,NULL,'Unique contract number',4),
