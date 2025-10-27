@@ -332,6 +332,116 @@ class PageGenerator
     }
 
     /**
+     * Generate only form fields without form wrapper
+     * Useful for AJAX form loading or embedding forms in modals
+     *
+     * @param array|null $record Record data for pre-population
+     * @return string HTML for form fields only
+     */
+    public function generateFormFields($record = null)
+    {
+        $html = '<div class="row">';
+
+        // Generate form fields
+        foreach ($this->attributes as $attr) {
+            if ($attr['is_system'] == 1) {
+                continue;
+            }
+
+            // Get value from record or default
+            if ($record && isset($record[$attr['code']])) {
+                $value = $record[$attr['code']];
+            } else {
+                $value = $attr['default_value'] ?? '';
+            }
+            $required = $attr['is_required'] == 1 ? 'required' : '';
+
+            $html .= '<div class="col-md-6 mb-3">';
+
+            // Check if this is a foreign key
+            $isForeignKey = false;
+            $fkRelationship = null;
+            $isEntityIdField = ($attr['code'] === 'entity_id');
+            $isPermissionTypeField = ($attr['code'] === 'permission_type_id');
+            $isPositionField = ($attr['code'] === 'position_id');
+
+            if ($isEntityIdField || $isPermissionTypeField || $isPositionField) {
+                $isForeignKey = true;
+            } else {
+                foreach ($this->relationships as $rel) {
+                    if ($rel['fk_field'] === $attr['code']) {
+                        $isForeignKey = true;
+                        $fkRelationship = $rel;
+                        break;
+                    }
+                }
+            }
+
+            // Generate label
+            if ($isEntityIdField || $isPermissionTypeField || $isPositionField) {
+                $html .= '<label for="' . $attr['code'] . '" class="form-label">' . htmlspecialchars($attr['name']);
+                if ($required) {
+                    $html .= ' <span class="text-danger">*</span>';
+                }
+                $html .= '</label>';
+            } elseif ($isForeignKey && $fkRelationship) {
+                $targetEntityId = ($this->entity['id'] === $fkRelationship['from_entity_id'])
+                    ? $fkRelationship['to_entity_id']
+                    : $fkRelationship['from_entity_id'];
+
+                $targetEntity = EntityManager::getEntityById($targetEntityId);
+                if ($targetEntity) {
+                    $targetEntityUrl = '/entities/' . strtolower($targetEntity['code']) . '/list';
+                    $html .= '<label for="' . $attr['code'] . '" class="form-label">';
+                    $html .= '<a href="' . $targetEntityUrl . '" class="text-decoration-none" target="_blank" title="View ' . htmlspecialchars($targetEntity['name']) . ' list">';
+                    $html .= htmlspecialchars($attr['name']);
+                    $html .= ' <i class="bi bi-box-arrow-up-right" style="font-size: 0.8em;"></i>';
+                    $html .= '</a>';
+                    if ($required) {
+                        $html .= ' <span class="text-danger">*</span>';
+                    }
+                    $html .= '</label>';
+                } else {
+                    $html .= '<label for="' . $attr['code'] . '" class="form-label">' . htmlspecialchars($attr['name']);
+                    if ($required) {
+                        $html .= ' <span class="text-danger">*</span>';
+                    }
+                    $html .= '</label>';
+                }
+            } else {
+                $html .= '<label for="' . $attr['code'] . '" class="form-label">' . htmlspecialchars($attr['name']);
+                if ($required) {
+                    $html .= ' <span class="text-danger">*</span>';
+                }
+                $html .= '</label>';
+            }
+
+            // Generate field
+            if ($isEntityIdField) {
+                $html .= $this->generateEntityIdSelect($value, $required);
+            } elseif ($isPermissionTypeField) {
+                $html .= $this->generatePermissionTypeSelect($value, $required);
+            } elseif ($isPositionField) {
+                $html .= $this->generatePositionSelect($value, $required);
+            } elseif ($isForeignKey && $fkRelationship) {
+                $html .= $this->generateForeignKeySelect($fkRelationship, $value, $required);
+            } else {
+                $html .= $this->generateFormField($attr, $value, $required);
+            }
+
+            if ($attr['description']) {
+                $html .= '<div class="form-text">' . htmlspecialchars($attr['description']) . '</div>';
+            }
+
+            $html .= '</div>';
+        }
+
+        $html .= '</div>';
+
+        return $html;
+    }
+
+    /**
      * Generate form field based on attribute type
      */
     private function generateFormField($attr, $value, $required)

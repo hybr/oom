@@ -234,6 +234,30 @@ WHERE id = 'VC000007-0000-4000-8000-000000000001';
 
 ---
 
+## Step 4b: Configure Dynamic Forms (Optional)
+
+If you want tasks to display forms for multiple entities, configure the `form_entities` field:
+
+```sql
+-- Example: Show PERSON and ORGANIZATION forms along with the main entity
+UPDATE process_node
+SET form_entities = '["PERSON", "ORGANIZATION"]'
+WHERE node_code = 'DRAFT_VACANCY';
+```
+
+**How it works:**
+- When a task is opened, forms are dynamically generated for:
+  1. Main entity (from `task_flow_instance.entity_code`)
+  2. Any entities specified in `form_entities` array
+- All forms are displayed in sections with entity names as headers
+- Users can save drafts without validation or complete with full validation
+
+**Leave NULL or empty if:**
+- You only want to show the main entity form
+- The task doesn't need any forms (e.g., approval tasks)
+
+---
+
 ## Step 5: Verify Configuration
 
 ### Check All Nodes Have Positions

@@ -1,25 +1,20 @@
 -- =====================================================================
--- VACANCY CREATION PROCESS - Complete Workflow Definition
+-- VACANCY CREATION & APPROVAL PROCESS
 -- =====================================================================
--- This script defines a comprehensive job vacancy creation process
--- using the Process Flow System.
+-- A comprehensive workflow for creating and approving job vacancies
+-- with multi-level approvals and budget-based conditional routing.
 --
 -- PROCESS FLOW:
 -- START → Draft Vacancy → HR Review → Budget Check (DECISION)
---   ├─ High Budget → Finance Approval → Department Head Approval → Publish Vacancy → END
---   └─ Normal Budget → Department Head Approval → Publish Vacancy → END
+--   ├─ High Budget (>100000) → Finance Approval → Dept Head Approval → Publish → END
+--   └─ Normal Budget (≤100000) → Dept Head Approval → Publish → END
 --
--- Generated: 2025-10-23
+-- All approval steps support rejection loops back to Draft Vacancy for revision.
+--
+-- Created: 2025-10-26
 -- =====================================================================
 
--- NOTE: This process definition requires positions and permissions to be created first.
--- Run database/setup_vacancy_process.sql after migration to configure the process.
---
--- The following warnings during migration are EXPECTED and can be ignored:
--- - FOREIGN KEY constraint failed (positions/permissions don't exist yet)
--- - Warnings will disappear after running setup script
-
-PRAGMA foreign_keys = OFF;  -- Temporarily disable to allow process installation without positions
+PRAGMA foreign_keys = OFF;  -- Temporarily disable to allow installation without all positions
 
 -- =====================================================================
 -- STEP 1: Create Process Graph
@@ -39,14 +34,14 @@ INSERT INTO process_graph (
 VALUES (
     'VC000000-0000-4000-8000-000000000001',
     'VACANCY_CREATION',
-    'Job Vacancy Creation Process',
-    'Multi-step approval workflow for creating and publishing job vacancies with budget-based conditional routing',
+    'Vacancy Creation & Approval Process',
+    'Multi-step approval workflow for creating and publishing job vacancies with budget-based conditional routing and workstation assignment',
     '5a6b7c8d-9e0f-1a2b-3c4d-5e6f7a8b9c0d',  -- ORGANIZATION_VACANCY entity
     1,
     1,
     1,
     'HIRING',
-    '00000000-0000-4000-8000-000000000001'  -- System admin (replace with actual user ID)
+    '00000000-0000-4000-8000-000000000001'  -- System/Admin user (replace if needed)
 );
 
 -- =====================================================================
@@ -72,11 +67,11 @@ VALUES (
     'START',
     'Entry point for vacancy creation process',
     100,
-    100
+    200
 );
 
 -- Node 2: Draft Vacancy (TASK)
--- Assigned to: HR Manager with REQUEST permission
+-- Can be assigned to HR Manager OR Department Head (both have REQUEST permission)
 INSERT INTO process_node (
     id,
     graph_id,
@@ -90,12 +85,9 @@ INSERT INTO process_node (
     estimated_duration_hours,
     display_x,
     display_y,
-    form_template,
     instructions,
     notify_on_assignment,
-    notify_on_due,
-    escalate_after_hours,
-    escalate_to_position_id
+    notify_on_due
 )
 VALUES (
     'VC000002-0000-4000-8000-000000000001',
@@ -103,31 +95,29 @@ VALUES (
     'DRAFT_VACANCY',
     'Draft Vacancy Details',
     'TASK',
-    'Create initial vacancy draft with job description, requirements, and salary range',
-    'POS00001-0000-4000-8000-000000000001',  -- HR Manager position ID (configured by setup script)
-    'PERM0001-0000-4000-8000-000000000001',  -- REQUEST permission type ID (configured by setup script)
+    'Create or revise vacancy details including position, salary, and job description',
+    NULL,  -- Will be resolved via fallback or can be set to HR Manager position ID
+    NULL,  -- Will be resolved to REQUEST permission type ID
     48,    -- 48 hours SLA
     4,     -- Estimated 4 hours
     250,
-    100,
-    NULL,  -- form_template (use default form)
-    'Fill in all vacancy details including:
-- Position title and description
-- Key responsibilities
-- Required qualifications and skills
-- Salary range (min/max)
-- Number of openings
-- Opening and closing dates
-- Employment type
-- Mark as urgent if needed',
+    200,
+    'Create the vacancy draft with complete details:
+• Select the position (popular_position_id) - this determines department/team/designation
+• Enter vacancy title and detailed description
+• Specify requirements and responsibilities
+• Set number of openings
+• Define salary range (min_salary and max_salary)
+• Set opening and closing dates
+• Choose employment type
+• Mark as urgent if high priority
+
+The vacancy status will be DRAFT until approved.',
     1,
-    1,
-    72,    -- Escalate after 72 hours
-    'POS00001-0000-4000-8000-000000000001'   -- HR Manager position ID for escalation (configured by setup script)
+    1
 );
 
 -- Node 3: HR Review (TASK)
--- Assigned to: HR Manager with APPROVER permission
 INSERT INTO process_node (
     id,
     graph_id,
@@ -141,7 +131,6 @@ INSERT INTO process_node (
     estimated_duration_hours,
     display_x,
     display_y,
-    form_template,
     instructions,
     notify_on_assignment,
     notify_on_due
@@ -150,30 +139,30 @@ VALUES (
     'VC000003-0000-4000-8000-000000000001',
     'VC000000-0000-4000-8000-000000000001',
     'HR_REVIEW',
-    'HR Review',
+    'HR Compliance Review',
     'TASK',
-    'HR team reviews vacancy details for compliance and completeness',
-    'POS00001-0000-4000-8000-000000000001',  -- HR Manager position ID (configured by setup script)
-    'PERM0002-0000-4000-8000-000000000001',  -- APPROVER permission type ID (configured by setup script)
+    'HR team reviews vacancy for compliance, market alignment, and policy adherence',
+    NULL,  -- Set to HR Manager position ID
+    NULL,  -- Set to APPROVER permission type ID
     24,    -- 24 hours SLA
     2,     -- Estimated 2 hours
     400,
-    100,
-    NULL,  -- form_template (use default form)
-    'Review the vacancy details:
-- Verify job description clarity
-- Check salary range is within market standards
-- Ensure compliance with labor laws
-- Validate required qualifications are reasonable
-- Confirm employment type is correct
-- Check for discriminatory language
-Action: APPROVE to proceed or REJECT to send back for revision',
+    200,
+    'Review the vacancy draft for:
+• Compliance with labor laws and company policies
+• Job description clarity and non-discriminatory language
+• Salary range alignment with market standards and internal equity
+• Required qualifications are reasonable and job-related
+• Employment type is appropriate for the role
+
+Action:
+• APPROVE - Proceed to next approval step
+• REJECT - Send back for revision (provide specific feedback in comments)',
     1,
     1
 );
 
 -- Node 4: Budget Check (DECISION)
--- Conditional routing based on salary
 INSERT INTO process_node (
     id,
     graph_id,
@@ -188,15 +177,14 @@ VALUES (
     'VC000004-0000-4000-8000-000000000001',
     'VC000000-0000-4000-8000-000000000001',
     'BUDGET_CHECK',
-    'Budget Check Decision',
+    'Budget Threshold Decision',
     'DECISION',
-    'Route based on maximum salary threshold (>$100,000 requires finance approval)',
+    'Routes to Finance Approval if max_salary > 100000, otherwise skips to Department Head',
     550,
-    100
+    200
 );
 
 -- Node 5: Finance Approval (TASK)
--- Assigned to: Finance Manager with APPROVER permission
 INSERT INTO process_node (
     id,
     graph_id,
@@ -210,7 +198,6 @@ INSERT INTO process_node (
     estimated_duration_hours,
     display_x,
     display_y,
-    form_template,
     instructions,
     notify_on_assignment,
     notify_on_due
@@ -219,29 +206,31 @@ VALUES (
     'VC000005-0000-4000-8000-000000000001',
     'VC000000-0000-4000-8000-000000000001',
     'FINANCE_APPROVAL',
-    'Finance Approval',
+    'Finance Budget Approval',
     'TASK',
-    'Finance team approves budget allocation for high-value position',
-    'POS00002-0000-4000-8000-000000000001',  -- Finance Manager position ID (configured by setup script)
-    'PERM0002-0000-4000-8000-000000000001',  -- APPROVER permission type ID (configured by setup script)
+    'Finance reviews and approves budget allocation for high-value positions',
+    NULL,  -- Set to Finance Manager position ID
+    NULL,  -- Set to APPROVER permission type ID
     48,    -- 48 hours SLA
     3,     -- Estimated 3 hours
     700,
-    50,
-    NULL,  -- form_template (use default form)
-    'Review budget allocation for this position:
-- Verify budget availability
-- Check salary range against budget constraints
-- Confirm headcount allocation
-- Assess long-term financial impact
-- Review cost center assignment
-Action: APPROVE to proceed or REJECT to send back for revision',
+    100,
+    'Review budget allocation for this high-value position (max salary > 100000):
+• Verify budget availability in the appropriate cost center
+• Confirm salary range is within budget constraints
+• Validate headcount allocation
+• Assess long-term financial impact
+• Review fiscal year planning
+
+Action:
+• APPROVE - Proceed to Department Head approval
+• REJECT - Send back for budget revision (explain budget constraints in comments)',
     1,
     1
 );
 
 -- Node 6: Department Head Approval (TASK)
--- Assigned to: Department Head with APPROVER permission
+-- This task includes workstation assignment
 INSERT INTO process_node (
     id,
     graph_id,
@@ -255,7 +244,7 @@ INSERT INTO process_node (
     estimated_duration_hours,
     display_x,
     display_y,
-    form_template,
+    form_entities,
     instructions,
     notify_on_assignment,
     notify_on_due
@@ -266,27 +255,29 @@ VALUES (
     'DEPT_HEAD_APPROVAL',
     'Department Head Approval',
     'TASK',
-    'Department head gives final approval for the vacancy',
-    'POS00003-0000-4000-8000-000000000001',  -- Department Head position ID (configured by setup script)
-    'PERM0002-0000-4000-8000-000000000001',  -- APPROVER permission type ID (configured by setup script)
+    'Department head gives final approval and assigns workstation for the new hire',
+    NULL,  -- Set to Department Head position ID
+    NULL,  -- Set to APPROVER permission type ID
     48,    -- 48 hours SLA
     2,     -- Estimated 2 hours
     850,
-    100,
-    NULL,  -- form_template (use default form)
-    'Final review and approval of the vacancy:
-- Confirm department need for this position
-- Verify job description matches department requirements
-- Approve salary range
-- Confirm reporting structure
-- Validate workstation/location assignments
-Action: APPROVE to publish or REJECT to revise',
+    200,
+    '["ORGANIZATION_VACANCY_WORKSTATION"]',  -- Show workstation assignment form
+    'Final approval and workstation assignment:
+• Confirm department need for this position
+• Verify job description matches department requirements
+• Approve salary range
+• Confirm reporting structure
+• ASSIGN WORKSTATION: Select workstation where new hire will be seated
+
+Action:
+• APPROVE - Ready to publish vacancy
+• REJECT - Send back for changes (explain required changes in comments)',
     1,
     1
 );
 
 -- Node 7: Publish Vacancy (TASK)
--- Assigned to: HR Coordinator with IMPLEMENTOR permission
 INSERT INTO process_node (
     id,
     graph_id,
@@ -300,7 +291,6 @@ INSERT INTO process_node (
     estimated_duration_hours,
     display_x,
     display_y,
-    form_template,
     instructions,
     notify_on_assignment,
     notify_on_due
@@ -311,22 +301,22 @@ VALUES (
     'PUBLISH_VACANCY',
     'Publish Vacancy',
     'TASK',
-    'HR publishes the vacancy to job boards and internal systems',
-    'POS00004-0000-4000-8000-000000000001',  -- HR Coordinator position ID (configured by setup script)
-    'PERM0003-0000-4000-8000-000000000001',  -- IMPLEMENTOR permission type ID (configured by setup script)
+    'HR publishes the approved vacancy to make it active and visible to applicants',
+    NULL,  -- Set to HR Coordinator position ID
+    NULL,  -- Set to IMPLEMENTOR permission type ID
     24,    -- 24 hours SLA
     2,     -- Estimated 2 hours
     1000,
-    100,
-    NULL,  -- form_template (use default form)
+    200,
     'Publish the approved vacancy:
-- Update vacancy status to "Open"
-- Post to internal job board
-- Post to external job boards (if applicable)
-- Share on company social media
-- Notify relevant departments
-- Set up application tracking
-- Configure automated email responses
+• Update vacancy status to OPEN or APPROVED
+• Verify all required fields are complete
+• Post to internal job board
+• Post to external job boards (if applicable)
+• Share on company social media channels
+• Set up application tracking
+• Configure automated email responses for applicants
+
 Action: COMPLETE when published',
     1,
     1
@@ -349,9 +339,9 @@ VALUES (
     'END',
     'Vacancy Creation Complete',
     'END',
-    'Vacancy successfully created and published',
+    'Vacancy successfully created, approved, and published',
     1150,
-    100
+    200
 );
 
 -- =====================================================================
@@ -395,7 +385,7 @@ VALUES (
     'VC000003-0000-4000-8000-000000000001',  -- HR_REVIEW
     'Submit for Review',
     1,
-    'Submit draft to HR for review'
+    'Submit draft to HR for compliance review'
 );
 
 -- Edge 3: HR Review → Budget Check (when APPROVED)
@@ -416,7 +406,7 @@ VALUES (
     'VC000004-0000-4000-8000-000000000001',  -- BUDGET_CHECK
     'HR Approved',
     1,
-    1,  -- Default edge (fallback when no condition matches)
+    1,
     'HR approved, proceed to budget check'
 );
 
@@ -455,7 +445,7 @@ VALUES (
     'VC000000-0000-4000-8000-000000000001',
     'VC000004-0000-4000-8000-000000000001',  -- BUDGET_CHECK
     'VC000005-0000-4000-8000-000000000001',  -- FINANCE_APPROVAL
-    'High Budget (>$100k)',
+    'High Budget (>100k)',
     1,
     'High budget position requires finance approval'
 );
@@ -476,9 +466,9 @@ VALUES (
     'VC000000-0000-4000-8000-000000000001',
     'VC000004-0000-4000-8000-000000000001',  -- BUDGET_CHECK
     'VC000006-0000-4000-8000-000000000001',  -- DEPT_HEAD_APPROVAL
-    'Normal Budget (≤$100k)',
+    'Normal Budget (≤100k)',
     2,
-    1,  -- Default path
+    1,
     'Normal budget, skip finance approval'
 );
 
@@ -500,7 +490,7 @@ VALUES (
     'VC000006-0000-4000-8000-000000000001',  -- DEPT_HEAD_APPROVAL
     'Finance Approved',
     1,
-    1,  -- Default edge (fallback when no condition matches)
+    1,
     'Finance approved, proceed to department head'
 );
 
@@ -542,7 +532,7 @@ VALUES (
     'VC000007-0000-4000-8000-000000000001',  -- PUBLISH_VACANCY
     'Approved',
     1,
-    1,  -- Default edge (fallback when no condition matches)
+    1,
     'Department head approved, ready to publish'
 );
 
@@ -617,7 +607,6 @@ VALUES (
 );
 
 -- Condition 2: HR Review APPROVED condition
--- (Checks task completion action from HR_REVIEW task)
 INSERT INTO process_edge_condition (
     id,
     edge_id,
@@ -777,10 +766,23 @@ VALUES (
 -- END OF VACANCY CREATION PROCESS DEFINITION
 -- =====================================================================
 
--- Success message
-SELECT 'Vacancy Creation Process has been successfully created!' as message,
-       'VC000000-0000-4000-8000-000000000001' as graph_id,
-       'VACANCY_CREATION' as process_code,
-       8 as total_nodes,
-       11 as total_edges,
-       7 as total_conditions;
+PRAGMA foreign_keys = ON;  -- Re-enable foreign keys
+
+-- Verification query
+SELECT
+    'Vacancy Creation Process installed successfully!' as message,
+    'VC000000-0000-4000-8000-000000000001' as graph_id,
+    'VACANCY_CREATION' as process_code,
+    8 as total_nodes,
+    11 as total_edges,
+    7 as total_conditions;
+
+-- =====================================================================
+-- NEXT STEPS
+-- =====================================================================
+-- 1. Update position_id and permission_type_id in process_node table
+--    with actual IDs from your organization
+-- 2. Start a process: POST /api/process/start.php with graph_code='VACANCY_CREATION'
+-- 3. View tasks: Navigate to /pages/process/my-tasks.php
+-- 4. Monitor: Use /api/process/flow-status.php
+-- =====================================================================

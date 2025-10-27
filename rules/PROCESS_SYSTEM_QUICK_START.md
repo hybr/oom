@@ -10,9 +10,10 @@
 The Task-based Process Flow System has been successfully installed with:
 - **8 Database Tables** - All created and indexed
 - **4 Core Classes** - ProcessEngine, TaskManager, ConditionEvaluator, PositionResolver
-- **4 API Endpoints** - Start process, complete task, my tasks, flow status
-- **1 UI Page** - My Tasks inbox
+- **6 API Endpoints** - Start process, complete task, my tasks, flow status, get task form, save task data
+- **1 UI Page** - My Tasks inbox with dynamic form generation
 - **8 Entity Definitions** - All registered in the entity manager
+- **Dynamic Forms** - Forms automatically generated from entity metadata
 
 ## How It Works
 
@@ -44,6 +45,13 @@ You'll see three tabs:
 - **Pending** - Tasks waiting for you
 - **In Progress** - Tasks you're working on
 - **Completed** - Your finished tasks
+
+**Dynamic Forms:**
+- Click any task to open a modal with dynamically generated forms
+- Forms are automatically created from entity metadata
+- **Save Draft** - Save progress without validation (status → IN_PROGRESS)
+- **Complete** - Validate and complete task (status → COMPLETED)
+- Support for multiple entities per task
 
 ### 2. Create a Simple Process (SQL)
 
@@ -130,7 +138,21 @@ FROM process_graph pg
 JOIN process_node n1 ON n1.graph_id = pg.id AND n1.node_code = 'REVIEW_DOC'
 JOIN process_node n2 ON n2.graph_id = pg.id AND n2.node_code = 'END'
 WHERE pg.code = 'DOCUMENT_APPROVAL';
+
+-- Step 6: Configure Dynamic Forms (Optional)
+-- Show multiple entity forms when user opens the task
+UPDATE process_node
+SET form_entities = '["PERSON", "ORGANIZATION"]'
+WHERE node_code = 'REVIEW_DOC';
 ```
+
+**Dynamic Form Configuration:**
+- `form_entities` is a JSON array of entity codes
+- When a task is opened, forms are generated for:
+  1. Main entity (from flow instance)
+  2. Additional entities specified in `form_entities`
+- Leave NULL if you only want the main entity form
+- All forms support draft saving and validation
 
 ### 3. Start a Process (API)
 
@@ -332,8 +354,8 @@ AND ti.due_date < datetime('now');
 ### ✅ Installed Components
 - 8 Database tables with indexes
 - 4 PHP classes (ProcessEngine, TaskManager, ConditionEvaluator, PositionResolver)
-- 4 API endpoints (start, task-complete, my-tasks, flow-status)
-- 1 UI page (My Tasks)
+- 6 API endpoints (start, task-complete, my-tasks, flow-status, get-task-form, save-task-data)
+- 1 UI page (My Tasks with dynamic forms)
 - Complete documentation
 
 ### ✅ Features
@@ -346,6 +368,9 @@ AND ti.due_date < datetime('now');
 - Complete audit trail
 - Fallback assignments
 - Multi-organization support
+- **Dynamic Form Generation** - Forms auto-generated from entity metadata
+- **Draft Saving** - Save partial progress without validation
+- **Multi-Entity Forms** - Display multiple entity forms per task
 
 ### 🎯 Ready to Use!
 The system is fully functional and ready for process creation!

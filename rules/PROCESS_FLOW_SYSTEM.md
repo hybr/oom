@@ -42,10 +42,19 @@ A comprehensive task-based workflow engine with graph-based processes, position-
 ### TaskManager (`lib/TaskManager.php`)
 - Create task instances
 - Assign tasks based on positions
+- **Save task data** (partial saves without completion)
 - Complete tasks
 - Reassign tasks
 - Track SLA and escalation
 - Get user's tasks
+
+**Key Methods:**
+- `createTask()` - Create new task instance
+- `saveTaskData()` - Save form data without completing (transitions PENDING → IN_PROGRESS)
+- `completeTask()` - Complete task and advance workflow
+- `startTask()` - Manually start a task (PENDING → IN_PROGRESS)
+- `reassignTask()` - Reassign to different user
+- `getMyTasks()` - Get tasks for current user
 
 ### ConditionEvaluator (`lib/ConditionEvaluator.php`)
 - Evaluate structured conditions
@@ -91,13 +100,66 @@ A comprehensive task-based workflow engine with graph-based processes, position-
 ### Get Flow Status
 **GET** `/api/process/flow-status.php?flow_instance_id=uuid`
 
+### Get Task Form (Dynamic Form Generation)
+**GET** `/api/process/get-task-form.php?task_instance_id=uuid`
+
+Returns dynamically generated forms based on entity attributes. The system:
+1. Loads the main entity from `task_flow_instance.entity_code`
+2. Loads additional entities from `process_node.form_entities` (JSON array)
+3. Uses `PageGenerator::generateFormFields()` to create form HTML
+4. Pre-populates with existing `completion_data`
+
+**Response:**
+```json
+{
+  "success": true,
+  "task": {
+    "id": "uuid",
+    "node_name": "Review Application",
+    "instructions": "Please review...",
+    "status": "PENDING"
+  },
+  "form_sections": [
+    {
+      "entity_code": "ORGANIZATION_VACANCY",
+      "entity_name": "Organization Vacancy",
+      "form_html": "<div class='row'>...</div>"
+    }
+  ]
+}
+```
+
+### Save Task Data
+**POST** `/api/process/save-task-data.php`
+
+Supports both partial saves (drafts) and complete task submissions with validation.
+
+**Request:**
+```json
+{
+  "task_instance_id": "uuid",
+  "action": "save",  // or "complete"
+  "form_data": {"field1": "value1", "field2": "value2"},
+  "comments": "Optional comments",
+  "completion_action": "APPROVE"  // Required if action = "complete"
+}
+```
+
+**Behavior:**
+- **action = "save"**: Updates `completion_data`, sets status to `IN_PROGRESS` if `PENDING`, no validation
+- **action = "complete"**: Validates required fields, completes task, advances workflow
+
 ## UI Pages
 
 ### My Tasks (`/pages/process/my-tasks.php`)
-- View pending, in-progress, and completed tasks
-- Complete tasks with actions (APPROVE, REJECT, COMPLETE)
+- View pending, in-progress, and completed tasks with dynamic form loading
+- **Dynamic Forms**: Forms generated from entity metadata on task click
+- **Draft Saving**: Save partial progress without validation
+- **Task Completion**: Complete with full validation (APPROVE, REJECT, COMPLETE actions)
+- **Multi-Entity Forms**: Display forms for multiple related entities in sections
 - Filter by status
 - See due dates and overdue tasks
+- Visual indicators for overdue tasks
 
 ## Node Types
 
@@ -106,6 +168,8 @@ A comprehensive task-based workflow engine with graph-based processes, position-
    - Assigned based on position + permission
    - Has SLA and due dates
    - Can have instructions and form templates
+   - **Dynamic Form Generation**: Configure `form_entities` JSON field to specify additional entities to include in task forms
+   - **Draft Support**: Users can save partial progress without completing the task
 3. **DECISION** - Conditional routing (evaluates edges)
 4. **FORK** - Split into parallel tasks
 5. **JOIN** - Wait for parallel tasks to complete
@@ -226,11 +290,33 @@ VALUES ('cond1', 'edge3', 'ENTITY_FIELD', 'budget', 'GT', 'NUMBER', '10000');
 - Escalation on SLA breach
 - Fallback when position vacant
 
+### ✅ Dynamic Form Generation
+- Forms automatically generated from entity metadata
+- Multi-entity forms support via `process_node.form_entities` JSON field
+- Pre-population with existing data
+- Draft saving without validation
+- Client and server-side validation on completion
+- All field types supported (text, number, date, enum, foreign keys, etc.)
+
+**Example Configuration:**
+```sql
+-- Configure a task to show multiple entity forms
+UPDATE process_node
+SET form_entities = '["PERSON", "ORGANIZATION_VACANCY"]'
+WHERE node_code = 'REVIEW_APPLICATION';
+```
+
+This will generate forms for:
+1. Main entity (from `task_flow_instance.entity_code`)
+2. PERSON entity
+3. ORGANIZATION_VACANCY entity
+
 ## Database Migration
 
-Run the migration:
+Run the migrations:
 ```bash
-sqlite3 database/v4l.sqlite < metadata/010-process_flow_system.sql
+sqlite3 database/v4l.sqlite < metadata/011-process_flow_system.sql
+sqlite3 database/v4l.sqlite < metadata/012-add-form-entities-to-process-node.sql
 ```
 
 This creates:
@@ -239,6 +325,7 @@ This creates:
 - Sample attributes
 - Relationships
 - Indexes for performance
+- `form_entities` column for dynamic form configuration
 
 ## Next Steps
 
@@ -299,6 +386,14 @@ This creates:
 - All position resolution queries are wrapped in try-catch blocks
 - When position lookup fails, system falls back to organization main admin
 - This allows processes to run even without full vacancy/hiring workflow implementation
+
+### Dynamic Form Generation
+- `process_node.form_entities` stores JSON array of entity codes
+- Forms are generated using `PageGenerator::generateFormFields()` method
+- `completion_data` in `task_instance` stores form submissions as JSON
+- Task status transitions: `PENDING` → `IN_PROGRESS` (on first save) → `COMPLETED`
+- Validation only enforced on complete action, not on draft saves
+- Pre-population merges entity record data with existing `completion_data`
 
 ## Support
 

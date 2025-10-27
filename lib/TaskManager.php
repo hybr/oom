@@ -238,6 +238,110 @@ class TaskManager
     }
 
     /**
+     * Save task data without completing (partial save)
+     * Updates completion_data and sets status to IN_PROGRESS if currently PENDING
+     *
+     * @param string $taskInstanceId Task instance ID
+     * @param array $formData Form data to save
+     * @param string $userId Person ID saving the data
+     * @return array ['success' => bool, 'status' => string, 'error' => string]
+     */
+    public static function saveTaskData($taskInstanceId, $formData, $userId)
+    {
+        try {
+            Database::beginTransaction();
+
+            // Get task instance
+            $sql = "SELECT * FROM task_instance WHERE id = ? AND deleted_at IS NULL";
+            $task = Database::fetchOne($sql, [$taskInstanceId]);
+
+            if (!$task) {
+                throw new Exception("Task not found: {$taskInstanceId}");
+            }
+
+            // Verify user is assigned to this task
+            if ($task['assigned_to'] !== $userId) {
+                // Check if user has override permission (admin/supervisor)
+                if (!self::canOverrideTask($userId, $task['flow_instance_id'])) {
+                    throw new Exception("User not authorized to modify this task");
+                }
+            }
+
+            // Verify task is in valid state
+            if (!in_array($task['status'], ['PENDING', 'IN_PROGRESS'])) {
+                throw new Exception("Task cannot be modified from status: {$task['status']}");
+            }
+
+            // Merge with existing completion_data
+            $existingData = [];
+            if (!empty($task['completion_data'])) {
+                $existingData = json_decode($task['completion_data'], true);
+                if (!is_array($existingData)) {
+                    $existingData = [];
+                }
+            }
+            $mergedData = array_merge($existingData, $formData);
+
+            // Update status to IN_PROGRESS if currently PENDING
+            $newStatus = $task['status'];
+            if ($task['status'] === 'PENDING') {
+                $newStatus = 'IN_PROGRESS';
+            }
+
+            // Update task instance
+            $sql = "UPDATE task_instance
+                    SET completion_data = ?,
+                        status = ?,
+                        started_at = CASE WHEN started_at IS NULL THEN datetime('now') ELSE started_at END,
+                        updated_at = datetime('now')
+                    WHERE id = ?";
+
+            Database::execute($sql, [
+                json_encode($mergedData),
+                $newStatus,
+                $taskInstanceId
+            ]);
+
+            // Log save action if status changed
+            if ($newStatus !== $task['status']) {
+                self::logTaskAudit(
+                    $task['flow_instance_id'],
+                    $taskInstanceId,
+                    'TASK_UPDATE',
+                    $userId,
+                    $task['status'],
+                    $newStatus,
+                    'Task data saved - status changed to IN_PROGRESS'
+                );
+            } else {
+                self::logTaskAudit(
+                    $task['flow_instance_id'],
+                    $taskInstanceId,
+                    'TASK_UPDATE',
+                    $userId,
+                    null,
+                    null,
+                    'Task data saved'
+                );
+            }
+
+            Database::commit();
+
+            return [
+                'success' => true,
+                'status' => $newStatus
+            ];
+
+        } catch (Exception $e) {
+            Database::rollback();
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+
+    /**
      * Reassign a task to a different user
      */
     public static function reassignTask($taskInstanceId, $newAssigneeId, $reassignedBy, $reason = null)
