@@ -1,5 +1,24 @@
 # Entity Relationship Diagram (Text-Based)
 
+> **⚠️ DEPRECATED:** This file has been superseded by domain-specific relationship documentation.
+>
+> **Please use instead:** [`/rules/relationships/`](relationships/) directory
+>
+> **New structure:**
+> - [Relationships Overview](relationships/README.md)
+> - [Relationship Rules](relationships/RELATIONSHIP_RULES.md)
+> - [Person & Identity Domain](relationships/PERSON_IDENTITY_DOMAIN.md)
+> - [Geographic Domain](relationships/GEOGRAPHIC_DOMAIN.md)
+> - [Organization Domain](relationships/ORGANIZATION_DOMAIN.md)
+> - [Popular Organization Structure](relationships/POPULAR_ORGANIZATION_STRUCTURE.md)
+> - [Hiring & Vacancy Domain](relationships/HIRING_VACANCY_DOMAIN.md)
+> - [Process Flow Domain](relationships/PROCESS_FLOW_DOMAIN.md)
+> - [Permissions & Security Domain](relationships/PERMISSIONS_SECURITY_DOMAIN.md)
+>
+> **Migration Date:** 2025-10-31
+>
+> ---
+
 ## Overview
 
 This document provides a comprehensive text-based ER diagram of the entire system, organized by domain.
@@ -24,14 +43,16 @@ This document provides a comprehensive text-based ER diagram of the entire syste
 ```
 PERSON
 ├─ id* (PK)
+├─ name_prefix
 ├─ first_name*
-├─ last_name*
 ├─ middle_name?
+├─ last_name*
+├─ name_suffix
 ├─ date_of_birth?
 ├─ gender?
-├─ phone_number?
-├─ email?
-├─ photo_url?
+├─ primary_phone_number?
+├─ primary_email_address?
+├─ latest_photo?
 ├─ nationality?
 └─ blood_group?
 ```
@@ -148,15 +169,15 @@ ORGANIZATION → POSTAL_ADDRESS (1:Many)
 ORGANIZATION
 ├─ id* (PK)
 ├─ short_name*
-├─ full_name?
+├─ legal_category_id? (FK → PERSON)
 ├─ registration_number?
 ├─ tax_id?
 ├─ industry?
 ├─ description?
 ├─ logo_url?
 ├─ website?
-├─ email?
-├─ phone?
+├─ public_email_address?
+├─ public_phone_address?
 ├─ main_admin_id* (FK → PERSON) [Owner]
 ├─ founded_date?
 ├─ employee_count?
@@ -786,7 +807,7 @@ TASK_AUDIT_LOG (audit trail)
 
 ## NOTES
 
-1. **All entities** have standard audit fields: `id`, `created_at`, `updated_at`, `deleted_at`, `version_no`, `changed_by`
+1. **All entities** have standard audit fields: `id`, `created_at`, `updated_at`, `deleted_at`, `version_no`, `created_by`, `updated_by`
 
 2. **Foreign Keys** are implemented with soft deletes (`deleted_at IS NULL` checks)
 
