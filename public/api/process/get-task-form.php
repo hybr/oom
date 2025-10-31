@@ -108,12 +108,31 @@ try {
         exit;
     }
 
-    // Parse existing completion_data
+    // Load data from previous completed tasks in the same flow first
     $existingData = [];
+    $sql = "SELECT completion_data FROM task_instance
+            WHERE flow_instance_id = ?
+            AND status = 'COMPLETED'
+            AND completion_data IS NOT NULL
+            AND deleted_at IS NULL
+            ORDER BY completed_at ASC";
+    $previousTasks = Database::fetchAll($sql, [$task['flow_instance_id']]);
+
+    // Merge data from all previous tasks (earlier tasks first, so later tasks override)
+    foreach ($previousTasks as $prevTask) {
+        if (!empty($prevTask['completion_data'])) {
+            $prevData = json_decode($prevTask['completion_data'], true);
+            if (is_array($prevData)) {
+                $existingData = array_merge($existingData, $prevData);
+            }
+        }
+    }
+
+    // Then merge with current task's completion_data (highest priority)
     if (!empty($task['completion_data'])) {
-        $existingData = json_decode($task['completion_data'], true);
-        if (!is_array($existingData)) {
-            $existingData = [];
+        $currentData = json_decode($task['completion_data'], true);
+        if (is_array($currentData)) {
+            $existingData = array_merge($existingData, $currentData);
         }
     }
 

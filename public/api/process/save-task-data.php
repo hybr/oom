@@ -42,7 +42,7 @@ try {
     $personId = $user['person_id'];
 
     // Load task instance
-    $sql = "SELECT ti.*, tfi.entity_code
+    $sql = "SELECT ti.*, tfi.entity_code, tfi.graph_id
             FROM task_instance ti
             INNER JOIN task_flow_instance tfi ON ti.flow_instance_id = tfi.id
             WHERE ti.id = ? AND ti.deleted_at IS NULL";
@@ -80,8 +80,34 @@ try {
         ]);
 
     } elseif ($action === 'complete') {
-        // Complete - validate required fields first
-        $validationErrors = self::validateTaskData($task['entity_code'], $formData);
+        // Get entity codes for validation
+        $entityCodes = [];
+
+        // Add entity from task flow if available
+        if (!empty($task['entity_code'])) {
+            $entityCodes[] = $task['entity_code'];
+        }
+
+        // If no entity code, try to get from process graph
+        if (empty($entityCodes) && !empty($task['graph_id'])) {
+            $sql = "SELECT ed.code FROM process_graph pg
+                    LEFT JOIN entity_definition ed ON pg.entity_id = ed.id
+                    WHERE pg.id = ? AND pg.entity_id IS NOT NULL";
+            $graphEntity = Database::fetchOne($sql, [$task['graph_id']]);
+
+            if ($graphEntity && !empty($graphEntity['code'])) {
+                $entityCodes[] = $graphEntity['code'];
+            }
+        }
+
+        // Validate form data if entity codes are available
+        $validationErrors = [];
+        if (!empty($entityCodes)) {
+            foreach ($entityCodes as $entityCode) {
+                $errors = validateTaskData($entityCode, $formData);
+                $validationErrors = array_merge($validationErrors, $errors);
+            }
+        }
 
         if (!empty($validationErrors)) {
             http_response_code(400);

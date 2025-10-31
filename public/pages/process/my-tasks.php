@@ -210,6 +210,11 @@ async function showTaskDetail(taskId, event) {
 
         document.getElementById('taskModalBody').innerHTML = formHtml;
 
+        // Initialize autocomplete for dynamically loaded form fields
+        if (typeof initFKAutocomplete === 'function') {
+            initFKAutocomplete(document.getElementById('taskModalBody'));
+        }
+
         // Update footer with action buttons
         document.getElementById('taskModalFooter').innerHTML = `
             <button type="button" class="btn btn-secondary" onclick="saveTaskDraft()">

@@ -3,11 +3,20 @@
  * Handles autocomplete functionality for FK fields with 50+ options
  */
 
-document.addEventListener('DOMContentLoaded', function() {
+/**
+ * Initialize autocomplete for FK fields within a container
+ * @param {Element} container - Container element to search for autocomplete fields (defaults to document)
+ */
+function initFKAutocomplete(container = document) {
     // Find all FK autocomplete fields
-    const autocompleteFields = document.querySelectorAll('.fk-autocomplete');
+    const autocompleteFields = container.querySelectorAll('.fk-autocomplete');
 
     autocompleteFields.forEach(field => {
+        // Skip if already initialized
+        if (field.dataset.autocompleteInitialized === 'true') {
+            return;
+        }
+
         const fkField = field.dataset.fkField;
         const targetEntity = field.dataset.targetEntity;
         const hiddenInput = document.getElementById(fkField);
@@ -51,7 +60,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 suggestionsContainer.style.display = 'none';
             }
         });
+
+        // Mark as initialized
+        field.dataset.autocompleteInitialized = 'true';
     });
+}
+
+// Initialize on page load for static fields
+document.addEventListener('DOMContentLoaded', function() {
+    initFKAutocomplete();
 });
 
 /**
