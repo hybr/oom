@@ -41,11 +41,24 @@ START
   ↓
 [Draft Vacancy] (HR Manager OR Department Head - REQUEST)
   • Create ORGANIZATION_VACANCY with:
-    - organization_id, popular_position_id, created_by
-    - title, description, requirements, responsibilities
-    - number_of_openings, opening_date, closing_date
-    - min_salary, max_salary, employment_type
-    - status='DRAFT', is_urgent
+    REQUIRED FIELDS:
+    - organization_id (Organization)
+    - popular_position_id (Position - determines dept/team/designation)
+    - created_by (Creator)
+    - title (Vacancy Title)
+    - number_of_openings (How many positions)
+    - opening_date (When vacancy opens)
+    - status (Set to 'DRAFT')
+
+    OPTIONAL FIELDS:
+    - description (Detailed job description)
+    - requirements (Required qualifications)
+    - responsibilities (Key responsibilities)
+    - closing_date (Application deadline)
+    - min_salary (Minimum salary range)
+    - max_salary (Maximum salary range)
+    - employment_type (Full-time, Part-time, Contract, etc.)
+    - is_urgent (Priority flag)
   ↓
 [HR Review] (HR Manager - APPROVER, SLA: 24h)
   • Review compliance and salary ranges

@@ -103,14 +103,25 @@ VALUES (
     250,
     200,
     'Create the vacancy draft with complete details:
-• Select the position (popular_position_id) - this determines department/team/designation
-• Enter vacancy title and detailed description
-• Specify requirements and responsibilities
-• Set number of openings
-• Define salary range (min_salary and max_salary)
-• Set opening and closing dates
-• Choose employment type
-• Mark as urgent if high priority
+
+REQUIRED FIELDS:
+• Organization (organization_id) - The organization posting this vacancy
+• Position (popular_position_id) - This determines department/team/designation
+• Created By (created_by) - Person creating this vacancy
+• Vacancy Title (title) - Job title for this position
+• Number of Openings (number_of_openings) - How many positions are available
+• Opening Date (opening_date) - When the vacancy opens for applications
+• Status - Will be set to DRAFT automatically
+
+OPTIONAL FIELDS:
+• Description (description) - Detailed job description
+• Requirements (requirements) - Required qualifications and skills
+• Responsibilities (responsibilities) - Key responsibilities of the position
+• Closing Date (closing_date) - When applications will close
+• Minimum Salary (min_salary) - Minimum salary range
+• Maximum Salary (max_salary) - Maximum salary range
+• Employment Type (employment_type) - Full-time, Part-time, Contract, etc.
+• Is Urgent (is_urgent) - Mark as high priority if needed
 
 The vacancy status will be DRAFT until approved.',
     1,
