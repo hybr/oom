@@ -170,11 +170,7 @@ PERSON_CREDENTIAL
 ├─ password_hash*
 ├─ is_active*
 ├─ last_login?
-├─ failed_login_attempts?
-├─ otp_code?
-├─ otp_expiry?
-├─ otp_attempts?
-└─ otp_verified_at?
+└─ failed_login_attempts?
 ```
 
 ### Relationships
@@ -187,13 +183,6 @@ PERSON_CREDENTIAL
 - Passwords stored with Argon2ID hashing
 - Account lockout after failed attempts
 - Session-based authentication
-- OTP-based password recovery via email or phone
-  - `otp_code`: Hashed OTP for password recovery
-  - `otp_expiry`: Expiration timestamp for OTP validity
-  - `otp_attempts`: Counter for failed OTP verification attempts
-  - `otp_verified_at`: Timestamp when OTP was successfully verified
-  - OTP sent to PERSON.primary_email_address or PERSON.primary_phone_number
-  - Requires at least one contact method (email or phone) for password recovery
 
 ---
 

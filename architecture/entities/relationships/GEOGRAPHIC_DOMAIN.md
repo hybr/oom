@@ -17,19 +17,12 @@ The Geographic & Address domain provides location hierarchy (countries, states, 
 - CITY
 - POSTAL_ADDRESS
 
-**Reference Entities:** 3
-- CONTINENT
-- CURRENCY
-- TIMEZONE
-
 ---
 
 ## Hierarchical Structure
 
 ```
-CONTINENT (Root)
-  ↓ (1:Many)
-COUNTRY
+COUNTRY (Root)
   ↓ (1:Many)
 STATE/PROVINCE
   ↓ (1:Many)
@@ -38,10 +31,6 @@ DISTRICT/COUNTY
 CITY
   ↓ (Many:1)
 POSTAL_ADDRESS
-
-Reference Entities:
-- CURRENCY (Referenced by COUNTRY)
-- TIMEZONE (Referenced by COUNTRY)
 ```
 
 ---
@@ -52,28 +41,14 @@ Reference Entities:
 ```
 COUNTRY
 ├─ id* (PK)
-├─ name* (Human-readable country name)
-├─ code* (Short code, e.g., IND)
-├─ continent_id* (FK → CONTINENT)
-├─ iso_alpha2* (ISO 3166-1 alpha-2)
-├─ iso_alpha3* (ISO 3166-1 alpha-3)
-├─ iso_numeric? (ISO numeric code)
-├─ population? (Population estimate)
-├─ area_sq_km? (Area in square kilometers)
-├─ official_languages? (Comma-separated official languages)
-├─ currency_id? (FK → CURRENCY)
-├─ timezone_id? (FK → TIMEZONE)
-├─ gdp_in_usd? (GDP in USD)
-├─ flag_url? (URL to flag image)
-└─ description? (Free-text description)
+├─ name*
+├─ iso_code*
+└─ phone_code?
 ```
 
 ### Relationships
 ```
 COUNTRY
-  ← CONTINENT (Many:1) [via continent_id]
-  ← CURRENCY (Many:1) [via currency_id]
-  ← TIMEZONE (Many:1) [via timezone_id]
   → STATE (1:Many)
 ```
 
@@ -86,13 +61,8 @@ COUNTRY
 STATE/PROVINCE
 ├─ id* (PK)
 ├─ country_id* (FK → COUNTRY)
-├─ name* (State or province name)
-├─ code? (Optional state code)
-├─ population? (Population estimate)
-├─ area_sq_km? (Area in square kilometers)
-├─ gdp_in_usd? (GDP in USD)
-├─ capital? (Name of state capital)
-├─ description? (Free-text description)
+├─ name*
+├─ state_code*
 └─ is_active*
 ```
 
@@ -113,11 +83,8 @@ STATE
 DISTRICT/COUNTY
 ├─ id* (PK)
 ├─ state_id* (FK → STATE)
-├─ name* (Name of district or county)
-├─ code? (Optional district code)
-├─ population? (Population estimate)
-├─ area_sq_km? (Area in square kilometers)
-├─ description? (Free-text description)
+├─ name*
+├─ district_code*
 └─ is_active*
 ```
 
@@ -137,27 +104,16 @@ DISTRICT
 ```
 CITY
 ├─ id* (PK)
-├─ name* (Name of city or town)
-├─ code? (Optional city code)
 ├─ district_id* (FK → DISTRICT)
-├─ state_id* (FK → STATE)
-├─ country_id* (FK → COUNTRY)
-├─ population? (Population estimate)
-├─ area_sq_km? (Area in square kilometers)
-├─ latitude? (Decimal degrees)
-├─ longitude? (Decimal degrees)
-├─ timezone_id? (FK → TIMEZONE)
-├─ description? (Free-text description)
+├─ name*
+├─ city_code?
 └─ is_active*
 ```
 
 ### Relationships
 ```
 CITY
-  ← DISTRICT (Many:1) [via district_id]
-  ← STATE (Many:1) [via state_id]
-  ← COUNTRY (Many:1) [via country_id]
-  ← TIMEZONE (Many:1) [via timezone_id]
+  ← DISTRICT (Many:1)
   → POSTAL_ADDRESS (1:Many)
 ```
 
@@ -201,82 +157,16 @@ POSTAL_ADDRESS
 
 ---
 
-## Reference Entities
-
-### CONTINENT
-
-Represents major continental divisions of the world.
-
-**Structure:**
-```
-CONTINENT
-├─ id* (PK)
-├─ name*
-└─ code*
-```
-
-**Domain:** GEOGRAPHIC
-
-**Relationships:**
-- COUNTRY (1:Many) - Countries belong to continents
-
----
-
-### CURRENCY
-
-Represents world currencies used by countries.
-
-**Structure:**
-```
-CURRENCY
-├─ id* (PK)
-├─ name*
-├─ code* (ISO 4217 currency code, e.g., USD, EUR, INR)
-└─ symbol? (Currency symbol, e.g., $, €, ₹)
-```
-
-**Domain:** GEOGRAPHIC
-
-**Relationships:**
-- COUNTRY (1:Many) - Countries use currencies
-
----
-
-### TIMEZONE
-
-Represents time zones for countries.
-
-**Structure:**
-```
-TIMEZONE
-├─ id* (PK)
-├─ name* (e.g., "Asia/Kolkata", "America/New_York")
-├─ utc_offset* (e.g., "+05:30", "-05:00")
-└─ description? (Human-readable description)
-```
-
-**Domain:** GEOGRAPHIC
-
-**Relationships:**
-- COUNTRY (1:Many) - Countries may have primary timezones
-
----
-
 ## Complete Geographic Hierarchy
 
 ```
-CONTINENT (e.g., Asia)
+COUNTRY (e.g., United States)
   ↓
-COUNTRY (e.g., India)
-  ├─ Continent: Asia
-  ├─ Currency: Indian Rupee (INR)
-  └─ Timezone: Asia/Kolkata (UTC+05:30)
+STATE (e.g., California)
   ↓
-STATE (e.g., Maharashtra)
+DISTRICT (e.g., San Francisco County)
   ↓
-DISTRICT (e.g., Mumbai Suburban)
-  ↓
-CITY (e.g., Mumbai)
+CITY (e.g., San Francisco)
   ↓
 POSTAL_ADDRESS
   ├─ Person's home address
@@ -289,25 +179,10 @@ POSTAL_ADDRESS
 
 ## Relationship Details
 
-### CONTINENT → COUNTRY
-- **Type:** One-to-Many
-- **Constraint:** A country must belong to exactly one continent
-- **Cascade:** Updates cascaded, deletes restricted
-
 ### COUNTRY → STATE
 - **Type:** One-to-Many
 - **Constraint:** A state must belong to exactly one country
 - **Cascade:** Updates cascaded, deletes restricted
-
-### COUNTRY → CURRENCY
-- **Type:** Many-to-One (Optional)
-- **Constraint:** A country may reference one primary currency
-- **Note:** Countries can have multiple currencies in practice
-
-### COUNTRY → TIMEZONE
-- **Type:** Many-to-One (Optional)
-- **Constraint:** A country may reference one primary timezone
-- **Note:** Countries can span multiple timezones in practice
 
 ### STATE → DISTRICT
 - **Type:** One-to-Many
@@ -432,20 +307,12 @@ SELECT
     s.name as state,
     s.state_code,
     co.name as country,
-    co.code as country_code,
-    co.iso_alpha2,
-    co.iso_alpha3,
-    cont.name as continent,
-    curr.code as currency_code,
-    tz.name as timezone
+    co.iso_code as country_code
 FROM postal_address pa
 JOIN city c ON pa.city_id = c.id
 JOIN district d ON c.district_id = d.id
 JOIN state s ON d.state_id = s.id
 JOIN country co ON s.country_id = co.id
-LEFT JOIN continent cont ON co.continent_id = cont.id
-LEFT JOIN currency curr ON co.currency_id = curr.id
-LEFT JOIN timezone tz ON co.timezone_id = tz.id
 WHERE pa.id = ?
 AND pa.deleted_at IS NULL;
 ```
@@ -486,73 +353,27 @@ AND deleted_at IS NULL
 ORDER BY name;
 ```
 
-### Get Country with Details
-```sql
-SELECT
-    co.*,
-    cont.name as continent_name,
-    cont.code as continent_code,
-    curr.name as currency_name,
-    curr.code as currency_code,
-    curr.symbol as currency_symbol,
-    tz.name as timezone_name,
-    tz.utc_offset as timezone_offset
-FROM country co
-LEFT JOIN continent cont ON co.continent_id = cont.id
-LEFT JOIN currency curr ON co.currency_id = curr.id
-LEFT JOIN timezone tz ON co.timezone_id = tz.id
-WHERE co.id = ?
-AND co.deleted_at IS NULL;
-```
-
-### Get Countries by Continent
-```sql
-SELECT
-    co.name,
-    co.code,
-    co.iso_alpha2,
-    co.iso_alpha3,
-    co.population,
-    co.area_sq_km
-FROM country co
-WHERE co.continent_id = ?
-AND co.deleted_at IS NULL
-ORDER BY co.name;
-```
-
 ---
 
 ## Data Integrity Rules
 
 1. **Geographic Hierarchy Integrity:**
-   - Country must belong to a valid continent
-   - State must belong to a valid country
-   - District must belong to a valid state
    - City must belong to a valid district
+   - District must belong to a valid state
+   - State must belong to a valid country
    - Enforced at database level via foreign keys
 
-2. **ISO Code Uniqueness:**
-   - `iso_alpha2` must be unique across all countries
-   - `iso_alpha3` must be unique across all countries
-   - `code` must be unique for countries within system
-   - Enforced at database level via unique constraints
-
-3. **Exclusive Ownership:**
+2. **Exclusive Ownership:**
    - Address must belong to EITHER person OR organization
    - Validation: `(person_id IS NOT NULL AND organization_id IS NULL) OR (person_id IS NULL AND organization_id IS NOT NULL)`
 
-4. **Primary Address:**
+3. **Primary Address:**
    - Only one primary address per person/organization
    - Enforced at application level
 
-5. **Soft Deletes:**
+4. **Soft Deletes:**
    - Geographic entities use soft deletes
    - Inactive cities/districts/states marked with `is_active = 0`
-
-6. **Reference Data:**
-   - Continents, currencies, and timezones are system reference data
-   - Should be pre-populated and rarely changed
-   - Updates should be handled through migrations
 
 ---
 
@@ -565,5 +386,5 @@ ORDER BY co.name;
 
 ---
 
-**Last Updated:** 2025-11-04
+**Last Updated:** 2025-10-31
 **Domain:** Geographic & Address
