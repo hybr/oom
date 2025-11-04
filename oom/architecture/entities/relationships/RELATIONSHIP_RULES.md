@@ -544,9 +544,9 @@ For detailed relationships within each domain, see:
 
 ## Related Documentation
 
-- **Entity Creation Rules:** [/rules/ENTITY_CREATION_RULES.md](../ENTITY_CREATION_RULES.md)
+- **Entity Creation Rules:** [/architecture/entities/ENTITY_CREATION_RULES.md](../ENTITY_CREATION_RULES.md)
 - **All Domain Relationships:** [README.md](README.md)
-- **Migration Guide:** [/guides/MIGRATION_GUIDE.md](../../guides/MIGRATION_GUIDE.md)
+- **Migration Guide:** [/guides/database/MIGRATION_GUIDE.md](../../guides/database/MIGRATION_GUIDE.md)
 
 ---
 

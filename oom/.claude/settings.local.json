@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(move \"guides\\VACANCY_CREATION_PROCESS.md\" \"guides\\features\"\" && move \"guidesPOSTAL_ADDRESS_UPDATES.md\" \"guidesfeatures\"\")",
+      "Bash(move \"guides\\GEOCODING_SETUP.md\" \"guides\\features\"\" && move \"guidesORGANIZATION_MEMBERSHIP_PERMISSIONS.md\" \"guidesfeatures\"\")",
+      "Bash(mv:*)",
+      "Bash(cp:*)",
+      "Bash(rm:*)",
+      "Bash(find:*)",
+      "Bash(tree:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

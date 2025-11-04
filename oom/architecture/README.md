@@ -1,6 +1,6 @@
-# Rules Directory
+# Architecture Directory
 
-This directory contains **rules and reference documentation** for system design and development standards.
+This directory contains **architecture and reference documentation** for system design and development standards.
 
 ## Purpose
 
@@ -12,12 +12,11 @@ Rules files define:
 
 ## Files in This Directory
 
-### Entity Creation Rules
+### Entity Creation Rules (`entities/`)
 
 | File | Purpose |
 |------|---------|
-| `ENTITY_CREATION_RULES.md` | Complete rules for creating entity metadata files |
-| `ENTITY_QUICK_REFERENCE.md` | Quick reference cheat sheet for entities |
+| `entities/ENTITY_CREATION_RULES.md` | Complete rules for creating entity metadata files |
 
 **Use these when:**
 - Creating new entity definitions
@@ -25,13 +24,13 @@ Rules files define:
 - Defining relationships between entities
 - Setting up validation rules
 
-### Entity Relationships
+### Entity Relationships (`entities/relationships/`)
 
 | File | Purpose |
 |------|---------|
-| `relationships/` | **Directory containing domain-specific relationship documentation** |
-| `relationships/README.md` | Overview of all entity relationships by domain |
-| `relationships/RELATIONSHIP_RULES.md` | Unified rules for creating relationships |
+| `entities/relationships/` | **Directory containing domain-specific relationship documentation** |
+| `entities/relationships/README.md` | Overview of all entity relationships by domain |
+| `entities/relationships/RELATIONSHIP_RULES.md` | Unified rules for creating relationships |
 
 **Use these when:**
 - Understanding how entities relate to each other
@@ -39,14 +38,14 @@ Rules files define:
 - Troubleshooting data dependencies
 - Querying related entities
 
-**See also:** [`relationships/` directory](relationships/) for domain-specific documentation
+**See also:** [`entities/relationships/` directory](entities/relationships/) for domain-specific documentation
 
-### Process Flow System Rules
+### Process Flow System Rules (`processes/`)
 
 | File | Purpose |
 |------|---------|
-| `PROCESS_FLOW_SYSTEM.md` | Complete architecture and rules for workflow engine |
-| `PROCESS_SYSTEM_QUICK_START.md` | Quick reference for process system |
+| `processes/PROCESS_FLOW_SYSTEM.md` | Complete architecture and rules for workflow engine |
+| `processes/PROCESS_SYSTEM_QUICK_START.md` | Quick reference for process system |
 
 **Use these when:**
 - Designing new workflow processes
@@ -56,9 +55,9 @@ Rules files define:
 
 ---
 
-## Rules vs Guides
+## Architecture vs Guides
 
-### 📏 Rules (This Directory: `/rules`)
+### 📏 Architecture (This Directory: `/architecture`)
 
 **Purpose:** Standards, conventions, and architecture references
 
@@ -99,13 +98,13 @@ Rules files define:
 ## Quick Navigation
 
 ### Need to understand system architecture?
-**→ Read:** `/rules` files
+**→ Read:** `/architecture` files
 
 ### Need to implement a feature?
 **→ Read:** `/guides` files
 
 ### Need both?
-**→ Start with:** `/rules` for architecture understanding
+**→ Start with:** `/architecture` for architecture understanding
 **→ Then read:** `/guides` for implementation steps
 
 ---
@@ -114,33 +113,42 @@ Rules files define:
 
 ```
 oom/
-├── rules/                              ← YOU ARE HERE
+├── architecture/                       ← YOU ARE HERE
 │   ├── README.md                       ← This file
-│   ├── ENTITY_CREATION_RULES.md        ← Entity standards
-│   ├── ENTITY_QUICK_REFERENCE.md       ← Entity cheat sheet
-│   ├── ENTITY_RELATIONSHIP_DIAGRAM.md  ← (DEPRECATED - see relationships/)
-│   ├── PROCESS_FLOW_SYSTEM.md          ← Process architecture
-│   ├── PROCESS_SYSTEM_QUICK_START.md   ← Process reference
+│   ├── entities/                       ← Entity architecture
+│   │   ├── ENTITY_CREATION_RULES.md    ← Entity standards
+│   │   └── relationships/              ← Domain-specific relationships
+│   │       ├── README.md               ← Relationships overview
+│   │       ├── RELATIONSHIP_RULES.md   ← Unified relationship rules
+│   │       ├── PERSON_IDENTITY_DOMAIN.md
+│   │       ├── GEOGRAPHIC_DOMAIN.md
+│   │       ├── ORGANIZATION_DOMAIN.md
+│   │       ├── POPULAR_ORGANIZATION_STRUCTURE.md
+│   │       ├── HIRING_VACANCY_DOMAIN.md
+│   │       ├── PROCESS_FLOW_DOMAIN.md
+│   │       └── PERMISSIONS_SECURITY_DOMAIN.md
 │   │
-│   └── relationships/                  ← NEW: Domain-specific relationships
-│       ├── README.md                   ← Relationships overview
-│       ├── RELATIONSHIP_RULES.md       ← Unified relationship rules
-│       ├── PERSON_IDENTITY_DOMAIN.md   ← Person & identity relationships
-│       ├── GEOGRAPHIC_DOMAIN.md        ← Geographic relationships
-│       ├── ORGANIZATION_DOMAIN.md      ← Organization relationships
-│       ├── POPULAR_ORGANIZATION_STRUCTURE.md
-│       ├── HIRING_VACANCY_DOMAIN.md    ← Hiring relationships
-│       ├── PROCESS_FLOW_DOMAIN.md      ← Process flow relationships
-│       └── PERMISSIONS_SECURITY_DOMAIN.md
+│   └── processes/                      ← Process flow architecture
+│       ├── PROCESS_FLOW_SYSTEM.md      ← Process architecture
+│       └── PROCESS_SYSTEM_QUICK_START.md
 │
 └── guides/                             ← Implementation guides
     ├── README.md                       ← Guides overview
-    ├── INSTALL.md                      ← Installation guide
-    ├── QUICK_START.md                  ← Getting started
-    ├── MIGRATION_GUIDE.md              ← Database migrations
-    ├── VACANCY_CREATION_PROCESS.md     ← Vacancy workflow guide
-    ├── VACANCY_PROCESS_ENTITIES.md     ← Vacancy entities guide
-    └── ...                             ← More guides
+    ├── getting-started/
+    │   ├── V4L_INSTALL.md              ← Installation guide
+    │   └── V4L_QUICK_START.md          ← Getting started
+    ├── database/
+    │   ├── MIGRATION_GUIDE.md          ← Database migrations
+    │   ├── MIGRATION_UPDATE_SUMMARY.md
+    │   └── MIGRATION_FIXES_SUMMARY.md
+    ├── features/
+    │   ├── VACANCY_CREATION_PROCESS.md ← Vacancy workflow guide
+    │   ├── POSTAL_ADDRESS_UPDATES.md
+    │   ├── GEOCODING_SETUP.md
+    │   └── ORGANIZATION_MEMBERSHIP_PERMISSIONS.md
+    └── development/
+        ├── BUILD_SUMMARY.md
+        └── PROCESS_SETUP_GUIDE.md
 ```
 
 ---
@@ -155,9 +163,9 @@ Create a new rules file when:
 ### Template for New Rules Files
 
 ```markdown
-# [Component Name] - Rules and Architecture
+# [Component Name] - Architecture and Reference
 
-> **📚 Note:** This is a rules reference. For implementation guides, see the `/guides` folder.
+> **📚 Note:** This is an architecture reference. For implementation guides, see the `/guides` folder.
 
 ## Overview
 [Brief description of the component and its purpose]
@@ -206,7 +214,7 @@ Rules files are version-controlled in git:
 
 ## Summary
 
-**Rules Directory Purpose:**
+**Architecture Directory Purpose:**
 ✅ Define system architecture
 ✅ Document design patterns
 ✅ Provide technical references

@@ -1,6 +1,6 @@
 # Hiring & Vacancy Domain - Entity Relationships
 
-> **📚 Note:** This is a domain-specific relationship reference. For system-wide relationship rules, see `/rules/relationships/RELATIONSHIP_RULES.md`.
+> **📚 Note:** This is a domain-specific relationship reference. For system-wide relationship rules, see `/architecture/entities/relationships/RELATIONSHIP_RULES.md`.
 
 ---
 
@@ -554,10 +554,10 @@ JOB_OFFER created
 
 ## Related Documentation
 
-- **Entity Creation Rules:** [/rules/ENTITY_CREATION_RULES.md](../ENTITY_CREATION_RULES.md)
+- **Entity Creation Rules:** [/architecture/entities/ENTITY_CREATION_RULES.md](../ENTITY_CREATION_RULES.md)
 - **Relationship Rules:** [RELATIONSHIP_RULES.md](RELATIONSHIP_RULES.md)
-- **Vacancy Creation Guide:** [/guides/VACANCY_CREATION_PROCESS.md](../../guides/VACANCY_CREATION_PROCESS.md)
-- **Process Setup Guide:** [/guides/PROCESS_SETUP_GUIDE.md](../../guides/PROCESS_SETUP_GUIDE.md)
+- **Vacancy Creation Guide:** [/guides/features/VACANCY_CREATION_PROCESS.md](../../guides/features/VACANCY_CREATION_PROCESS.md)
+- **Process Setup Guide:** [/guides/development/PROCESS_SETUP_GUIDE.md](../../guides/development/PROCESS_SETUP_GUIDE.md)
 - **All Domain Relationships:** [README.md](README.md)
 
 ---

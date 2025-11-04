@@ -265,11 +265,11 @@ When adding new entities or relationships:
 
 ## Related Documentation
 
-- **Entity Creation Rules:** [/rules/ENTITY_CREATION_RULES.md](../ENTITY_CREATION_RULES.md)
-- **Process Flow System:** [/rules/PROCESS_FLOW_SYSTEM.md](../PROCESS_FLOW_SYSTEM.md)
-- **Quick References:** [/rules/PROCESS_SYSTEM_QUICK_START.md](../PROCESS_SYSTEM_QUICK_START.md)
+- **Entity Creation Rules:** [/architecture/entities/ENTITY_CREATION_RULES.md](../ENTITY_CREATION_RULES.md)
+- **Process Flow System:** [/architecture/processes/PROCESS_FLOW_SYSTEM.md](../PROCESS_FLOW_SYSTEM.md)
+- **Quick References:** [/architecture/processes/PROCESS_SYSTEM_QUICK_START.md](../PROCESS_SYSTEM_QUICK_START.md)
 - **Implementation Guides:** [/guides/](../../guides/)
-- **Main Rules Directory:** [/rules/README.md](../README.md)
+- **Main Rules Directory:** [/architecture/README.md](../README.md)
 
 ---
 

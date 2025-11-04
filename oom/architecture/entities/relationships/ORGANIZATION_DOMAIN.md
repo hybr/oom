@@ -1,6 +1,6 @@
 # Organization Domain - Entity Relationships
 
-> **📚 Note:** This is a domain-specific relationship reference. For system-wide relationship rules, see `/rules/relationships/RELATIONSHIP_RULES.md`.
+> **📚 Note:** This is a domain-specific relationship reference. For system-wide relationship rules, see `/architecture/entities/relationships/RELATIONSHIP_RULES.md`.
 
 ---
 
@@ -390,9 +390,9 @@ AND status = 'ACTIVE';
 
 ## Related Documentation
 
-- **Entity Creation Rules:** [/rules/ENTITY_CREATION_RULES.md](../ENTITY_CREATION_RULES.md)
+- **Entity Creation Rules:** [/architecture/entities/ENTITY_CREATION_RULES.md](../ENTITY_CREATION_RULES.md)
 - **Relationship Rules:** [RELATIONSHIP_RULES.md](RELATIONSHIP_RULES.md)
-- **Membership Guide:** [/guides/ORGANIZATION_MEMBERSHIP_PERMISSIONS.md](../../guides/ORGANIZATION_MEMBERSHIP_PERMISSIONS.md)
+- **Membership Guide:** [/guides/features/ORGANIZATION_MEMBERSHIP_PERMISSIONS.md](../../guides/features/ORGANIZATION_MEMBERSHIP_PERMISSIONS.md)
 - **All Domain Relationships:** [README.md](README.md)
 
 ---

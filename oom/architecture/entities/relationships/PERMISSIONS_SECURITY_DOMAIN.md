@@ -1,6 +1,6 @@
 # Permissions & Security Domain - Entity Relationships
 
-> **📚 Note:** This is a domain-specific relationship reference. For system-wide relationship rules, see `/rules/relationships/RELATIONSHIP_RULES.md`.
+> **📚 Note:** This is a domain-specific relationship reference. For system-wide relationship rules, see `/architecture/entities/relationships/RELATIONSHIP_RULES.md`.
 
 ---
 
@@ -451,9 +451,9 @@ INSERT INTO entity_permission_definition (
 
 ## Related Documentation
 
-- **Entity Creation Rules:** [/rules/ENTITY_CREATION_RULES.md](../ENTITY_CREATION_RULES.md)
+- **Entity Creation Rules:** [/architecture/entities/ENTITY_CREATION_RULES.md](../ENTITY_CREATION_RULES.md)
 - **Relationship Rules:** [RELATIONSHIP_RULES.md](RELATIONSHIP_RULES.md)
-- **Organization Membership:** [/guides/ORGANIZATION_MEMBERSHIP_PERMISSIONS.md](../../guides/ORGANIZATION_MEMBERSHIP_PERMISSIONS.md)
+- **Organization Membership:** [/guides/features/ORGANIZATION_MEMBERSHIP_PERMISSIONS.md](../../guides/features/ORGANIZATION_MEMBERSHIP_PERMISSIONS.md)
 - **Process Flow System:** [PROCESS_FLOW_DOMAIN.md](PROCESS_FLOW_DOMAIN.md)
 - **All Domain Relationships:** [README.md](README.md)
 

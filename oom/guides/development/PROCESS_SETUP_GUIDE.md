@@ -501,4 +501,4 @@ sqlite3 database/v4l.sqlite < database/setup_vacancy_process.sql
 
 🎉 **Your Vacancy Creation Process is now ready to use!**
 
-For usage instructions, see `/guides/VACANCY_CREATION_PROCESS.md`
+For usage instructions, see `/guides/features/VACANCY_CREATION_PROCESS.md`

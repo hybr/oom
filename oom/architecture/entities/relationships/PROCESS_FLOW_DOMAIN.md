@@ -1,6 +1,6 @@
 # Process Flow System - Entity Relationships
 
-> **📚 Note:** This is a domain-specific relationship reference. For system-wide relationship rules, see `/rules/relationships/RELATIONSHIP_RULES.md`.
+> **📚 Note:** This is a domain-specific relationship reference. For system-wide relationship rules, see `/architecture/entities/relationships/RELATIONSHIP_RULES.md`.
 
 ---
 
@@ -585,11 +585,11 @@ ORDER BY hours_overdue DESC;
 
 ## Related Documentation
 
-- **Entity Creation Rules:** [/rules/ENTITY_CREATION_RULES.md](../ENTITY_CREATION_RULES.md)
+- **Entity Creation Rules:** [/architecture/entities/ENTITY_CREATION_RULES.md](../ENTITY_CREATION_RULES.md)
 - **Relationship Rules:** [RELATIONSHIP_RULES.md](RELATIONSHIP_RULES.md)
-- **Process Flow Guide:** [/rules/PROCESS_FLOW_SYSTEM.md](../PROCESS_FLOW_SYSTEM.md)
-- **Quick Start:** [/rules/PROCESS_SYSTEM_QUICK_START.md](../PROCESS_SYSTEM_QUICK_START.md)
-- **Vacancy Process Example:** [/guides/VACANCY_CREATION_PROCESS.md](../../guides/VACANCY_CREATION_PROCESS.md)
+- **Process Flow Guide:** [/architecture/processes/PROCESS_FLOW_SYSTEM.md](../PROCESS_FLOW_SYSTEM.md)
+- **Quick Start:** [/architecture/processes/PROCESS_SYSTEM_QUICK_START.md](../PROCESS_SYSTEM_QUICK_START.md)
+- **Vacancy Process Example:** [/guides/features/VACANCY_CREATION_PROCESS.md](../../guides/features/VACANCY_CREATION_PROCESS.md)
 - **All Domain Relationships:** [README.md](README.md)
 
 ---
