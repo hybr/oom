@@ -10,7 +10,8 @@ The Geographic & Address domain provides location hierarchy (countries, states, 
 
 **Domain Code:** `GEOGRAPHIC`
 
-**Core Entities:** 5
+**Core Entities:** 6
+- CONTINENT
 - COUNTRY
 - STATE/PROVINCE
 - DISTRICT/COUNTY
@@ -18,7 +19,7 @@ The Geographic & Address domain provides location hierarchy (countries, states, 
 - POSTAL_ADDRESS
 
 **Reference Entities:** 3
-- CONTINENT
+- LANGUAGE
 - CURRENCY
 - TIMEZONE
 
@@ -40,13 +41,43 @@ CITY
 POSTAL_ADDRESS
 
 Reference Entities:
+- LANGUAGE (Referenced by COUNTRY)
 - CURRENCY (Referenced by COUNTRY)
-- TIMEZONE (Referenced by COUNTRY)
+- TIMEZONE (Referenced by COUNTRY, CITY)
 ```
 
 ---
 
-## 1. COUNTRY
+## 1. CONTINENT
+
+### Entity Structure
+```
+CONTINENT
+├─ id* (PK)
+├─ name* (Human-readable continent name)
+├─ code* (Short code for continent, e.g., AS, EU)
+├─ area_sq_km? (Geographic area in square kilometers)
+├─ population? (Total population estimate)
+├─ gdp_in_usd? (Aggregate GDP estimate in USD)
+└─ description? (Free-text description)
+```
+
+### Relationships
+```
+CONTINENT
+  → COUNTRY (1:Many)
+```
+
+**Notes:**
+- Root entity in the geographic hierarchy
+- Represents major continental divisions (Africa, Antarctica, Asia, Europe, North America, Oceania, South America)
+- System reference data, pre-populated and rarely changed
+- Both `name` and `code` must be unique
+- Updates should be handled through migrations
+
+---
+
+## 2. COUNTRY
 
 ### Entity Structure
 ```
@@ -75,11 +106,14 @@ COUNTRY
   ← CURRENCY (Many:1) [via currency_id]
   ← TIMEZONE (Many:1) [via timezone_id]
   → STATE (1:Many)
+  → LANGUAGE (1:Many) [Countries can have multiple languages]
+  → CURRENCY (1:Many) [Countries can have multiple currencies]
+  → TIMEZONE (1:Many) [Countries can span multiple timezones]
 ```
 
 ---
 
-## 2. STATE/PROVINCE
+## 3. STATE/PROVINCE
 
 ### Entity Structure
 ```
@@ -106,7 +140,7 @@ STATE
 
 ---
 
-## 3. DISTRICT/COUNTY
+## 4. DISTRICT/COUNTY
 
 ### Entity Structure
 ```
@@ -131,7 +165,7 @@ DISTRICT
 
 ---
 
-## 4. CITY
+## 5. CITY
 
 ### Entity Structure
 ```
@@ -163,7 +197,7 @@ CITY
 
 ---
 
-## 5. POSTAL_ADDRESS
+## 6. POSTAL_ADDRESS
 
 ### Entity Structure
 ```
@@ -203,22 +237,31 @@ POSTAL_ADDRESS
 
 ## Reference Entities
 
-### CONTINENT
+### LANGUAGE
 
-Represents major continental divisions of the world.
+Represents languages spoken in countries.
 
 **Structure:**
 ```
-CONTINENT
+LANGUAGE
 ├─ id* (PK)
-├─ name*
-└─ code*
+├─ name* (English name of the language)
+├─ code? (ISO language code, e.g., en, hi, fr)
+├─ native_name? (Native script name)
+├─ country_id? (FK → COUNTRY)
+└─ is_official? (1 if official language of the country)
 ```
 
 **Domain:** GEOGRAPHIC
 
 **Relationships:**
-- COUNTRY (1:Many) - Countries belong to continents
+- COUNTRY (Many:1) - Languages belong to countries
+
+**Notes:**
+- Represents both official and commonly spoken languages
+- Multiple languages can exist for a single country
+- `is_official` flag indicates government-recognized official status
+- ISO 639 language codes used where applicable
 
 ---
 
@@ -230,35 +273,55 @@ Represents world currencies used by countries.
 ```
 CURRENCY
 ├─ id* (PK)
-├─ name*
 ├─ code* (ISO 4217 currency code, e.g., USD, EUR, INR)
-└─ symbol? (Currency symbol, e.g., $, €, ₹)
+├─ name* (Currency full name, e.g., "Indian Rupee")
+├─ symbol? (Currency symbol, e.g., $, €, ₹)
+├─ country_id? (FK → COUNTRY)
+└─ exchange_rate_usd? (Reference exchange rate to USD)
 ```
 
 **Domain:** GEOGRAPHIC
 
 **Relationships:**
-- COUNTRY (1:Many) - Countries use currencies
+- COUNTRY (Many:1) - Currencies belong to countries
+- COUNTRY (1:Many via country.currency_id) - Countries may have a primary currency
+
+**Notes:**
+- ISO 4217 standard currency codes
+- `code` must be unique
+- Multiple currencies can exist for a single country
+- Primary currency referenced by COUNTRY.currency_id
+- Exchange rates are reference values and should be updated regularly
 
 ---
 
 ### TIMEZONE
 
-Represents time zones for countries.
+Represents time zones for countries and cities.
 
 **Structure:**
 ```
 TIMEZONE
 ├─ id* (PK)
-├─ name* (e.g., "Asia/Kolkata", "America/New_York")
-├─ utc_offset* (e.g., "+05:30", "-05:00")
-└─ description? (Human-readable description)
+├─ name* (IANA timezone name, e.g., "Asia/Kolkata", "America/New_York")
+├─ utc_offset* (UTC offset, e.g., "+05:30", "-05:00")
+├─ dst? (Daylight Saving Time flag, 1 if DST used)
+└─ country_id? (FK → COUNTRY)
 ```
 
 **Domain:** GEOGRAPHIC
 
 **Relationships:**
-- COUNTRY (1:Many) - Countries may have primary timezones
+- COUNTRY (Many:1) - Timezones belong to countries
+- COUNTRY (1:Many via country.timezone_id) - Countries may have a primary timezone
+- CITY (1:Many via city.timezone_id) - Cities may reference specific timezones
+
+**Notes:**
+- IANA Time Zone Database format
+- `name` must be unique
+- Multiple timezones can exist for a single country
+- Primary timezone referenced by COUNTRY.timezone_id
+- DST flag indicates if Daylight Saving Time is observed
 
 ---
 
@@ -269,14 +332,18 @@ CONTINENT (e.g., Asia)
   ↓
 COUNTRY (e.g., India)
   ├─ Continent: Asia
-  ├─ Currency: Indian Rupee (INR)
-  └─ Timezone: Asia/Kolkata (UTC+05:30)
+  ├─ Primary Currency: Indian Rupee (INR)
+  ├─ Primary Timezone: Asia/Kolkata (UTC+05:30)
+  ├─ Languages: Hindi (Official), English (Official), Tamil, Telugu, etc.
+  ├─ Currencies: INR
+  └─ Timezones: Asia/Kolkata
   ↓
 STATE (e.g., Maharashtra)
   ↓
 DISTRICT (e.g., Mumbai Suburban)
   ↓
 CITY (e.g., Mumbai)
+  ├─ Timezone: Asia/Kolkata (UTC+05:30)
   ↓
 POSTAL_ADDRESS
   ├─ Person's home address
@@ -308,6 +375,21 @@ POSTAL_ADDRESS
 - **Type:** Many-to-One (Optional)
 - **Constraint:** A country may reference one primary timezone
 - **Note:** Countries can span multiple timezones in practice
+
+### COUNTRY → LANGUAGE
+- **Type:** One-to-Many
+- **Constraint:** Languages reference their country via country_id
+- **Note:** Countries typically have multiple official and spoken languages
+
+### COUNTRY → CURRENCY (Reverse)
+- **Type:** One-to-Many
+- **Constraint:** Currencies reference their country via country_id
+- **Note:** Some countries have multiple currencies in circulation
+
+### COUNTRY → TIMEZONE (Reverse)
+- **Type:** One-to-Many
+- **Constraint:** Timezones reference their country via country_id
+- **Note:** Large countries may span multiple timezone regions
 
 ### STATE → DISTRICT
 - **Type:** One-to-Many
@@ -388,6 +470,40 @@ JOIN district d ON c.district_id = d.id
 JOIN state s ON d.state_id = s.id
 JOIN country co ON s.country_id = co.id
 WHERE pa.id = ?;
+```
+
+### Pattern 4: Country with Reference Entities
+Getting complete country information with all reference data:
+```sql
+SELECT
+    co.*,
+    cont.name as continent_name,
+    curr.code as primary_currency_code,
+    curr.symbol as primary_currency_symbol,
+    tz.name as primary_timezone_name,
+    tz.utc_offset as primary_timezone_offset,
+    GROUP_CONCAT(DISTINCT l.name) as languages,
+    GROUP_CONCAT(DISTINCT CASE WHEN l.is_official = 1 THEN l.name END) as official_languages
+FROM country co
+LEFT JOIN continent cont ON co.continent_id = cont.id
+LEFT JOIN currency curr ON co.currency_id = curr.id
+LEFT JOIN timezone tz ON co.timezone_id = tz.id
+LEFT JOIN language l ON l.country_id = co.id
+WHERE co.id = ?
+GROUP BY co.id;
+```
+
+### Pattern 5: Multiple Reference Entities per Country
+A country can have multiple languages, currencies, and timezones:
+```
+COUNTRY (Switzerland)
+  ├─ Languages:
+  │   ├─ German (Official)
+  │   ├─ French (Official)
+  │   ├─ Italian (Official)
+  │   └─ Romansh (Official)
+  ├─ Currency: Swiss Franc (CHF) [Primary]
+  └─ Timezone: Europe/Zurich [Primary]
 ```
 
 ---
@@ -520,6 +636,57 @@ AND co.deleted_at IS NULL
 ORDER BY co.name;
 ```
 
+### Get Languages by Country
+```sql
+SELECT
+    l.name,
+    l.code,
+    l.native_name,
+    l.is_official
+FROM language l
+WHERE l.country_id = ?
+AND l.deleted_at IS NULL
+ORDER BY l.is_official DESC, l.name;
+```
+
+### Get Official Languages for Country
+```sql
+SELECT
+    l.name,
+    l.code,
+    l.native_name
+FROM language l
+WHERE l.country_id = ?
+AND l.is_official = 1
+AND l.deleted_at IS NULL
+ORDER BY l.name;
+```
+
+### Get Currencies by Country
+```sql
+SELECT
+    c.code,
+    c.name,
+    c.symbol,
+    c.exchange_rate_usd
+FROM currency c
+WHERE c.country_id = ?
+AND c.deleted_at IS NULL
+ORDER BY c.code;
+```
+
+### Get Timezones by Country
+```sql
+SELECT
+    tz.name,
+    tz.utc_offset,
+    tz.dst
+FROM timezone tz
+WHERE tz.country_id = ?
+AND tz.deleted_at IS NULL
+ORDER BY tz.utc_offset;
+```
+
 ---
 
 ## Data Integrity Rules
@@ -550,9 +717,21 @@ ORDER BY co.name;
    - Inactive cities/districts/states marked with `is_active = 0`
 
 6. **Reference Data:**
-   - Continents, currencies, and timezones are system reference data
+   - Continents, languages, currencies, and timezones are system reference data
    - Should be pre-populated and rarely changed
    - Updates should be handled through migrations
+
+7. **Reference Entity Uniqueness:**
+   - LANGUAGE: `name` should be unique per country
+   - CURRENCY: `code` must be unique globally (ISO 4217)
+   - TIMEZONE: `name` must be unique globally (IANA)
+   - Enforced at database level via unique constraints
+
+8. **Foreign Key Relationships:**
+   - LANGUAGE.country_id → COUNTRY.id (Optional)
+   - CURRENCY.country_id → COUNTRY.id (Optional)
+   - TIMEZONE.country_id → COUNTRY.id (Optional)
+   - These allow reference entities to be associated with specific countries
 
 ---
 
@@ -565,5 +744,5 @@ ORDER BY co.name;
 
 ---
 
-**Last Updated:** 2025-11-04
+**Last Updated:** 2025-11-05
 **Domain:** Geographic & Address

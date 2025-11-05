@@ -42,10 +42,13 @@ ACTIONS: CREATE, READ, UPDATE, DELETE (or REQUEST, APPROVER, etc.)
 ```
 ENUM_ENTITY_PERMISSION_TYPE
 ├─ id* (PK)
-├─ code* [REQUEST, APPROVER, IMPLEMENTOR, REVIEWER, ADMIN]
-├─ name*
-└─ description?
+├─ code* (Unique permission type code)
+├─ name* (Display name)
+└─ description? (Purpose and use case)
 ```
+
+**Common Permission Type Codes:**
+`REQUEST`, `FEASIBLE_ANALYST`, `APPROVER`, `DESIGNER`, `DEVELOPER`, `TESTER`, `IMPLEMENTOR`, `SUPPORTER`, `REVIEWER`, `ADMIN`
 
 ### Relationships
 ```
@@ -56,13 +59,79 @@ ENUM_ENTITY_PERMISSION_TYPE
 
 ### Standard Permission Types
 
+#### Core Permission Types
+
 | Code | Name | Description | Use Case |
 |------|------|-------------|----------|
-| **REQUEST** | Requester | Can create/initiate requests | Start processes, create drafts |
-| **APPROVER** | Approver | Can approve or reject | Review and approve requests |
-| **IMPLEMENTOR** | Implementor | Can execute/implement | Publish, deploy, finalize |
+| **REQUESTER** | Requester | Can create/initiate requests | Start processes, create drafts, submit new items |
+| **FEASIBLE_ANALYST** | Feasibility Analyst | Can analyze feasibility and viability | Assess technical/business feasibility, provide estimates |
+| **APPROVER** | Approver | Can approve or reject | Review and approve/reject requests |
+| **DESIGNER** | Designer | Can design solutions | Create technical/visual designs, specifications |
+| **DEVELOPER** | Developer | Can develop/build | Write code, implement features |
+| **TESTER** | Tester | Can test and validate | Quality assurance, testing, bug reporting |
+| **IMPLEMENTOR** | Implementor | Can execute/implement | Publish, deploy, finalize, release to production |
+| **SUPPORTER** | Supporter | Can provide support | Handle issues, provide maintenance, user support |
 | **REVIEWER** | Reviewer | Can view and comment | Read-only review access |
-| **ADMIN** | Administrator | Full CRUD access | Entity administration |
+| **ADMINISTRATOR** | Administrator | Full CRUD access | Entity administration |
+
+#### Permission Type Categories
+
+**1. Initiation & Planning:**
+- `REQUESTR` - Start new work items
+- `FEASIBLE_ANALYST` - Assess viability
+
+**2. Approval & Decision:**
+- `APPROVER` - Approve/reject decisions
+
+**3. Design & Development:**
+- `DESIGNER` - Create designs
+- `DEVELOPER` - Build solutions
+- `TESTER` - Quality assurance
+
+**4. Deployment & Support:**
+- `IMPLEMENTOR` - Deploy to production
+- `SUPPORTER` - Ongoing support
+
+**5. Oversight:**
+- `REVIEWER` - Monitor and review
+- `ADMINSTRATOR` - Full control
+
+### Software Development Lifecycle Example
+
+**Entity: FEATURE_REQUEST**
+
+| Position | REQUEST | FEASIBLE_ANALYST | APPROVER | DESIGNER | DEVELOPER | TESTER | IMPLEMENTOR | SUPPORTER | REVIEWER |
+|----------|---------|------------------|----------|----------|-----------|--------|-------------|-----------|----------|
+| **Product Manager** | ✓ | ✓ | ✓ | - | - | - | - | - | ✓ |
+| **Technical Lead** | ✓ | ✓ | ✓ | ✓ | - | - | - | - | ✓ |
+| **Designer** | - | - | - | ✓ | - | - | - | - | ✓ |
+| **Senior Developer** | - | ✓ | - | - | ✓ | - | - | - | ✓ |
+| **Developer** | - | - | - | - | ✓ | - | - | - | ✓ |
+| **QA Engineer** | - | - | - | - | - | ✓ | - | - | ✓ |
+| **DevOps Engineer** | - | - | - | - | - | - | ✓ | - | ✓ |
+| **Support Engineer** | - | - | - | - | - | - | - | ✓ | ✓ |
+
+**Workflow:**
+```
+1. Product Manager creates FEATURE_REQUEST (REQUEST)
+   ↓
+2. Technical Lead performs feasibility analysis (FEASIBLE_ANALYST)
+   ↓
+3. Product Manager approves for development (APPROVER)
+   ↓
+4. Designer creates UI/UX designs (DESIGNER)
+   ↓
+5. Senior Developer assigns to Developer (DEVELOPER)
+   Developer implements the feature
+   ↓
+6. QA Engineer tests the feature (TESTER)
+   ↓
+7. DevOps Engineer deploys to production (IMPLEMENTOR)
+   ↓
+8. Support Engineer handles user issues (SUPPORTER)
+   ↓
+9. All roles can review progress (REVIEWER)
+```
 
 ---
 
@@ -323,9 +392,9 @@ AND deleted_at IS NULL;
 
 ---
 
-## Permission Matrix Example
+## Permission Matrix Examples
 
-### ORGANIZATION_VACANCY Entity
+### Example 1: ORGANIZATION_VACANCY Entity
 
 | Position | REQUEST | APPROVER | IMPLEMENTOR | REVIEWER |
 |----------|---------|----------|-------------|----------|
@@ -363,6 +432,62 @@ INSERT INTO entity_permission_definition VALUES
 -- Employee: Review only
 INSERT INTO entity_permission_definition VALUES
   (?, 'ORGANIZATION_VACANCY', 'REVIEWER', 'EMPLOYEE', 1);
+```
+
+### Example 2: SOFTWARE_PROJECT Entity (Full Development Lifecycle)
+
+| Position | REQUEST | FEASIBLE_ANALYST | APPROVER | DESIGNER | DEVELOPER | TESTER | IMPLEMENTOR | SUPPORTER |
+|----------|---------|------------------|----------|----------|-----------|--------|-------------|-----------|
+| **Product Manager** | ✓ | ✓ | ✓ | - | - | - | - | - |
+| **Tech Lead** | ✓ | ✓ | ✓ | ✓ | ✓ | - | - | - |
+| **UI/UX Designer** | - | - | - | ✓ | - | - | - | - |
+| **Senior Developer** | - | ✓ | - | ✓ | ✓ | - | - | - |
+| **Developer** | - | - | - | - | ✓ | - | - | - |
+| **QA Engineer** | - | - | - | - | - | ✓ | - | - |
+| **DevOps Engineer** | - | - | - | - | - | - | ✓ | - |
+| **Support Engineer** | - | - | - | - | - | - | - | ✓ |
+
+**Implementation:**
+```sql
+-- Product Manager: Initiate and approve
+INSERT INTO entity_permission_definition VALUES
+  (?, 'SOFTWARE_PROJECT', 'REQUEST', 'PRODUCT_MANAGER', 1),
+  (?, 'SOFTWARE_PROJECT', 'FEASIBLE_ANALYST', 'PRODUCT_MANAGER', 1),
+  (?, 'SOFTWARE_PROJECT', 'APPROVER', 'PRODUCT_MANAGER', 1);
+
+-- Tech Lead: Full development oversight
+INSERT INTO entity_permission_definition VALUES
+  (?, 'SOFTWARE_PROJECT', 'REQUEST', 'TECH_LEAD', 1),
+  (?, 'SOFTWARE_PROJECT', 'FEASIBLE_ANALYST', 'TECH_LEAD', 1),
+  (?, 'SOFTWARE_PROJECT', 'APPROVER', 'TECH_LEAD', 1),
+  (?, 'SOFTWARE_PROJECT', 'DESIGNER', 'TECH_LEAD', 1),
+  (?, 'SOFTWARE_PROJECT', 'DEVELOPER', 'TECH_LEAD', 1);
+
+-- Designer: Design work only
+INSERT INTO entity_permission_definition VALUES
+  (?, 'SOFTWARE_PROJECT', 'DESIGNER', 'UI_UX_DESIGNER', 1);
+
+-- Senior Developer: Analysis and development
+INSERT INTO entity_permission_definition VALUES
+  (?, 'SOFTWARE_PROJECT', 'FEASIBLE_ANALYST', 'SENIOR_DEVELOPER', 1),
+  (?, 'SOFTWARE_PROJECT', 'DESIGNER', 'SENIOR_DEVELOPER', 1),
+  (?, 'SOFTWARE_PROJECT', 'DEVELOPER', 'SENIOR_DEVELOPER', 1);
+
+-- Developer: Development only
+INSERT INTO entity_permission_definition VALUES
+  (?, 'SOFTWARE_PROJECT', 'DEVELOPER', 'DEVELOPER', 1);
+
+-- QA Engineer: Testing only
+INSERT INTO entity_permission_definition VALUES
+  (?, 'SOFTWARE_PROJECT', 'TESTER', 'QA_ENGINEER', 1);
+
+-- DevOps Engineer: Deployment only
+INSERT INTO entity_permission_definition VALUES
+  (?, 'SOFTWARE_PROJECT', 'IMPLEMENTOR', 'DEVOPS_ENGINEER', 1);
+
+-- Support Engineer: Support only
+INSERT INTO entity_permission_definition VALUES
+  (?, 'SOFTWARE_PROJECT', 'SUPPORTER', 'SUPPORT_ENGINEER', 1);
 ```
 
 ---
@@ -419,7 +544,32 @@ INSERT INTO entity_permission_definition VALUES
 
 ---
 
-## Adding New Permission Types
+## Initializing Permission Types
+
+### Standard Permission Types Setup
+
+To initialize all standard permission types in your system:
+
+```sql
+-- Create standard permission types for full development lifecycle
+INSERT INTO enum_entity_permission_type (id, code, name, description) VALUES
+  (lower(hex(randomblob(16))), 'REQUEST', 'Requester', 'Can create and initiate new requests'),
+  (lower(hex(randomblob(16))), 'FEASIBLE_ANALYST', 'Feasibility Analyst', 'Can analyze technical and business feasibility, provide estimates'),
+  (lower(hex(randomblob(16))), 'APPROVER', 'Approver', 'Can approve or reject requests and decisions'),
+  (lower(hex(randomblob(16))), 'DESIGNER', 'Designer', 'Can create technical/visual designs and specifications'),
+  (lower(hex(randomblob(16))), 'DEVELOPER', 'Developer', 'Can develop and implement software solutions'),
+  (lower(hex(randomblob(16))), 'TESTER', 'Tester', 'Can test, validate quality, and report bugs'),
+  (lower(hex(randomblob(16))), 'IMPLEMENTOR', 'Implementor', 'Can deploy, publish, and release to production'),
+  (lower(hex(randomblob(16))), 'SUPPORTER', 'Supporter', 'Can provide ongoing support and maintenance'),
+  (lower(hex(randomblob(16))), 'REVIEWER', 'Reviewer', 'Can view, monitor, and provide feedback'),
+  (lower(hex(randomblob(16))), 'ADMIN', 'Administrator', 'Full administrative access to all features');
+```
+
+**Note:** The `REQUEST` permission type is the code used in the database, while "Requester" is the display name shown to users.
+
+---
+
+## Adding Custom Permission Types
 
 To add a custom permission type:
 
@@ -459,5 +609,5 @@ INSERT INTO entity_permission_definition (
 
 ---
 
-**Last Updated:** 2025-10-31
+**Last Updated:** 2025-11-05
 **Domain:** Permissions & Security
