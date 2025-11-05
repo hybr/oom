@@ -95,7 +95,7 @@ COUNTRY
 ├─ currency_id? (FK → CURRENCY)
 ├─ timezone_id? (FK → TIMEZONE)
 ├─ gdp_in_usd? (GDP in USD)
-├─ flag_url? (URL to flag image)
+├─ flag_media_file_id? (FK → MEDIA_FILE)
 └─ description? (Free-text description)
 ```
 
@@ -105,6 +105,7 @@ COUNTRY
   ← CONTINENT (Many:1) [via continent_id]
   ← CURRENCY (Many:1) [via currency_id]
   ← TIMEZONE (Many:1) [via timezone_id]
+  ← MEDIA_FILE (Many:1) [via flag_media_file_id] - Flag image
   → STATE (1:Many)
   → LANGUAGE (1:Many) [Countries can have multiple languages]
   → CURRENCY (1:Many) [Countries can have multiple currencies]
@@ -429,6 +430,12 @@ ORGANIZATION_BUILDING → POSTAL_ADDRESS (1:1 via FK)
 ```
 See: [ORGANIZATION_DOMAIN.md](ORGANIZATION_DOMAIN.md)
 
+### To Media & File Domain
+```
+COUNTRY ← MEDIA_FILE (Many:1) [via flag_media_file_id]
+```
+See: [MEDIA_FILE_DOMAIN.md](MEDIA_FILE_DOMAIN.md)
+
 ---
 
 ## Common Patterns
@@ -740,6 +747,7 @@ ORDER BY tz.utc_offset;
 - **Entity Creation Rules:** [/architecture/entities/ENTITY_CREATION_RULES.md](../ENTITY_CREATION_RULES.md)
 - **Relationship Rules:** [RELATIONSHIP_RULES.md](RELATIONSHIP_RULES.md)
 - **Guides:** [/guides/features/GEOCODING_SETUP.md](../../guides/features/GEOCODING_SETUP.md)
+- **Media & File Management:** [MEDIA_FILE_DOMAIN.md](MEDIA_FILE_DOMAIN.md)
 - **All Domain Relationships:** [README.md](README.md)
 
 ---

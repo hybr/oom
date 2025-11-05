@@ -44,7 +44,7 @@ PERSON
 ├─ gender? (FK → ENUM_GENDER)
 ├─ primary_phone_number?
 ├─ primary_email_address?
-├─ latest_photo?
+├─ profile_picture_media_file_id? (FK → MEDIA_FILE)
 ├─ nationality? (FK → COUNTRY)
 └─ blood_group? (FK → ENUM_BLOOD_GROUP)
 ```
@@ -54,9 +54,10 @@ PERSON
 **Outbound Relationships (PERSON → Other Entities)**
 ```
 PERSON
-  → ENUM_GENDER (Many:1) [via gender]
-  → COUNTRY (Many:1) [via nationality]
-  → ENUM_BLOOD_GROUP (Many:1) [via blood_group]
+  ← ENUM_GENDER (Many:1) [via gender]
+  ← COUNTRY (Many:1) [via nationality]
+  ← ENUM_BLOOD_GROUP (Many:1) [via blood_group]
+  ← MEDIA_FILE (Many:1) [via profile_picture_media_file_id] - Profile picture
   → PERSON_CREDENTIAL (1:Many)
   → PERSON_EDUCATION (1:Many)
   → PERSON_SKILL (1:Many)
@@ -359,6 +360,23 @@ PERSON → TASK_AUDIT_LOG (1:Many) [as actor_id]
 ```
 See: [PROCESS_FLOW_DOMAIN.md](PROCESS_FLOW_DOMAIN.md)
 
+### To Media & File Domain
+```
+PERSON ← MEDIA_FILE (Many:1) [via profile_picture_media_file_id]
+```
+See: [MEDIA_FILE_DOMAIN.md](MEDIA_FILE_DOMAIN.md)
+
+**Note:** Persons can also have multiple files via polymorphic relationship:
+```
+MEDIA_FILE (where entity_type='PERSON' and entity_id=person.id)
+  → Profile Pictures (field_context='PROFILE_PICTURE')
+  → Cover Photos (field_context='COVER_PHOTO')
+  → Resumes (field_context='RESUME')
+  → Portfolios (field_context='PORTFOLIO')
+  → Certificates (field_context='CERTIFICATE')
+  → ID Documents (field_context='ID_DOCUMENT')
+```
+
 ---
 
 ## Relationship Diagram
@@ -495,9 +513,10 @@ WHERE subj.name = 'Computer Science'
 
 - **Entity Creation Rules:** [/architecture/entities/ENTITY_CREATION_RULES.md](../ENTITY_CREATION_RULES.md)
 - **Relationship Rules:** [RELATIONSHIP_RULES.md](RELATIONSHIP_RULES.md)
+- **Media & File Management:** [MEDIA_FILE_DOMAIN.md](MEDIA_FILE_DOMAIN.md)
 - **All Domain Relationships:** [README.md](README.md)
 
 ---
 
-**Last Updated:** 2025-11-01
+**Last Updated:** 2025-11-05
 **Domain:** Person & Identity

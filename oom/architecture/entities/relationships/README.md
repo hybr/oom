@@ -13,7 +13,7 @@ This directory organizes entity relationships by business domain, making it easi
 ## Directory Structure
 
 ```
-rules/relationships/
+relationships/
 ├── README.md (this file)
 ├── RELATIONSHIP_RULES.md (unified rules reference)
 │
@@ -24,7 +24,8 @@ rules/relationships/
 ├── POPULAR_ORGANIZATION_STRUCTURE.md
 ├── HIRING_VACANCY_DOMAIN.md
 ├── PROCESS_FLOW_DOMAIN.md
-└── PERMISSIONS_SECURITY_DOMAIN.md
+├── PERMISSIONS_SECURITY_DOMAIN.md
+└── MEDIA_FILE_DOMAIN.md
 ```
 
 ---
@@ -35,13 +36,14 @@ rules/relationships/
 
 | Domain | File | Core Entities | Purpose |
 |--------|------|---------------|---------|
-| **Person & Identity** | [PERSON_IDENTITY_DOMAIN.md](PERSON_IDENTITY_DOMAIN.md) | 4 entities | User profiles, credentials, education, skills |
+| **Person & Identity** | [PERSON_IDENTITY_DOMAIN.md](PERSON_IDENTITY_DOMAIN.md) | 5 entities | User profiles, credentials, education, skills |
 | **Geographic** | [GEOGRAPHIC_DOMAIN.md](GEOGRAPHIC_DOMAIN.md) | 4 entities | Countries, states, cities, addresses |
 | **Organization** | [ORGANIZATION_DOMAIN.md](ORGANIZATION_DOMAIN.md) | 7 entities | Organizations, admins, branches, buildings, workstations |
-| **Popular Org Structure** | [POPULAR_ORGANIZATION_STRUCTURE.md](POPULAR_ORGANIZATION_STRUCTURE.md) | 4 entities | Departments, teams, designations, positions (templates) |
+| **Popular Org Structure** | [POPULAR_ORGANIZATION_STRUCTURE.md](POPULAR_ORGANIZATION_STRUCTURE.md) | 9 entities | Industries, legal types, departments, teams, positions (reference data) |
 | **Hiring & Vacancy** | [HIRING_VACANCY_DOMAIN.md](HIRING_VACANCY_DOMAIN.md) | 8 entities | Vacancies, applications, interviews, offers, contracts |
 | **Process Flow** | [PROCESS_FLOW_DOMAIN.md](PROCESS_FLOW_DOMAIN.md) | 8 entities | Workflow engine, task management, audit trails |
 | **Permissions** | [PERMISSIONS_SECURITY_DOMAIN.md](PERMISSIONS_SECURITY_DOMAIN.md) | 2 entities | Position-based access control |
+| **Media & Files** | [MEDIA_FILE_DOMAIN.md](MEDIA_FILE_DOMAIN.md) | 2 entities | File uploads, versioning, access control, storage management |
 
 ### By Purpose
 
@@ -54,13 +56,14 @@ rules/relationships/
 - **Recruitment process?** → [HIRING_VACANCY_DOMAIN.md](HIRING_VACANCY_DOMAIN.md)
 - **Workflow system?** → [PROCESS_FLOW_DOMAIN.md](PROCESS_FLOW_DOMAIN.md)
 - **Access control?** → [PERMISSIONS_SECURITY_DOMAIN.md](PERMISSIONS_SECURITY_DOMAIN.md)
+- **File uploads & storage?** → [MEDIA_FILE_DOMAIN.md](MEDIA_FILE_DOMAIN.md)
 
 ---
 
 ## Domain Summary
 
 ### 1. Person & Identity Domain
-**Entities:** PERSON, PERSON_CREDENTIAL, PERSON_EDUCATION, PERSON_SKILLS
+**Entities:** PERSON, PERSON_CREDENTIAL, PERSON_EDUCATION, PERSON_EDUCATION_SUBJECT, PERSON_SKILL
 
 **Purpose:** Core user profiles and authentication
 
@@ -83,7 +86,7 @@ rules/relationships/
 ---
 
 ### 3. Organization Domain
-**Entities:** ORGANIZATION, ORGANIZATION_ADMIN, ORGANIZATION_BRANCH, ORGANIZATION_BUILDING, WORKSTATION, etc.
+**Entities:** ORGANIZATION, ORGANIZATION_ADMIN, ORGANIZATION_BRANCH, ORGANIZATION_BUILDING, WORKSTATION, POSTAL_ADDRESS, EMPLOYMENT_CONTRACT
 
 **Purpose:** Organizational structure and membership
 
@@ -95,11 +98,13 @@ rules/relationships/
 ---
 
 ### 4. Popular Organization Structure
-**Entities:** POPULAR_ORGANIZATION_DEPARTMENTS, POPULAR_ORGANIZATION_DEPARTMENT_TEAMS, POPULAR_ORGANIZATION_DESIGNATION, POPULAR_ORGANIZATION_POSITION
+**Entities:** POPULAR_INDUSTRY_CATEGORY, POPULAR_ORGANIZATION_LEGAL_TYPES, POPULAR_ORGANIZATION_DEPARTMENTS, POPULAR_ORGANIZATION_DEPARTMENT_TEAMS, POPULAR_ORGANIZATION_DESIGNATION, POPULAR_ORGANIZATION_POSITION, POPULAR_ORGANIZATION_POSITION_SKILL, POPULAR_ORGANIZATION_POSITION_EDUCATION, POPULAR_ORGANIZATION_POSITION_EDUCATION_SUBJECT
 
-**Purpose:** Reusable position templates
+**Purpose:** Reusable reference data for organizational structures
 
 **Key Relationships:**
+- Industry categories (hierarchical)
+- Legal entity types by country
 - Department → Teams → Positions
 - Position = Department + Team + Designation
 - Used by: Vacancies, Employment Contracts, Process Nodes
@@ -107,18 +112,20 @@ rules/relationships/
 ---
 
 ### 5. Hiring & Vacancy Domain
-**Entities:** ORGANIZATION_VACANCY, VACANCY_APPLICATION, APPLICATION_REVIEW, APPLICATION_INTERVIEW, JOB_OFFER, EMPLOYMENT_CONTRACT, etc.
+**Entities:** ORGANIZATION_VACANCY, ORGANIZATION_VACANCY_WORKSTATION, VACANCY_APPLICATION, APPLICATION_REVIEW, APPLICATION_INTERVIEW, INTERVIEW_STAGE, JOB_OFFER, EMPLOYMENT_CONTRACT
 
 **Purpose:** Complete recruitment lifecycle
 
 **Key Relationships:**
 - Vacancy → Applications → Reviews → Interviews → Offer → Contract
+- Vacancy ← Position (reference data)
+- Vacancy → Workstations (many-to-many)
 - Position Resolution Chain (used by Process Flow)
 
 ---
 
 ### 6. Process Flow System
-**Entities:** PROCESS_GRAPH, PROCESS_NODE, PROCESS_EDGE, TASK_FLOW_INSTANCE, TASK_INSTANCE, TASK_AUDIT_LOG, etc.
+**Entities:** PROCESS_GRAPH, PROCESS_NODE, PROCESS_EDGE, TASK_FLOW_INSTANCE, TASK_INSTANCE, TASK_AUDIT_LOG, PROCESS_FALLBACK_ASSIGNMENT, POSITION_RESOLVER
 
 **Purpose:** Workflow engine and task management
 
@@ -140,6 +147,19 @@ rules/relationships/
 
 ---
 
+### 8. Media & File Management
+**Entities:** MEDIA_FILE, MEDIA_FILE_ACCESS_LOG
+
+**Purpose:** Centralized file upload, storage, versioning, and access control
+
+**Key Relationships:**
+- MEDIA_FILE → Polymorphic relationship to any entity (PERSON, ORGANIZATION, etc.)
+- MEDIA_FILE → Version chain (replaces_file_id)
+- MEDIA_FILE → Person (uploader)
+- MEDIA_FILE → Access logs (audit trail)
+
+---
+
 ## Cross-Domain Relationships
 
 ### Major Connection Points
@@ -150,7 +170,8 @@ PERSON (Identity)
   ├─→ EMPLOYMENT_CONTRACT (Hiring) [as employee]
   ├─→ VACANCY_APPLICATION (Hiring) [as applicant]
   ├─→ TASK_INSTANCE (Process Flow) [as assignee]
-  └─→ POSTAL_ADDRESS (Geographic)
+  ├─→ POSTAL_ADDRESS (Geographic)
+  └─→ MEDIA_FILE (Media) [as uploader, and polymorphic owner]
 
 POPULAR_ORGANIZATION_POSITION (Org Structure)
   ├─→ ORGANIZATION_VACANCY (Hiring)
@@ -162,7 +183,21 @@ ORGANIZATION (Organization)
   ├─→ ORGANIZATION_VACANCY (Hiring)
   ├─→ EMPLOYMENT_CONTRACT (Hiring)
   ├─→ TASK_FLOW_INSTANCE (Process Flow)
-  └─→ POSTAL_ADDRESS (Geographic)
+  ├─→ POSTAL_ADDRESS (Geographic)
+  └─→ MEDIA_FILE (Media) [polymorphic: logos, documents]
+
+ORGANIZATION_VACANCY (Hiring)
+  ├─→ POPULAR_ORGANIZATION_POSITION (Org Structure)
+  ├─→ WORKSTATION (Organization) [via junction table]
+  ├─→ VACANCY_APPLICATION (Hiring)
+  └─→ TASK_FLOW_INSTANCE (Process Flow) [optional]
+
+MEDIA_FILE (Media)
+  ├─→ PERSON (Identity) [polymorphic files]
+  ├─→ ORGANIZATION (Organization) [polymorphic files]
+  ├─→ ORGANIZATION_VACANCY (Hiring) [polymorphic files]
+  ├─→ VACANCY_APPLICATION (Hiring) [polymorphic files]
+  └─→ ANY ENTITY [via entity_type + entity_id]
 ```
 
 ---
@@ -222,22 +257,16 @@ Every domain-specific file includes:
 
 ## Migration from Original ER Diagram
 
-This structure replaces the monolithic `ENTITY_RELATIONSHIP_DIAGRAM.md` file with:
+This structure replaces the monolithic entity relationship documentation with:
 
-- **8 domain-specific files** (easier to navigate)
+- **9 domain-specific files** (easier to navigate)
 - **1 unified rules file** (common patterns)
 - **Better organization** (grouped by business domain)
 - **Improved cross-referencing** (links between domains)
 
-**Old structure:**
-```
-rules/
-└── ENTITY_RELATIONSHIP_DIAGRAM.md (815 lines, all domains mixed)
-```
-
 **New structure:**
 ```
-rules/relationships/
+relationships/
 ├── README.md (this file)
 ├── RELATIONSHIP_RULES.md (unified rules)
 ├── PERSON_IDENTITY_DOMAIN.md
@@ -246,7 +275,8 @@ rules/relationships/
 ├── POPULAR_ORGANIZATION_STRUCTURE.md
 ├── HIRING_VACANCY_DOMAIN.md
 ├── PROCESS_FLOW_DOMAIN.md
-└── PERMISSIONS_SECURITY_DOMAIN.md
+├── PERMISSIONS_SECURITY_DOMAIN.md
+└── MEDIA_FILE_DOMAIN.md
 ```
 
 ---
@@ -266,17 +296,17 @@ When adding new entities or relationships:
 ## Related Documentation
 
 - **Entity Creation Rules:** [/architecture/entities/ENTITY_CREATION_RULES.md](../ENTITY_CREATION_RULES.md)
-- **Process Flow System:** [/architecture/processes/PROCESS_FLOW_SYSTEM.md](../PROCESS_FLOW_SYSTEM.md)
-- **Quick References:** [/architecture/processes/PROCESS_SYSTEM_QUICK_START.md](../PROCESS_SYSTEM_QUICK_START.md)
-- **Implementation Guides:** [/guides/](../../guides/)
-- **Main Rules Directory:** [/architecture/README.md](../README.md)
+- **Process Flow System:** [/architecture/processes/PROCESS_FLOW_SYSTEM.md](../../processes/PROCESS_FLOW_SYSTEM.md)
+- **Quick References:** [/architecture/processes/PROCESS_SYSTEM_QUICK_START.md](../../processes/PROCESS_SYSTEM_QUICK_START.md)
+- **Implementation Guides:** [/guides/](../../../guides/)
+- **Main Architecture Directory:** [/architecture/README.md](../../README.md)
 
 ---
 
-**Total Domains:** 7
-**Total Core Entities:** ~40+
-**Last Updated:** 2025-10-31
-**Version:** 1.0
+**Total Domains:** 8
+**Total Core Entities:** ~45+
+**Last Updated:** 2025-11-05
+**Version:** 1.1
 
 ---
 
@@ -289,3 +319,4 @@ When adding new entities or relationships:
 - [Hiring & Vacancy](HIRING_VACANCY_DOMAIN.md)
 - [Process Flow](PROCESS_FLOW_DOMAIN.md)
 - [Permissions](PERMISSIONS_SECURITY_DOMAIN.md)
+- [Media & Files](MEDIA_FILE_DOMAIN.md)

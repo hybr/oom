@@ -48,7 +48,7 @@ ENUM_ENTITY_PERMISSION_TYPE
 ```
 
 **Common Permission Type Codes:**
-`REQUEST`, `FEASIBLE_ANALYST`, `APPROVER`, `DESIGNER`, `DEVELOPER`, `TESTER`, `IMPLEMENTOR`, `SUPPORTER`, `REVIEWER`, `ADMIN`
+`REQUESTER`, `FEASIBLE_ANALYST`, `APPROVER`, `DESIGNER`, `DEVELOPER`, `TESTER`, `IMPLEMENTOR`, `SUPPORTER`, `REVIEWER`, `ADMINISTRATOR`
 
 ### Relationships
 ```
@@ -77,7 +77,7 @@ ENUM_ENTITY_PERMISSION_TYPE
 #### Permission Type Categories
 
 **1. Initiation & Planning:**
-- `REQUESTR` - Start new work items
+- `REQUESTER` - Start new work items
 - `FEASIBLE_ANALYST` - Assess viability
 
 **2. Approval & Decision:**
@@ -94,13 +94,13 @@ ENUM_ENTITY_PERMISSION_TYPE
 
 **5. Oversight:**
 - `REVIEWER` - Monitor and review
-- `ADMINSTRATOR` - Full control
+- `ADMINISTRATOR` - Full control
 
 ### Software Development Lifecycle Example
 
 **Entity: FEATURE_REQUEST**
 
-| Position | REQUEST | FEASIBLE_ANALYST | APPROVER | DESIGNER | DEVELOPER | TESTER | IMPLEMENTOR | SUPPORTER | REVIEWER |
+| Position | REQUESTER | FEASIBLE_ANALYST | APPROVER | DESIGNER | DEVELOPER | TESTER | IMPLEMENTOR | SUPPORTER | REVIEWER |
 |----------|---------|------------------|----------|----------|-----------|--------|-------------|-----------|----------|
 | **Product Manager** | ✓ | ✓ | ✓ | - | - | - | - | - | ✓ |
 | **Technical Lead** | ✓ | ✓ | ✓ | ✓ | - | - | - | - | ✓ |
@@ -158,339 +158,7 @@ ENTITY_PERMISSION_DEFINITION
 ### Purpose
 Defines which positions have which permissions on which entities.
 
-**Example:**
-```
-ENTITY: ORGANIZATION_VACANCY
-PERMISSION: APPROVER
-POSITION: HR Manager
-IS_ALLOWED: 1
 
-→ HR Managers can approve organization vacancies
-```
-
----
-
-## Complete Permission Flow
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│              POSITION-BASED PERMISSION FLOW                      │
-└─────────────────────────────────────────────────────────────────┘
-
-1. USER ACTION
-   John Smith wants to approve a vacancy
-   ↓
-
-2. IDENTIFY USER POSITION
-   SELECT position_id FROM employment_contract
-   WHERE employee_id = 'john-smith-id'
-   AND status = 'ACTIVE'
-   → Position: "HR Manager"
-   ↓
-
-3. CHECK PERMISSION DEFINITION
-   SELECT is_allowed FROM entity_permission_definition
-   WHERE entity_id = 'ORGANIZATION_VACANCY'
-   AND permission_type_id = 'APPROVER'
-   AND position_id = 'hr-manager-position-id'
-   → is_allowed = 1 ✓
-   ↓
-
-4. GRANT ACCESS
-   Allow John to approve the vacancy
-```
-
----
-
-## Permission Hierarchy
-
-### Organization-Level Permissions (Bypass Position Checks)
-
-```
-Level 1: MAIN_ADMIN (organization.main_admin_id)
-  ↓ Full ownership - ALL permissions
-  ↓ Cannot be restricted
-
-Level 2: SUPER_ADMIN (organization_admin.role = 'SUPER_ADMIN')
-  ↓ Nearly full access
-  ↓ Cannot transfer main_admin
-
-Level 3: ADMIN (organization_admin.role = 'ADMIN')
-  ↓ Management permissions
-  ↓ Can manage employees and settings
-
-Level 4: MODERATOR (organization_admin.role = 'MODERATOR')
-  ↓ Read-only access
-  ↓ Can view but not modify
-
-Level 5: EMPLOYEE (employment_contract)
-  ↓ Position-based permissions ONLY
-  ↓ Subject to ENTITY_PERMISSION_DEFINITION checks
-```
-
-**Permission Check Logic:**
-```
-1. Is user main_admin? → ALLOW ALL
-2. Is user super_admin? → ALLOW MOST
-3. Is user admin? → CHECK ADMIN PERMISSIONS
-4. Is user moderator? → READ ONLY
-5. Is user employee? → CHECK ENTITY_PERMISSION_DEFINITION
-6. Otherwise → DENY
-```
-
----
-
-## Common Permission Patterns
-
-### Pattern 1: Process Flow Permissions
-
-Used by PROCESS_NODE to determine task assignment:
-
-```
-PROCESS_NODE: "HR Review"
-  position_id: HR Manager
-  permission_type_id: APPROVER
-  ↓
-ENTITY_PERMISSION_DEFINITION:
-  entity: ORGANIZATION_VACANCY
-  permission_type: APPROVER
-  position: HR Manager
-  is_allowed: 1
-  ↓
-Result: HR Managers can be assigned "HR Review" tasks
-```
-
-### Pattern 2: Multiple Positions, Same Permission
-
-```
-ENTITY: ORGANIZATION_VACANCY
-PERMISSION: REQUEST (can create vacancies)
-
-ENTITY_PERMISSION_DEFINITION:
-  ├─ Position: HR Manager → is_allowed = 1
-  └─ Position: Department Head → is_allowed = 1
-
-Result: Both HR Managers and Department Heads can create vacancies
-```
-
-### Pattern 3: Denied Permissions
-
-```
-ENTITY: SENSITIVE_DOCUMENT
-PERMISSION: APPROVER
-POSITION: Junior Developer
-IS_ALLOWED: 0
-
-Result: Explicitly deny junior developers from approving sensitive documents
-```
-
----
-
-## Cross-Domain Relationships
-
-### To Popular Organization Structure
-```
-ENTITY_PERMISSION_DEFINITION ← POPULAR_ORGANIZATION_POSITION
-```
-See: [POPULAR_ORGANIZATION_STRUCTURE.md](POPULAR_ORGANIZATION_STRUCTURE.md)
-
-### To System Metadata
-```
-ENTITY_PERMISSION_DEFINITION ← ENTITY_DEFINITION
-```
-See: System Metadata documentation
-
-### To Process Flow System
-```
-PROCESS_NODE ← ENUM_ENTITY_PERMISSION_TYPE
-```
-See: [PROCESS_FLOW_DOMAIN.md](PROCESS_FLOW_DOMAIN.md)
-
-### To Hiring Domain
-```
-EMPLOYMENT_CONTRACT links PERSON to POSITION
-→ Enables position-based permission checks
-```
-See: [HIRING_VACANCY_DOMAIN.md](HIRING_VACANCY_DOMAIN.md)
-
----
-
-## Common Queries
-
-### Check if User Has Permission on Entity
-```sql
--- Step 1: Get user's active positions
-SELECT ec.position_id
-FROM employment_contract ec
-WHERE ec.employee_id = ?
-AND ec.status = 'ACTIVE'
-AND ec.organization_id = ?
-AND ec.deleted_at IS NULL;
-
--- Step 2: Check permission for position
-SELECT epd.is_allowed
-FROM entity_permission_definition epd
-JOIN entity_definition ed ON epd.entity_id = ed.id
-WHERE ed.code = 'ORGANIZATION_VACANCY'
-AND epd.permission_type_id = (
-    SELECT id FROM enum_entity_permission_type
-    WHERE code = 'APPROVER'
-)
-AND epd.position_id IN (
-    SELECT position_id FROM employment_contract
-    WHERE employee_id = ? AND status = 'ACTIVE'
-)
-AND epd.is_allowed = 1;
-```
-
-### Get All Permissions for Position
-```sql
-SELECT
-    ed.code as entity_code,
-    ed.name as entity_name,
-    ept.code as permission_code,
-    ept.name as permission_name,
-    epd.is_allowed
-FROM entity_permission_definition epd
-JOIN entity_definition ed ON epd.entity_id = ed.id
-JOIN enum_entity_permission_type ept ON epd.permission_type_id = ept.id
-WHERE epd.position_id = ?
-ORDER BY ed.name, ept.name;
-```
-
-### Get All Positions with Permission on Entity
-```sql
-SELECT
-    pos.title as position_title,
-    dept.name as department,
-    team.name as team,
-    ept.name as permission_type
-FROM entity_permission_definition epd
-JOIN popular_organization_position pos ON epd.position_id = pos.id
-JOIN popular_organization_departments dept ON pos.department_id = dept.id
-LEFT JOIN popular_organization_department_teams team ON pos.team_id = team.id
-JOIN enum_entity_permission_type ept ON epd.permission_type_id = ept.id
-JOIN entity_definition ed ON epd.entity_id = ed.id
-WHERE ed.code = 'ORGANIZATION_VACANCY'
-AND epd.is_allowed = 1
-ORDER BY dept.name, team.name, pos.title;
-```
-
-### Check Organization Admin Permissions
-```sql
--- Check if user is main admin (full permissions)
-SELECT COUNT(*) FROM organization
-WHERE id = ? AND main_admin_id = ?;
-
--- Check organization admin role
-SELECT role FROM organization_admin
-WHERE organization_id = ?
-AND person_id = ?
-AND is_active = 1
-AND deleted_at IS NULL;
-```
-
----
-
-## Permission Matrix Examples
-
-### Example 1: ORGANIZATION_VACANCY Entity
-
-| Position | REQUEST | APPROVER | IMPLEMENTOR | REVIEWER |
-|----------|---------|----------|-------------|----------|
-| **HR Manager** | ✓ | ✓ | ✓ | ✓ |
-| **Department Head** | ✓ | ✓ | - | ✓ |
-| **Finance Manager** | - | ✓ | - | ✓ |
-| **HR Coordinator** | - | - | ✓ | ✓ |
-| **Employee** | - | - | - | ✓ |
-
-**Implementation:**
-```sql
--- HR Manager: Full access
-INSERT INTO entity_permission_definition VALUES
-  (?, 'ORGANIZATION_VACANCY', 'REQUEST', 'HR_MANAGER', 1),
-  (?, 'ORGANIZATION_VACANCY', 'APPROVER', 'HR_MANAGER', 1),
-  (?, 'ORGANIZATION_VACANCY', 'IMPLEMENTOR', 'HR_MANAGER', 1),
-  (?, 'ORGANIZATION_VACANCY', 'REVIEWER', 'HR_MANAGER', 1);
-
--- Department Head: Request and Approve
-INSERT INTO entity_permission_definition VALUES
-  (?, 'ORGANIZATION_VACANCY', 'REQUEST', 'DEPT_HEAD', 1),
-  (?, 'ORGANIZATION_VACANCY', 'APPROVER', 'DEPT_HEAD', 1),
-  (?, 'ORGANIZATION_VACANCY', 'REVIEWER', 'DEPT_HEAD', 1);
-
--- Finance Manager: Approve only
-INSERT INTO entity_permission_definition VALUES
-  (?, 'ORGANIZATION_VACANCY', 'APPROVER', 'FINANCE_MGR', 1),
-  (?, 'ORGANIZATION_VACANCY', 'REVIEWER', 'FINANCE_MGR', 1);
-
--- HR Coordinator: Implement only
-INSERT INTO entity_permission_definition VALUES
-  (?, 'ORGANIZATION_VACANCY', 'IMPLEMENTOR', 'HR_COORD', 1),
-  (?, 'ORGANIZATION_VACANCY', 'REVIEWER', 'HR_COORD', 1);
-
--- Employee: Review only
-INSERT INTO entity_permission_definition VALUES
-  (?, 'ORGANIZATION_VACANCY', 'REVIEWER', 'EMPLOYEE', 1);
-```
-
-### Example 2: SOFTWARE_PROJECT Entity (Full Development Lifecycle)
-
-| Position | REQUEST | FEASIBLE_ANALYST | APPROVER | DESIGNER | DEVELOPER | TESTER | IMPLEMENTOR | SUPPORTER |
-|----------|---------|------------------|----------|----------|-----------|--------|-------------|-----------|
-| **Product Manager** | ✓ | ✓ | ✓ | - | - | - | - | - |
-| **Tech Lead** | ✓ | ✓ | ✓ | ✓ | ✓ | - | - | - |
-| **UI/UX Designer** | - | - | - | ✓ | - | - | - | - |
-| **Senior Developer** | - | ✓ | - | ✓ | ✓ | - | - | - |
-| **Developer** | - | - | - | - | ✓ | - | - | - |
-| **QA Engineer** | - | - | - | - | - | ✓ | - | - |
-| **DevOps Engineer** | - | - | - | - | - | - | ✓ | - |
-| **Support Engineer** | - | - | - | - | - | - | - | ✓ |
-
-**Implementation:**
-```sql
--- Product Manager: Initiate and approve
-INSERT INTO entity_permission_definition VALUES
-  (?, 'SOFTWARE_PROJECT', 'REQUEST', 'PRODUCT_MANAGER', 1),
-  (?, 'SOFTWARE_PROJECT', 'FEASIBLE_ANALYST', 'PRODUCT_MANAGER', 1),
-  (?, 'SOFTWARE_PROJECT', 'APPROVER', 'PRODUCT_MANAGER', 1);
-
--- Tech Lead: Full development oversight
-INSERT INTO entity_permission_definition VALUES
-  (?, 'SOFTWARE_PROJECT', 'REQUEST', 'TECH_LEAD', 1),
-  (?, 'SOFTWARE_PROJECT', 'FEASIBLE_ANALYST', 'TECH_LEAD', 1),
-  (?, 'SOFTWARE_PROJECT', 'APPROVER', 'TECH_LEAD', 1),
-  (?, 'SOFTWARE_PROJECT', 'DESIGNER', 'TECH_LEAD', 1),
-  (?, 'SOFTWARE_PROJECT', 'DEVELOPER', 'TECH_LEAD', 1);
-
--- Designer: Design work only
-INSERT INTO entity_permission_definition VALUES
-  (?, 'SOFTWARE_PROJECT', 'DESIGNER', 'UI_UX_DESIGNER', 1);
-
--- Senior Developer: Analysis and development
-INSERT INTO entity_permission_definition VALUES
-  (?, 'SOFTWARE_PROJECT', 'FEASIBLE_ANALYST', 'SENIOR_DEVELOPER', 1),
-  (?, 'SOFTWARE_PROJECT', 'DESIGNER', 'SENIOR_DEVELOPER', 1),
-  (?, 'SOFTWARE_PROJECT', 'DEVELOPER', 'SENIOR_DEVELOPER', 1);
-
--- Developer: Development only
-INSERT INTO entity_permission_definition VALUES
-  (?, 'SOFTWARE_PROJECT', 'DEVELOPER', 'DEVELOPER', 1);
-
--- QA Engineer: Testing only
-INSERT INTO entity_permission_definition VALUES
-  (?, 'SOFTWARE_PROJECT', 'TESTER', 'QA_ENGINEER', 1);
-
--- DevOps Engineer: Deployment only
-INSERT INTO entity_permission_definition VALUES
-  (?, 'SOFTWARE_PROJECT', 'IMPLEMENTOR', 'DEVOPS_ENGINEER', 1);
-
--- Support Engineer: Support only
-INSERT INTO entity_permission_definition VALUES
-  (?, 'SOFTWARE_PROJECT', 'SUPPORTER', 'SUPPORT_ENGINEER', 1);
-```
-
----
 
 ## Security Best Practices
 
@@ -553,7 +221,7 @@ To initialize all standard permission types in your system:
 ```sql
 -- Create standard permission types for full development lifecycle
 INSERT INTO enum_entity_permission_type (id, code, name, description) VALUES
-  (lower(hex(randomblob(16))), 'REQUEST', 'Requester', 'Can create and initiate new requests'),
+  (lower(hex(randomblob(16))), 'REQUESTER', 'Requester', 'Can create and initiate new requests'),
   (lower(hex(randomblob(16))), 'FEASIBLE_ANALYST', 'Feasibility Analyst', 'Can analyze technical and business feasibility, provide estimates'),
   (lower(hex(randomblob(16))), 'APPROVER', 'Approver', 'Can approve or reject requests and decisions'),
   (lower(hex(randomblob(16))), 'DESIGNER', 'Designer', 'Can create technical/visual designs and specifications'),
@@ -562,10 +230,10 @@ INSERT INTO enum_entity_permission_type (id, code, name, description) VALUES
   (lower(hex(randomblob(16))), 'IMPLEMENTOR', 'Implementor', 'Can deploy, publish, and release to production'),
   (lower(hex(randomblob(16))), 'SUPPORTER', 'Supporter', 'Can provide ongoing support and maintenance'),
   (lower(hex(randomblob(16))), 'REVIEWER', 'Reviewer', 'Can view, monitor, and provide feedback'),
-  (lower(hex(randomblob(16))), 'ADMIN', 'Administrator', 'Full administrative access to all features');
+  (lower(hex(randomblob(16))), 'ADMINISTRATIVE', 'Administrator', 'Full administrative access to all features');
 ```
 
-**Note:** The `REQUEST` permission type is the code used in the database, while "Requester" is the display name shown to users.
+**Note:** The `REQUESTER` permission type is the code used in the database, while "Requester" is the display name shown to users.
 
 ---
 

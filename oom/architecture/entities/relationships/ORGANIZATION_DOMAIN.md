@@ -43,12 +43,13 @@ ORGANIZATION (Root)
 ORGANIZATION
 ├─ id* (PK)
 ├─ short_name*
-├─ legal_category_id? (FK → PERSON)
+├─ legal_type_id? (FK → POPULAR_ORGANIZATION_LEGAL_TYPES)
+├─ tag_line?
 ├─ registration_number?
 ├─ tax_id?
-├─ industry?
+├─ industry_category_id? (FK → POPULAR_INDUSTRY_CATEGORY)
 ├─ description?
-├─ logo_url?
+├─ logo_media_file_id? (FK → MEDIA_FILE)
 ├─ website?
 ├─ public_email_address?
 ├─ public_phone_address?
@@ -62,6 +63,7 @@ ORGANIZATION
 ```
 ORGANIZATION
   ← PERSON (Many:1) [via main_admin_id] - Owner
+  ← MEDIA_FILE (Many:1) [via logo_media_file_id] - Logo
   → ORGANIZATION_ADMIN (1:Many) - Admin members
   → ORGANIZATION_BRANCH (1:Many) - Physical branches
   → ORGANIZATION_BUILDING (1:Many) - Buildings/facilities
@@ -82,7 +84,6 @@ ORGANIZATION_ADMIN
 ├─ organization_id* (FK → ORGANIZATION)
 ├─ person_id* (FK → PERSON)
 ├─ role* [SUPER_ADMIN, ADMIN, MODERATOR]
-├─ permissions? (JSON)
 ├─ appointed_by? (FK → PERSON)
 ├─ appointed_at*
 ├─ is_active*
@@ -300,6 +301,20 @@ ORGANIZATION → PROCESS_FALLBACK_ASSIGNMENT (1:Many)
 ```
 See: [PROCESS_FLOW_DOMAIN.md](PROCESS_FLOW_DOMAIN.md)
 
+### To Media & File Domain
+```
+ORGANIZATION ← MEDIA_FILE (Many:1) [via logo_media_file_id]
+```
+See: [MEDIA_FILE_DOMAIN.md](MEDIA_FILE_DOMAIN.md)
+
+**Note:** Organizations can also have multiple files via polymorphic relationship:
+```
+MEDIA_FILE (where entity_type='ORGANIZATION' and entity_id=organization.id)
+  → Logos (field_context='LOGO')
+  → Documents (field_context='DOCUMENT')
+  → Cover Photos (field_context='COVER_PHOTO')
+```
+
 ---
 
 ## Common Queries
@@ -393,9 +408,10 @@ AND status = 'ACTIVE';
 - **Entity Creation Rules:** [/architecture/entities/ENTITY_CREATION_RULES.md](../ENTITY_CREATION_RULES.md)
 - **Relationship Rules:** [RELATIONSHIP_RULES.md](RELATIONSHIP_RULES.md)
 - **Membership Guide:** [/guides/features/ORGANIZATION_MEMBERSHIP_PERMISSIONS.md](../../guides/features/ORGANIZATION_MEMBERSHIP_PERMISSIONS.md)
+- **Media & File Management:** [MEDIA_FILE_DOMAIN.md](MEDIA_FILE_DOMAIN.md)
 - **All Domain Relationships:** [README.md](README.md)
 
 ---
 
-**Last Updated:** 2025-10-31
+**Last Updated:** 2025-11-05
 **Domain:** Organization
