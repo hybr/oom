@@ -9,7 +9,11 @@
       "Bash(find:*)",
       "Bash(tree:*)",
       "Bash(mkdir:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(dir \"C:\\Users\\fwyog\\oom\\metadata\\entities\\*.sql\" /b)",
+      "Bash(rename_entities.bat)",
+      "Bash(cmd /c \"C:\\Users\\fwyog\\oom\\rename_entities.bat\")",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []
