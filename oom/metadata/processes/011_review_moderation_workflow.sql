@@ -1,0 +1,44 @@
+-- =====================================================================
+-- CUSTOMER REVIEW MODERATION - Moderate and publish reviews
+-- From submission to publication with quality checks
+-- Generated: 2025-11-10
+-- =====================================================================
+
+PRAGMA foreign_keys = ON;
+
+INSERT OR IGNORE INTO process_graph (
+    id, code, name, description, entity_id, version_number,
+    is_active, is_published, category, created_at
+) VALUES (
+    'REVW0000-MODR-4111-W111-000000000001',
+    'REVIEW_MODERATION_WORKFLOW',
+    'Customer Review Moderation',
+    'Moderate and publish customer reviews',
+    'c1r1e1v1-i1e1-4w11-a111-111111111111',  -- CUSTOMER_REVIEW entity
+    1, 1, 1, 'MARKETPLACE_COMMERCE', datetime('now')
+);
+
+-- Nodes
+INSERT OR IGNORE INTO process_node (id, graph_id, node_code, node_name, node_type, description, position_id, permission_type_id, sla_hours, display_x, display_y, created_at) VALUES
+('REVW0001-MODR-4111-W111-000000000001', 'REVW0000-MODR-4111-W111-000000000001', 'START', 'Start', 'START', 'Review submitted', NULL, NULL, NULL, 100, 100, datetime('now')),
+('REVW0002-MODR-4111-W111-000000000001', 'REVW0000-MODR-4111-W111-000000000001', 'SUBMIT_REVIEW', 'Customer Submits Review', 'TASK', 'Customer writes and submits review', NULL, NULL, 168, 200, 100, datetime('now')),
+('REVW0003-MODR-4111-W111-000000000001', 'REVW0000-MODR-4111-W111-000000000001', 'AUTO_CHECK', 'Automated Spam/Profanity Check', 'TASK', 'Automated content screening', NULL, NULL, 1, 300, 100, datetime('now')),
+('REVW0004-MODR-4111-W111-000000000001', 'REVW0000-MODR-4111-W111-000000000001', 'MANUAL_MODERATION', 'Manual Moderation', 'TASK', 'Human review if flagged', NULL, NULL, 24, 400, 100, datetime('now')),
+('REVW0005-MODR-4111-W111-000000000001', 'REVW0000-MODR-4111-W111-000000000001', 'APPROVE_REVIEW', 'Approve or Reject', 'TASK', 'Final moderation decision', NULL, NULL, 12, 500, 100, datetime('now')),
+('REVW0006-MODR-4111-W111-000000000001', 'REVW0000-MODR-4111-W111-000000000001', 'PUBLISH_REVIEW', 'Publish Review', 'TASK', 'Make review visible', NULL, NULL, 2, 600, 100, datetime('now')),
+('REVW0007-MODR-4111-W111-000000000001', 'REVW0000-MODR-4111-W111-000000000001', 'NOTIFY_VENDOR', 'Notify Vendor of Review', 'TASK', 'Alert vendor about new review', NULL, NULL, 1, 700, 100, datetime('now')),
+('REVW0008-MODR-4111-W111-000000000001', 'REVW0000-MODR-4111-W111-000000000001', 'VENDOR_RESPONSE', 'Handle Vendor Response', 'TASK', 'Optional vendor response', NULL, NULL, 168, 800, 100, datetime('now')),
+('REVW0009-MODR-4111-W111-000000000001', 'REVW0000-MODR-4111-W111-000000000001', 'END', 'End', 'END', 'Review process complete', NULL, NULL, NULL, 900, 100, datetime('now'));
+
+-- Edges
+INSERT OR IGNORE INTO process_edge (id, graph_id, from_node_id, to_node_id, edge_label, edge_order, completion_action, created_at) VALUES
+('REVWE001-MODR-4111-W111-000000000001', 'REVW0000-MODR-4111-W111-000000000001', 'REVW0001-MODR-4111-W111-000000000001', 'REVW0002-MODR-4111-W111-000000000001', 'Begin', 1, NULL, datetime('now')),
+('REVWE002-MODR-4111-W111-000000000001', 'REVW0000-MODR-4111-W111-000000000001', 'REVW0002-MODR-4111-W111-000000000001', 'REVW0003-MODR-4111-W111-000000000001', 'Submitted', 1, 'COMPLETE', datetime('now')),
+('REVWE003-MODR-4111-W111-000000000001', 'REVW0000-MODR-4111-W111-000000000001', 'REVW0003-MODR-4111-W111-000000000001', 'REVW0004-MODR-4111-W111-000000000001', 'Flagged', 1, 'REJECT', datetime('now')),
+('REVWE004-MODR-4111-W111-000000000001', 'REVW0000-MODR-4111-W111-000000000001', 'REVW0003-MODR-4111-W111-000000000001', 'REVW0005-MODR-4111-W111-000000000001', 'Clean', 2, 'APPROVE', datetime('now')),
+('REVWE005-MODR-4111-W111-000000000001', 'REVW0000-MODR-4111-W111-000000000001', 'REVW0004-MODR-4111-W111-000000000001', 'REVW0005-MODR-4111-W111-000000000001', 'Reviewed', 1, 'COMPLETE', datetime('now')),
+('REVWE006-MODR-4111-W111-000000000001', 'REVW0000-MODR-4111-W111-000000000001', 'REVW0005-MODR-4111-W111-000000000001', 'REVW0006-MODR-4111-W111-000000000001', 'Approved', 1, 'APPROVE', datetime('now')),
+('REVWE007-MODR-4111-W111-000000000001', 'REVW0000-MODR-4111-W111-000000000001', 'REVW0005-MODR-4111-W111-000000000001', 'REVW0009-MODR-4111-W111-000000000001', 'Rejected', 2, 'REJECT', datetime('now')),
+('REVWE008-MODR-4111-W111-000000000001', 'REVW0000-MODR-4111-W111-000000000001', 'REVW0006-MODR-4111-W111-000000000001', 'REVW0007-MODR-4111-W111-000000000001', 'Published', 1, 'COMPLETE', datetime('now')),
+('REVWE009-MODR-4111-W111-000000000001', 'REVW0000-MODR-4111-W111-000000000001', 'REVW0007-MODR-4111-W111-000000000001', 'REVW0008-MODR-4111-W111-000000000001', 'Vendor Notified', 1, 'COMPLETE', datetime('now')),
+('REVWE010-MODR-4111-W111-000000000001', 'REVW0000-MODR-4111-W111-000000000001', 'REVW0008-MODR-4111-W111-000000000001', 'REVW0009-MODR-4111-W111-000000000001', 'Response Handled', 1, 'COMPLETE', datetime('now'));

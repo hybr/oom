@@ -1,0 +1,47 @@
+-- =====================================================================
+-- VENDOR PAYMENT SETTLEMENT - Calculate and process vendor payments
+-- Periodic settlement of vendor earnings
+-- Generated: 2025-11-10
+-- =====================================================================
+
+PRAGMA foreign_keys = ON;
+
+INSERT OR IGNORE INTO process_graph (
+    id, code, name, description, entity_id, version_number,
+    is_active, is_published, category, created_at
+) VALUES (
+    'SETT0000-PYMT-4111-W111-000000000001',
+    'VENDOR_PAYMENT_SETTLEMENT',
+    'Payment Settlement Process',
+    'Calculate and process vendor payments',
+    'o1r1g1a1-n1z1-4t1n-a111-111111111111',  -- ORGANIZATION entity (vendor)
+    1, 1, 1, 'MARKETPLACE_COMMERCE', datetime('now')
+);
+
+-- Nodes
+INSERT OR IGNORE INTO process_node (id, graph_id, node_code, node_name, node_type, description, position_id, permission_type_id, sla_hours, display_x, display_y, created_at) VALUES
+('SETT0001-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'START', 'Start', 'START', 'Settlement period ends', NULL, NULL, NULL, 100, 100, datetime('now')),
+('SETT0002-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'AGGREGATE_ORDERS', 'Aggregate Completed Orders', 'TASK', 'Collect all completed orders for period', NULL, NULL, 4, 200, 100, datetime('now')),
+('SETT0003-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'CALCULATE_EARNINGS', 'Calculate Vendor Earnings', 'TASK', 'Sum up vendor earnings', NULL, NULL, 8, 300, 100, datetime('now')),
+('SETT0004-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'DEDUCT_COMMISSION', 'Deduct Marketplace Commission', 'TASK', 'Apply commission rate', NULL, NULL, 2, 400, 100, datetime('now')),
+('SETT0005-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'DEDUCT_FEES', 'Deduct Fees', 'TASK', 'Deduct shipping, returns, other fees', NULL, NULL, 4, 500, 100, datetime('now')),
+('SETT0006-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'GENERATE_REPORT', 'Generate Settlement Report', 'TASK', 'Create detailed settlement report', NULL, NULL, 4, 600, 100, datetime('now')),
+('SETT0007-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'REVIEW_SETTLEMENT', 'Review Settlement', 'TASK', 'Finance team reviews calculations', NULL, NULL, 24, 700, 100, datetime('now')),
+('SETT0008-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'PROCESS_PAYMENT', 'Process Payment to Vendor', 'TASK', 'Transfer funds to vendor', NULL, NULL, 48, 800, 100, datetime('now')),
+('SETT0009-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'SEND_STATEMENT', 'Send Settlement Statement', 'TASK', 'Email statement to vendor', NULL, NULL, 2, 900, 100, datetime('now')),
+('SETT0010-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'CLOSE_CYCLE', 'Close Settlement Cycle', 'TASK', 'Mark period as settled', NULL, NULL, 1, 1000, 100, datetime('now')),
+('SETT0011-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'END', 'End', 'END', 'Settlement complete', NULL, NULL, NULL, 1100, 100, datetime('now'));
+
+-- Edges
+INSERT OR IGNORE INTO process_edge (id, graph_id, from_node_id, to_node_id, edge_label, edge_order, completion_action, created_at) VALUES
+('SETTE001-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'SETT0001-PYMT-4111-W111-000000000001', 'SETT0002-PYMT-4111-W111-000000000001', 'Begin', 1, NULL, datetime('now')),
+('SETTE002-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'SETT0002-PYMT-4111-W111-000000000001', 'SETT0003-PYMT-4111-W111-000000000001', 'Orders Collected', 1, 'COMPLETE', datetime('now')),
+('SETTE003-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'SETT0003-PYMT-4111-W111-000000000001', 'SETT0004-PYMT-4111-W111-000000000001', 'Earnings Calculated', 1, 'COMPLETE', datetime('now')),
+('SETTE004-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'SETT0004-PYMT-4111-W111-000000000001', 'SETT0005-PYMT-4111-W111-000000000001', 'Commission Deducted', 1, 'COMPLETE', datetime('now')),
+('SETTE005-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'SETT0005-PYMT-4111-W111-000000000001', 'SETT0006-PYMT-4111-W111-000000000001', 'Fees Deducted', 1, 'COMPLETE', datetime('now')),
+('SETTE006-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'SETT0006-PYMT-4111-W111-000000000001', 'SETT0007-PYMT-4111-W111-000000000001', 'Report Generated', 1, 'COMPLETE', datetime('now')),
+('SETTE007-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'SETT0007-PYMT-4111-W111-000000000001', 'SETT0008-PYMT-4111-W111-000000000001', 'Approved', 1, 'APPROVE', datetime('now')),
+('SETTE008-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'SETT0007-PYMT-4111-W111-000000000001', 'SETT0006-PYMT-4111-W111-000000000001', 'Adjustments Needed', 2, 'REJECT', datetime('now')),
+('SETTE009-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'SETT0008-PYMT-4111-W111-000000000001', 'SETT0009-PYMT-4111-W111-000000000001', 'Payment Processed', 1, 'COMPLETE', datetime('now')),
+('SETTE010-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'SETT0009-PYMT-4111-W111-000000000001', 'SETT0010-PYMT-4111-W111-000000000001', 'Statement Sent', 1, 'COMPLETE', datetime('now')),
+('SETTE011-PYMT-4111-W111-000000000001', 'SETT0000-PYMT-4111-W111-000000000001', 'SETT0010-PYMT-4111-W111-000000000001', 'SETT0011-PYMT-4111-W111-000000000001', 'Cycle Closed', 1, 'COMPLETE', datetime('now'));

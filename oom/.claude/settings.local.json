@@ -13,7 +13,10 @@
       "Bash(dir \"C:\\Users\\fwyog\\oom\\metadata\\entities\\*.sql\" /b)",
       "Bash(rename_entities.bat)",
       "Bash(cmd /c \"C:\\Users\\fwyog\\oom\\rename_entities.bat\")",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(cmd /c \"dir /b C:\\Users\\Faber\\b\\oom\\metadata\\entities\\*.sql\")",
+      "Bash(cmd /c \"dir /b /s C:\\Users\\Faber\\b\\oom\\guides\\*.md\")",
+      "Bash(cmd /c \"dir /b metadata\\processes\")"
     ],
     "deny": [],
     "ask": []
