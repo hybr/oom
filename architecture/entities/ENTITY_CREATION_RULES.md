@@ -20,14 +20,6 @@ This document defines the complete set of rules and conventions for creating ent
 ```
 001-initial.sql                    # Core system entities (geography)
 002-person.sql                     # Person and credential entities
-003-person_education_and_skills.sql
-004-popular_organization.sql
-005-organization_positions_and_requirements.sql
-006-entity_permissions.sql
-007-organization.sql
-008-organization_infrastructure.sql
-009-hiring_domain.sql
-010-process_flow_system.sql
 ```
 
 ### Ordering Rules:
@@ -140,7 +132,6 @@ INSERT OR IGNORE INTO entity_definition (
 ✓ PERSON
 ✓ ORGANIZATION_VACANCY
 ✓ PROCESS_GRAPH
-✓ VACANCY_APPLICATION
 ✓ ENTITY_PERMISSION_DEFINITION
 
 ✗ person (not uppercase)

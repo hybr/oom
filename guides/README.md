@@ -7,7 +7,7 @@
 
 ---
 
-> **📏 Note:** This is the **guides** directory. For system architecture rules and standards, see the `/rules` folder.
+> **📏 Note:** This is the **guides** directory. For system architecture and standards, see the `/architecture` folder.
 
 ---
 
@@ -15,29 +15,31 @@
 
 This directory contains comprehensive guides for implementing and using the V4L system:
 
-### Getting Started
-- **`INSTALL.md`** - Installation and setup instructions
-- **`QUICK_START.md`** - Quick start guide for developers
-- **`BUILD_SUMMARY.md`** - Build process and architecture overview
+### Getting Started (`getting-started/`)
+- **`getting-started/V4L_INSTALL.md`** - Installation and setup instructions
+- **`getting-started/V4L_QUICK_START.md`** - Quick start guide for developers
 
-### Database & Migrations
-- **`MIGRATION_GUIDE.md`** - Complete database migration system guide
-- **`MIGRATION_UPDATE_SUMMARY.md`** - Migration system updates and enhancements
+### Database & Migrations (`database/`)
+- **`database/MIGRATION_GUIDE.md`** - Complete database migration system guide
+- **`database/MIGRATION_UPDATE_SUMMARY.md`** - Migration system updates and enhancements
+- **`database/MIGRATION_FIXES_SUMMARY.md`** - Migration system bug fixes
 
-### Process Flow System
-- **`VACANCY_CREATION_PROCESS.md`** - Vacancy creation workflow implementation guide
-- **`VACANCY_PROCESS_ENTITIES.md`** - Supporting entities for vacancy workflow
+### Features & Modules (`features/`)
+- **`features/VACANCY_CREATION_PROCESS.md`** - Vacancy creation workflow implementation guide
+- **`features/POSTAL_ADDRESS_UPDATES.md`** - Postal address system documentation
+- **`features/GEOCODING_SETUP.md`** - Geocoding integration guide
+- **`features/ORGANIZATION_MEMBERSHIP_PERMISSIONS.md`** - Organization membership and permissions
 
-### Features & Modules
-- **`POSTAL_ADDRESS_UPDATES.md`** - Postal address system documentation
-- **`GEOCODING_SETUP.md`** - Geocoding integration guide
+### Development (`development/`)
+- **`development/BUILD_SUMMARY.md`** - Build process and architecture overview
+- **`development/PROCESS_SETUP_GUIDE.md`** - Process flow system setup guide
 
 ### For System Architecture & Standards
-See **`/rules`** directory for:
-- Entity creation rules
+See **`/architecture`** directory for:
+- Entity creation rules and standards
 - Process flow architecture
-- Quick reference sheets
-- Technical specifications
+- Entity relationships documentation
+- Technical specifications and quick references
 
 ---
 

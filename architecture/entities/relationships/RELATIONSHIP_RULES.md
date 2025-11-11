@@ -539,6 +539,7 @@ For detailed relationships within each domain, see:
 - [Hiring & Vacancy Domain](HIRING_VACANCY_DOMAIN.md)
 - [Process Flow System](PROCESS_FLOW_DOMAIN.md)
 - [Permissions & Security](PERMISSIONS_SECURITY_DOMAIN.md)
+- [Media & File Management](MEDIA_FILE_DOMAIN.md)
 
 ---
 

@@ -2,332 +2,576 @@
 
 **Your Community, Your Marketplace**
 
+V4L is a metadata-driven PHP platform that connects local organizations with local customers, enabling community-driven commerce and interaction.
+
 ![PHP Version](https://img.shields.io/badge/PHP-8.2%2B-blue)
 ![Version](https://img.shields.io/badge/version-1.0-green)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 
 ---
 
-## About V4L
+## Features
 
-V4L (Vocal 4 Local) is a metadata-driven PHP platform that connects local organizations with local customers, enabling community-driven commerce and interaction.
-
-### Key Features
-
+### Core Features
 - **Metadata-Driven Architecture** - Entities defined in metadata enable dynamic CRUD operations
 - **Auto-Generated UI** - List, detail, create, and edit pages generated automatically from entity definitions
-- **Flexible Workflow Engine** - Position-based task routing and customizable process management
-- **Real-time Updates** - WebSocket support for live entity updates
-- **Secure by Design** - CSRF protection, input validation, and authentication built-in
-- **Zero-Code Entity Creation** - Add new entities through metadata without writing application code
-- **Extensible** - Plugin architecture for custom functionality
+- **Mobile-First Design** - Responsive Bootstrap-based UI optimized for mobile devices
+- **RESTful API** - Complete API for all entities with automatic CRUD endpoints
+- **Authentication & Authorization** - Secure login, registration, and position-based permissions
+- **Multi-Organization Support** - Subdomain-based organization filtering
+- **Workflow Engine** - Position-based task routing and process management
 
----
-
-## Table of Contents
-
-- [About V4L](#about-v4l)
-- [Requirements](#requirements)
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Documentation Organization](#documentation-organization)
-- [Common Tasks & Examples](#common-tasks--examples)
-- [Technology Stack](#technology-stack)
-- [Contributing](#contributing)
-- [Support & Community](#support--community)
-- [Security](#security)
-- [License](#license)
-
----
-
-## Requirements
-
-Before installing V4L, ensure your environment meets these requirements:
-
-- **PHP:** 8.2 or higher
-- **Web Server:** Apache (with mod_rewrite) or Nginx
-- **Database:** SQLite (development), PostgreSQL or MySQL (production)
-- **PHP Extensions:** PDO, JSON, mbstring
-- **Composer:** For dependency management (optional)
-
----
-
-## Installation
-
-```bash
-# Clone the repository
-git clone https://github.com/your-org/v4l.git
-cd v4l
-
-# Copy environment configuration
-cp .env.example .env
-
-# Edit configuration with your settings
-nano .env
-
-# Initialize database
-php database/init-meta-db.php
-
-# Set permissions
-chmod 755 database/
-chmod 666 database/*.sqlite
-
-# Create logs directory
-mkdir logs
-chmod 755 logs/
-```
-
-**For detailed setup instructions:** See [`guides/getting-started/V4L_INSTALL.md`](guides/getting-started/V4L_INSTALL.md)
-
-**Web Server Configuration:** See installation guide for Apache and Nginx configurations
-
----
-
-## Quick Start
-
-| What do you want to do? | Where to look |
-|-------------------------|---------------|
-| **Install V4L** | [`guides/getting-started/V4L_INSTALL.md`](guides/getting-started/V4L_INSTALL.md) |
-| **Quick start guide** | [`guides/getting-started/V4L_QUICK_START.md`](guides/getting-started/V4L_QUICK_START.md) |
-| **Run migrations** | [`guides/database/MIGRATION_GUIDE.md`](guides/database/MIGRATION_GUIDE.md) |
-| **Create entities** | [`architecture/entities/ENTITY_CREATION_RULES.md`](architecture/entities/ENTITY_CREATION_RULES.md) |
-| **Design workflows** | [`architecture/processes/PROCESS_FLOW_SYSTEM.md`](architecture/processes/PROCESS_FLOW_SYSTEM.md) |
-| **Build the project** | [`guides/development/BUILD_SUMMARY.md`](guides/development/BUILD_SUMMARY.md) |
-
----
-
-## Documentation Organization
-
-The V4L documentation is organized into two main directories:
-
-```
-oom/
-├── architecture/  ← System design, standards, technical specifications
-└── guides/        ← Tutorials, how-to guides, implementation examples
-```
-
-### 📏 [`architecture/`](architecture/) - System Architecture & Standards
-
-**Purpose:** Standards, conventions, and architecture references
-
-**When to Use:**
-- Designing a new feature or component
-- Understanding system architecture
-- Following naming conventions and design patterns
-- Creating entity definitions or process workflows
-
-**Structure:**
-```
-architecture/
-├── README.md
-├── entities/                   Entity design standards
-│   ├── README.md
-│   ├── ENTITY_CREATION_RULES.md
-│   └── relationships/          Domain-specific relationship docs
-│       ├── README.md
-│       ├── RELATIONSHIP_RULES.md
-│       ├── PERSON_IDENTITY_DOMAIN.md
-│       ├── GEOGRAPHIC_DOMAIN.md
-│       ├── ORGANIZATION_DOMAIN.md
-│       ├── HIRING_VACANCY_DOMAIN.md
-│       ├── PROCESS_FLOW_DOMAIN.md
-│       ├── PERMISSIONS_SECURITY_DOMAIN.md
-│       └── POPULAR_ORGANIZATION_STRUCTURE.md
-└── processes/                  Process flow architecture
-    ├── README.md
-    ├── PROCESS_FLOW_SYSTEM.md
-    └── PROCESS_SYSTEM_QUICK_START.md
-```
-
----
-
-### 📚 [`guides/`](guides/) - Implementation Guides & Tutorials
-
-**Purpose:** Step-by-step tutorials and implementation documentation
-
-**When to Use:**
-- Installing the system
-- Implementing a specific feature
-- Following step-by-step instructions
-- Troubleshooting issues
-
-**Structure:**
-```
-guides/
-├── README.md
-├── getting-started/            Installation & quick start
-│   ├── README.md
-│   ├── V4L_INSTALL.md
-│   └── V4L_QUICK_START.md
-├── database/                   Migration guides
-│   ├── README.md
-│   ├── MIGRATION_GUIDE.md
-│   ├── MIGRATION_UPDATE_SUMMARY.md
-│   └── MIGRATION_FIXES_SUMMARY.md
-├── features/                   Feature implementations
-│   ├── README.md
-│   ├── VACANCY_CREATION_PROCESS.md
-│   ├── POSTAL_ADDRESS_UPDATES.md
-│   ├── GEOCODING_SETUP.md
-│   └── ORGANIZATION_MEMBERSHIP_PERMISSIONS.md
-└── development/                Build & development setup
-    ├── README.md
-    ├── BUILD_SUMMARY.md
-    └── PROCESS_SETUP_GUIDE.md
-```
-
----
-
-### Quick Decision Guide
-
-| I need to... | Look in... |
-|-------------|-----------|
-| **Understand system architecture** | `/architecture` |
-| **Learn design standards** | `/architecture` |
-| **Get quick reference** | `/architecture` |
-| **Install the system** | `/guides/getting-started` |
-| **Run database migrations** | `/guides/database` |
-| **Implement a feature** | `/guides/features` |
-| **Build or setup processes** | `/guides/development` |
-| **Troubleshoot an issue** | `/guides` (check relevant subdirectory) |
-
----
-
-## Common Tasks & Examples
-
-### Creating a New Entity
-
-1. **Read Architecture:** [`architecture/entities/ENTITY_CREATION_RULES.md`](architecture/entities/ENTITY_CREATION_RULES.md)
-   - Learn naming conventions and required fields
-2. **Implement:** Create your entity migration file
-3. **Run Migration:** [`guides/database/MIGRATION_GUIDE.md`](guides/database/MIGRATION_GUIDE.md)
-
-### Implementing a Workflow
-
-1. **Read Architecture:** [`architecture/processes/PROCESS_FLOW_SYSTEM.md`](architecture/processes/PROCESS_FLOW_SYSTEM.md)
-   - Understand process architecture and node types
-2. **Reference Example:** [`guides/features/VACANCY_CREATION_PROCESS.md`](guides/features/VACANCY_CREATION_PROCESS.md)
-   - See complete working example
-3. **Implement:** Create your process migration
-4. **Setup:** [`guides/development/PROCESS_SETUP_GUIDE.md`](guides/development/PROCESS_SETUP_GUIDE.md)
-
-### Understanding Entity Relationships
-
-- **Browse:** [`architecture/entities/relationships/`](architecture/entities/relationships/)
-- **Domains Available:**
-  - Person & Identity
-  - Geographic
-  - Organization
-  - Hiring & Vacancy
-  - Process Flow
-  - Permissions & Security
+### Application Features
+- **Local Marketplace** - Browse and purchase goods and services from local organizations
+- **Job Vacancies** - Post and apply for jobs within your community
+- **Organization Management** - Create and manage organizations with member roles
+- **User Profiles** - Complete profile management with credentials and skills
+- **Process Workflows** - Customizable workflows for business processes
 
 ---
 
 ## Technology Stack
 
-- **Backend:** PHP 8.2+
-- **Frontend:** Bootstrap 5.3, Vanilla JavaScript
-- **Database:** SQLite (development), PostgreSQL, MySQL (production)
-- **Architecture:** Metadata-driven, Entity-Attribute-Value pattern
-- **Security:** Argon2ID password hashing, CSRF protection, prepared statements
-- **Web Standards:** HTML5, CSS3, ES6+
+- **Backend**: PHP 8.2+ (Core, no frameworks)
+- **Database**: SQLite (development) / PostgreSQL (production)
+- **Frontend**: Bootstrap 5, Vanilla JavaScript
+- **Icons**: Bootstrap Icons
+- **Architecture**: Metadata-driven, MVC pattern
+
+---
+
+## Project Structure
+
+```
+oom/
+├── architecture/           # System architecture documentation
+│   ├── application/       # Web application requirements
+│   ├── entities/          # Entity creation rules
+│   └── processes/         # Process flow system docs
+├── config/                # Configuration files
+│   ├── config.php         # Main configuration
+│   └── .env.example       # Environment variables template
+├── lib/                   # PHP library/classes
+│   └── core/              # Core classes
+│       ├── Autoloader.php
+│       ├── Auth.php
+│       ├── Database.php
+│       ├── EntityController.php
+│       ├── MetadataLoader.php
+│       ├── Request.php
+│       └── Response.php
+├── metadata/              # Database metadata and migrations
+│   ├── initial.sql        # Initial schema
+│   ├── entities/          # Entity definitions (SQL)
+│   └── processes/         # Process definitions (SQL)
+├── public/                # Web root (document root should point here)
+│   ├── api/               # API endpoints
+│   │   └── index.php      # API router
+│   ├── assets/            # Static assets
+│   │   ├── css/           # Stylesheets
+│   │   ├── js/            # JavaScript files
+│   │   └── images/        # Images
+│   ├── bootstrap.php      # Application bootstrap
+│   ├── index.php          # Homepage
+│   ├── login.php          # Login page
+│   ├── register.php       # Registration page
+│   ├── dashboard.php      # User dashboard
+│   ├── marketplace.php    # Marketplace browsing
+│   ├── vacancies.php      # Job vacancies listing
+│   ├── entity-list.php    # Generic entity list page
+│   └── .htaccess          # Apache configuration
+├── templates/             # PHP templates
+│   ├── layouts/           # Layout templates
+│   │   └── main.php       # Main layout
+│   ├── components/        # Reusable components
+│   │   ├── navbar.php
+│   │   └── footer.php
+│   └── pages/             # Page templates
+├── data/                  # Data directory (created automatically)
+│   ├── v4l.db             # SQLite database (development)
+│   └── uploads/           # Uploaded files
+├── logs/                  # Application logs
+└── README.md              # This file
+```
+
+---
+
+## Installation
+
+### Prerequisites
+
+- PHP 8.2 or higher
+- SQLite 3 (development) or PostgreSQL 12+ (production)
+- Apache or Nginx web server
+- Composer (optional, for future dependencies)
+
+### Quick Start (Development - Windows)
+
+**Automated Setup:**
+
+1. **Clone the repository**
+   ```cmd
+   git clone <repository-url>
+   cd oom
+   ```
+
+2. **Verify your setup** (optional but recommended)
+   ```cmd
+   check_setup.bat
+   ```
+   This will verify that PHP and SQLite are installed correctly.
+
+3. **Run setup script**
+   ```cmd
+   setup.bat
+   ```
+   This will:
+   - Create necessary directories
+   - Copy configuration template
+   - Create and populate the database
+
+4. **Start development server**
+   ```cmd
+   start_dev_server.bat
+   ```
+
+5. **Access the application**
+   - Open your browser to `http://localhost:8000`
+   - Create an account via the registration page
+   - Start using the application!
+
+**Helper Scripts (Windows):**
+
+- `setup.bat` - Initial setup (creates database and directories)
+- `setup_clean.bat` - Delete database and start fresh
+- `check_setup.bat` - Verify system requirements
+- `start_dev_server.bat` - Start PHP development server
+- `migrate.bat` - Apply new migrations to existing database
+
+### Quick Start (Development - Linux/Mac)
+
+**Manual Setup:**
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd oom
+   ```
+
+2. **Configure environment**
+   ```bash
+   cp config/.env.example config/.env
+   ```
+   Edit `config/.env` and set your configuration values.
+
+3. **Create directories**
+   ```bash
+   mkdir -p data/uploads logs
+   chmod -R 755 data/ logs/
+   ```
+
+4. **Set up the database**
+   ```bash
+   # Create database
+   sqlite3 data/v4l.db < metadata/initial.sql
+
+   # Import all entity and process definitions
+   (
+       echo "PRAGMA foreign_keys = OFF;"
+       echo "BEGIN TRANSACTION;"
+       cat metadata/entities/*.sql
+       cat metadata/processes/*.sql
+       echo "COMMIT;"
+       echo "PRAGMA foreign_keys = ON;"
+   ) | sqlite3 data/v4l.db
+   ```
+
+5. **Start development server**
+   ```bash
+   cd public
+   php -S localhost:8000
+   ```
+
+6. **Access the application**
+   - Open your browser to `http://localhost:8000`
+   - Create an account via the registration page
+   - Start using the application!
+
+### Production Deployment
+
+1. **Database**: Use PostgreSQL instead of SQLite
+   ```bash
+   # Create database
+   createdb v4l
+
+   # Import schema and data
+   psql v4l < metadata/initial.sql
+
+   # Import entities and processes
+   for file in metadata/entities/*.sql; do
+       psql v4l < "$file"
+   done
+   ```
+
+2. **Environment**: Set `APP_ENV=production` in `.env`
+
+3. **Security**:
+   - Enable HTTPS (uncomment HTTPS redirect in `.htaccess`)
+   - Set strong `SECRET_KEY` in `.env`
+   - Configure SMTP for email notifications
+   - Set proper file permissions (files: 644, directories: 755)
+
+4. **Performance**:
+   - Enable OPcache in PHP
+   - Use a CDN for static assets
+   - Enable caching in `config.php`
+
+---
+
+## Configuration
+
+### Environment Variables
+
+Key configuration options in `config/.env`:
+
+```env
+# Application Environment
+APP_ENV=development              # development or production
+
+# Database Configuration
+DB_TYPE=sqlite                   # sqlite or pgsql
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=v4l
+DB_USER=postgres
+DB_PASS=password
+
+# SMTP Configuration (optional)
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=user@example.com
+SMTP_PASS=password
+SMTP_FROM=noreply@v4l.local
+
+# Security
+SECRET_KEY=change_this_to_random_string
+```
+
+---
+
+## Usage
+
+### Creating Entities
+
+All entities are defined in the database metadata. To add a new entity:
+
+1. Create an entity definition in `metadata/entities/`
+2. Import the SQL file into your database
+3. The entity will automatically appear in the dashboard
+4. CRUD pages are auto-generated based on metadata
+
+### API Endpoints
+
+The application provides automatic REST API endpoints for all entities:
+
+```
+GET    /api/entities                      # List all entities
+GET    /api/entities/{entity}/metadata    # Get entity metadata
+GET    /api/entities/{entity}             # List records
+GET    /api/entities/{entity}/{id}        # Get single record
+POST   /api/entities/{entity}             # Create record
+PUT    /api/entities/{entity}/{id}        # Update record
+DELETE /api/entities/{entity}/{id}        # Delete record
+
+POST   /api/auth/register                 # Register new user
+POST   /api/auth/login                    # Login
+POST   /api/auth/logout                   # Logout
+GET    /api/auth/me                       # Get current user
+```
+
+### Authentication
+
+```php
+// Check if user is logged in
+if (Auth::isLoggedIn()) {
+    $user = Auth::getCurrentUser();
+}
+
+// Require login for a page
+Auth::requireLogin();
+
+// Check permission
+if (Auth::hasPermission('item', 'CREATE')) {
+    // User can create items
+}
+
+// Require specific permission
+Auth::requirePermission('item', 'UPDATE');
+```
+
+### Working with Entities
+
+```php
+use V4L\Core\MetadataLoader;
+use V4L\Core\Database;
+
+// Load entity metadata
+$entity = MetadataLoader::getEntity('item');
+
+// Get entity attributes
+$attributes = MetadataLoader::getEntityAttributes($entity['id']);
+
+// Query records
+$items = Database::fetchAll("SELECT * FROM item WHERE is_active = 1");
+
+// Create record
+$id = Database::insert('item', [
+    'id' => Database::generateUuid(),
+    'name' => 'Product Name',
+    'description' => 'Product description',
+    'created_at' => date('Y-m-d H:i:s')
+]);
+```
+
+---
+
+## Features by Module
+
+### Marketplace
+- Browse items by category
+- Search functionality
+- Organization-specific filtering via subdomain
+- Mobile-optimized product cards
+- Pagination
+
+### Job Vacancies
+- List active job postings
+- Filter by organization
+- Application tracking (via process workflows)
+- Interview scheduling
+
+### Organization Management
+- Create organizations
+- Manage members and roles
+- Position-based permissions
+- Multi-organization support
+
+### User Management
+- Registration and login
+- Profile management
+- Skills and credentials
+- Education history
+
+### Process Workflows
+- Define custom workflows
+- Task routing based on positions
+- Conditional branching
+- Audit logging
+
+---
+
+## Development
+
+### Adding Custom Pages
+
+1. Create a new PHP file in `public/`
+2. Include the bootstrap:
+   ```php
+   <?php require_once __DIR__ . '/bootstrap.php'; ?>
+   ```
+3. Use the template system:
+   ```php
+   ob_start();
+   ?>
+   <!-- Your HTML here -->
+   <?php
+   $content = ob_get_clean();
+   render('layouts/main', compact('pageTitle', 'content'));
+   ```
+
+### Database Migrations
+
+1. Create a new SQL file in `metadata/entities/` or `metadata/processes/`
+2. Use sequential numbering (e.g., `0088_new_entity.sql`)
+3. Import the file:
+   ```bash
+   sqlite3 data/v4l.db < metadata/entities/0088_new_entity.sql
+   ```
+
+---
+
+## Architecture
+
+### Metadata-Driven Design
+
+V4L uses a metadata-driven architecture where entities, attributes, relationships, and validation rules are defined in the database. This allows:
+
+- Dynamic CRUD generation
+- Automatic API endpoints
+- Flexible data model changes
+- No code changes for new entities
+
+### Permission System
+
+Permissions are based on:
+1. **Entity Permission Definitions** - Define which positions can perform which operations
+2. **Employment Contracts** - Link users to positions within organizations
+3. **Dynamic Checks** - Runtime permission validation
+
+### Request Flow
+
+1. HTTP Request → `public/*.php`
+2. Bootstrap → Load config, autoloader, session
+3. Authentication → Check user session
+4. Authorization → Verify permissions
+5. Controller → Process request
+6. Template → Render response
+
+---
+
+## Testing
+
+### Manual Testing
+
+1. Create a test user account
+2. Create a test organization
+3. Add products/services
+4. Post job vacancies
+5. Test workflows
+
+### API Testing
+
+Use curl or Postman to test API endpoints:
+
+```bash
+# Login
+curl -X POST http://localhost:8000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"testuser","password":"password"}'
+
+# List items
+curl http://localhost:8000/api/entities/item
+
+# Create item
+curl -X POST http://localhost:8000/api/entities/item \
+  -H "Content-Type: application/json" \
+  -d '{"name":"New Item","description":"Description"}'
+```
+
+---
+
+## Troubleshooting
+
+### Setup Script Errors
+
+**Problem**: "Error: near line X: no such table" during setup
+
+**Solution**: This is expected! The improved setup script now:
+- Disables foreign key constraints during import
+- Imports all entities in a single transaction
+- Re-enables foreign keys after import
+- Logs errors to `setup_errors.log` for review
+
+**Action**: Check if the database was created successfully:
+```cmd
+sqlite3 data\v4l.db "SELECT COUNT(*) FROM entity_definition;"
+```
+If it returns a number > 0, the database is functional.
+
+**Problem**: Foreign key constraint failures
+
+**Solution**: The setup script automatically handles this by disabling foreign keys during import. If you're manually importing:
+```cmd
+(
+    echo PRAGMA foreign_keys = OFF;
+    echo BEGIN TRANSACTION;
+    type metadata\entities\*.sql
+    echo COMMIT;
+    echo PRAGMA foreign_keys = ON;
+) | sqlite3 data\v4l.db
+```
+
+**Problem**: Setup script hangs or takes too long
+
+**Solution**: The import can take 1-3 minutes depending on your system. Be patient. If it truly hangs:
+1. Press Ctrl+C to stop
+2. Run `setup_clean.bat` to start fresh
+3. Try again with `setup.bat`
+
+### Database Connection Errors
+- Check database file permissions
+- Verify DSN in `config/config.php`
+- Ensure SQLite extension is enabled
+- Run `check_setup.bat` to verify configuration
+
+### Permission Denied Errors
+- Check directory permissions (755 for directories, 644 for files)
+- Ensure web server user can write to `data/` and `logs/`
+- On Windows, ensure you have write access to the project directory
+
+### Session Issues
+- Verify session directory is writable
+- Check session configuration in `php.ini`
+
+### API Errors
+- Enable error reporting in `config/config.php`
+- Check `logs/` directory for error logs
+- Verify `.htaccess` rewrite rules are working
+
+### Starting Fresh
+
+If you encounter issues and want to start over:
+
+**Windows:**
+```cmd
+setup_clean.bat
+setup.bat
+```
+
+**Linux/Mac:**
+```bash
+rm -f data/v4l.db
+sqlite3 data/v4l.db < metadata/initial.sql
+# Then run the import commands from Quick Start
+```
 
 ---
 
 ## Contributing
 
-We welcome contributions! Here's how you can help:
-
-### Quick Contribution Steps
+Contributions are welcome! Please:
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-### Contribution Guidelines
-
-- Follow existing code style and conventions
-- Write tests for new features
-- Update documentation as needed
-- Ensure all tests pass before submitting PR
-- Reference relevant issues in your PR description
-
-**For detailed guidelines:** See [CONTRIBUTING.md](CONTRIBUTING.md) (if available)
-
----
-
-## Support & Community
-
-### Getting Help
-
-- **Documentation:** You're reading it! Check specific sections above
-- **Installation issues:** Start with [`guides/getting-started/`](guides/getting-started/)
-- **Entity questions:** Check [`architecture/entities/`](architecture/entities/)
-- **Process workflows:** See [`architecture/processes/`](architecture/processes/)
-- **Feature guides:** Browse [`guides/features/`](guides/features/)
-- **Database migrations:** See [`guides/database/`](guides/database/)
-
-### Contact & Resources
-
-- **Website:** https://v4l.app
-- **Issues:** [GitHub Issues](https://github.com/v4l/vocal-4-local/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/v4l/vocal-4-local/discussions)
-- **Email:** support@v4l.app
-
-### Documentation Cross-References
-
-Documentation directories cross-reference each other for easier navigation:
-
-- **Architecture files** include: `> **📚 Note:** For implementation guides, see the /guides folder.`
-- **Guide files** include: `> **📏 Note:** For system architecture, see the /architecture folder.`
-
----
-
-## Security
-
-Security is a top priority for V4L. The platform includes:
-
-- **CSRF Protection** - All forms include CSRF tokens
-- **XSS Prevention** - All output is HTML-escaped
-- **SQL Injection Prevention** - PDO prepared statements throughout
-- **Password Security** - Argon2ID hashing
-- **Session Security** - HTTP-only cookies, regeneration on login
-- **Input Validation** - Server-side validation for all inputs
-- **Security Headers** - CSP, X-Frame-Options, X-Content-Type-Options
-
-### Reporting Security Vulnerabilities
-
-If you discover a security vulnerability, please email **security@v4l.app** instead of using the issue tracker. All security vulnerabilities will be promptly addressed.
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
 
 ---
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-Copyright (c) 2024 V4L (Vocal 4 Local)
+This project is licensed under the MIT License.
 
 ---
 
-## Project Summary
+## Support
 
-| Directory | Purpose | When to Use |
-|-----------|---------|-------------|
-| `/architecture` | Design & Standards | Designing features, understanding system architecture |
-| `/guides` | Implementation & Tutorials | Installing, implementing features, troubleshooting |
-
-**Each directory contains detailed READMEs** for easy navigation and comprehensive documentation.
+For questions, issues, or feature requests:
+- Create an issue on GitHub
+- Check the `/architecture` directory for documentation
+- Review the `/guides` directory for implementation guides
 
 ---
 
-**Version:** 1.0
-**Built with:** PHP 8.2+, Bootstrap 5.3, and modern web standards.
+## Credits
+
+Built with:
+- [Bootstrap 5](https://getbootstrap.com/)
+- [Bootstrap Icons](https://icons.getbootstrap.com/)
+- PHP 8.2+
+- SQLite / PostgreSQL
 
 ---
 
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for release history and updates.
+**V4L - Connecting communities, one transaction at a time.**

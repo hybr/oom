@@ -1,0 +1,165 @@
+[2025-11-11 12:02:37] Query failed: SQLSTATE[HY000]: General error: 1 no such table: item | SQL: SELECT i.*, c.name as category_name
+     FROM item i
+     LEFT JOIN category c ON i.category_id = c.id
+     WHERE i.is_active = 1
+     ORDER BY i.created_at DESC
+     LIMIT 6
+[2025-11-11 12:08:37] Query failed: SQLSTATE[HY000]: General error: 1 no such column: o.name | SQL: SELECT ov.*, o.name as organization_name
+     FROM organization_vacancy ov
+     LEFT JOIN organization o ON ov.organization_id = o.id
+     WHERE ov.is_active = 1 AND ov.closing_date >= date('now')
+     ORDER BY ov.created_at DESC
+     LIMIT 4
+[2025-11-11 12:09:50] Query failed: SQLSTATE[HY000]: General error: 1 no such column: o.name | SQL: SELECT ov.*, o.name as organization_name
+     FROM organization_vacancy ov
+     LEFT JOIN organization o ON ov.organization_id = o.id
+     WHERE ov.is_active = 1 AND ov.closing_date >= date('now')
+     ORDER BY ov.created_at DESC
+     LIMIT 4
+[2025-11-11 12:09:52] Query failed: SQLSTATE[HY000]: General error: 1 no such column: o.name | SQL: SELECT ov.*, o.name as organization_name
+     FROM organization_vacancy ov
+     LEFT JOIN organization o ON ov.organization_id = o.id
+     WHERE ov.is_active = 1 AND ov.closing_date >= date('now')
+     ORDER BY ov.created_at DESC
+     LIMIT 4
+[2025-11-11 12:19:45] Query failed: SQLSTATE[HY000]: General error: 1 no such column: o.organization_short_name | SQL: SELECT ov.*, (o.organization_short_name || ' ' || o.organization_legal_type) as organization_name
+     FROM organization_vacancy ov
+     LEFT JOIN organization o ON ov.organization_id = o.id
+     WHERE ov.is_active = 1 AND ov.closing_date >= date('now')
+     ORDER BY ov.created_at DESC
+     LIMIT 4
+[2025-11-11 12:35:49] Query failed: SQLSTATE[HY000]: General error: 1 no such column: ov.closing_date | SQL: SELECT ov.*, COALESCE(o.short_name || ' ' || lt.name, o.short_name, 'Unknown') as organization_name
+     FROM organization_vacancy ov
+     LEFT JOIN organization o ON ov.organization_id = o.id
+     LEFT JOIN popular_organization_legal_types lt ON o.legal_type_id = lt.id
+     WHERE ov.is_active = 1 AND ov.closing_date >= date('now')
+     ORDER BY ov.created_at DESC
+     LIMIT 4
+[2025-11-11 12:36:25] Query failed: SQLSTATE[HY000]: General error: 1 no such column: ov.closing_date | SQL: SELECT ov.*, COALESCE(o.short_name || ' ' || lt.name, o.short_name, 'Unknown') as organization_name
+     FROM organization_vacancy ov
+     LEFT JOIN organization o ON ov.organization_id = o.id
+     LEFT JOIN popular_organization_legal_types lt ON o.legal_type_id = lt.id
+     WHERE ov.is_active = 1 AND ov.closing_date >= date('now')
+     ORDER BY ov.created_at DESC
+     LIMIT 4
+[2025-11-11 12:44:10] Query failed: SQLSTATE[HY000]: General error: 1 no such column: i.organization_id | SQL: SELECT i.*, c.name as category_name, COALESCE(o.short_name || ' ' || lt.name, o.short_name, 'Unknown') as organization_name
+        FROM item i
+        LEFT JOIN category c ON i.category_id = c.id
+        LEFT JOIN organization o ON i.organization_id = o.id
+        LEFT JOIN popular_organization_legal_types lt ON o.legal_type_id = lt.id
+        WHERE i.is_active = 1
+        ORDER BY i.created_at DESC
+        LIMIT 24 OFFSET 0
+[2025-11-11 12:50:31] Query failed: SQLSTATE[HY000]: General error: 1 no such column: i.organization_id | SQL: SELECT i.*, c.name as category_name, COALESCE(o.short_name || ' ' || lt.name, o.short_name, 'Unknown') as organization_name
+        FROM item i
+        LEFT JOIN category c ON i.category_id = c.id
+        LEFT JOIN organization o ON i.organization_id = o.id
+        LEFT JOIN popular_organization_legal_types lt ON o.legal_type_id = lt.id
+        WHERE i.is_active = 1
+        ORDER BY i.created_at DESC
+        LIMIT 24 OFFSET 0
+[2025-11-11 12:51:05] Query failed: SQLSTATE[HY000]: General error: 1 no such column: i.organization_id | SQL: SELECT i.*, c.name as category_name, COALESCE(o.short_name || ' ' || lt.name, o.short_name, 'Unknown') as organization_name
+        FROM item i
+        LEFT JOIN category c ON i.category_id = c.id
+        LEFT JOIN organization o ON i.organization_id = o.id
+        LEFT JOIN popular_organization_legal_types lt ON o.legal_type_id = lt.id
+        WHERE i.is_active = 1
+        ORDER BY i.created_at DESC
+        LIMIT 24 OFFSET 0
+[2025-11-11 12:52:10] Query failed: SQLSTATE[HY000]: General error: 1 no such column: username | SQL: SELECT id FROM person WHERE username = :username
+[2025-11-11 13:03:28] Query failed: SQLSTATE[HY000]: General error: 1 no such column: person_id | SQL: SELECT DISTINCT o.*, COALESCE(o.short_name || ' ' || lt.name, o.short_name, 'Unknown') as name
+                FROM organization o
+                LEFT JOIN popular_organization_legal_types lt ON o.legal_type_id = lt.id
+                WHERE o.main_admin_id = :user_id
+                   OR o.id IN (
+                       SELECT organization_id FROM organization_admin WHERE person_id = :user_id
+                   )
+                   OR o.id IN (
+                       SELECT organization_id FROM employment_contract WHERE person_id = :user_id AND is_active = 1
+                   )
+[2025-11-11 13:03:32] Query failed: SQLSTATE[HY000]: General error: 1 no such column: person_id | SQL: SELECT DISTINCT o.*, COALESCE(o.short_name || ' ' || lt.name, o.short_name, 'Unknown') as name
+                FROM organization o
+                LEFT JOIN popular_organization_legal_types lt ON o.legal_type_id = lt.id
+                WHERE o.main_admin_id = :user_id
+                   OR o.id IN (
+                       SELECT organization_id FROM organization_admin WHERE person_id = :user_id
+                   )
+                   OR o.id IN (
+                       SELECT organization_id FROM employment_contract WHERE person_id = :user_id AND is_active = 1
+                   )
+[2025-11-11 13:05:10] Query failed: SQLSTATE[HY000]: General error: 1 no such column: username | SQL: SELECT id, username, first_name, middle_name, last_name, primary_email_address, primary_phone_number, date_of_birth, gender
+             FROM person WHERE id = :id AND is_active = 1
+[2025-11-11 13:05:11] Query failed: SQLSTATE[HY000]: General error: 1 no such column: username | SQL: SELECT id, username, first_name, middle_name, last_name, primary_email_address, primary_phone_number, date_of_birth, gender
+             FROM person WHERE id = :id AND is_active = 1
+[2025-11-11 13:05:12] Query failed: SQLSTATE[HY000]: General error: 1 no such column: username | SQL: SELECT id, username, first_name, middle_name, last_name, primary_email_address, primary_phone_number, date_of_birth, gender
+             FROM person WHERE id = :id AND is_active = 1
+[2025-11-11 13:05:13] Query failed: SQLSTATE[HY000]: General error: 1 no such column: username | SQL: SELECT id, username, first_name, middle_name, last_name, primary_email_address, primary_phone_number, date_of_birth, gender
+             FROM person WHERE id = :id AND is_active = 1
+[2025-11-11 13:05:15] Query failed: SQLSTATE[HY000]: General error: 1 no such column: username | SQL: SELECT id, username, first_name, middle_name, last_name, primary_email_address, primary_phone_number, date_of_birth, gender
+             FROM person WHERE id = :id AND is_active = 1
+[2025-11-11 13:05:23] Query failed: SQLSTATE[HY000]: General error: 1 no such column: username | SQL: SELECT id, username, first_name, middle_name, last_name, primary_email_address, primary_phone_number, date_of_birth, gender
+             FROM person WHERE id = :id AND is_active = 1
+[2025-11-11 13:05:26] Query failed: SQLSTATE[HY000]: General error: 1 no such column: username | SQL: SELECT id, username, first_name, middle_name, last_name, primary_email_address, primary_phone_number, date_of_birth, gender
+             FROM person WHERE id = :id AND is_active = 1
+[2025-11-11 13:10:06] Query failed: SQLSTATE[HY000]: General error: 1 no such column: username | SQL: SELECT id, username, first_name, middle_name, last_name, primary_email_address, primary_phone_number, date_of_birth, gender
+             FROM person WHERE id = :id AND is_active = 1
+[2025-11-11 13:15:58] Query failed: SQLSTATE[HY000]: General error: 1 no such column: person_id | SQL: SELECT DISTINCT o.*, COALESCE(o.short_name || ' ' || lt.name, o.short_name, 'Unknown') as name
+                FROM organization o
+                LEFT JOIN popular_organization_legal_types lt ON o.legal_type_id = lt.id
+                WHERE o.main_admin_id = :user_id
+                   OR o.id IN (
+                       SELECT organization_id FROM organization_admin WHERE person_id = :user_id
+                   )
+                   OR o.id IN (
+                       SELECT organization_id FROM employment_contract WHERE person_id = :user_id AND is_active = 1
+                   )
+[2025-11-11 13:19:29] Query failed: SQLSTATE[HY000]: General error: 1 no such column: er.source_entity_id | SQL: SELECT er.*,
+                       e1.code as source_entity_code,
+                       e1.name as source_entity_name,
+                       e2.code as target_entity_code,
+                       e2.name as target_entity_name
+                FROM entity_relationship er
+                LEFT JOIN entity_definition e1 ON er.source_entity_id = e1.id
+                LEFT JOIN entity_definition e2 ON er.target_entity_id = e2.id
+                WHERE er.source_entity_id = :entity_id OR er.target_entity_id = :entity_id
+                ORDER BY er.relationship_type
+[2025-11-11 13:19:32] Query failed: SQLSTATE[HY000]: General error: 1 no such column: er.source_entity_id | SQL: SELECT er.*,
+                       e1.code as source_entity_code,
+                       e1.name as source_entity_name,
+                       e2.code as target_entity_code,
+                       e2.name as target_entity_name
+                FROM entity_relationship er
+                LEFT JOIN entity_definition e1 ON er.source_entity_id = e1.id
+                LEFT JOIN entity_definition e2 ON er.target_entity_id = e2.id
+                WHERE er.source_entity_id = :entity_id OR er.target_entity_id = :entity_id
+                ORDER BY er.relationship_type
+[2025-11-11 13:19:40] Query failed: SQLSTATE[HY000]: General error: 1 no such column: er.source_entity_id | SQL: SELECT er.*,
+                       e1.code as source_entity_code,
+                       e1.name as source_entity_name,
+                       e2.code as target_entity_code,
+                       e2.name as target_entity_name
+                FROM entity_relationship er
+                LEFT JOIN entity_definition e1 ON er.source_entity_id = e1.id
+                LEFT JOIN entity_definition e2 ON er.target_entity_id = e2.id
+                WHERE er.source_entity_id = :entity_id OR er.target_entity_id = :entity_id
+                ORDER BY er.relationship_type
+[2025-11-11 13:20:23] Query failed: SQLSTATE[HY000]: General error: 1 no such column: er.source_entity_id | SQL: SELECT er.*,
+                       e1.code as source_entity_code,
+                       e1.name as source_entity_name,
+                       e2.code as target_entity_code,
+                       e2.name as target_entity_name
+                FROM entity_relationship er
+                LEFT JOIN entity_definition e1 ON er.source_entity_id = e1.id
+                LEFT JOIN entity_definition e2 ON er.target_entity_id = e2.id
+                WHERE er.source_entity_id = :entity_id OR er.target_entity_id = :entity_id
+                ORDER BY er.relationship_type
+[2025-11-11 14:00:55] Query failed: SQLSTATE[HY000]: General error: 1 no such table: validation_rule | SQL: SELECT vr.*, ea.code as attribute_code, ea.name as attribute_name
+                FROM validation_rule vr
+                LEFT JOIN entity_attribute ea ON vr.attribute_id = ea.id
+                WHERE vr.entity_id = :entity_id AND vr.is_active = 1
+                ORDER BY vr.priority
+[2025-11-11 14:01:15] Query failed: SQLSTATE[HY000]: General error: 1 no such table: validation_rule | SQL: SELECT vr.*, ea.code as attribute_code, ea.name as attribute_name
+                FROM validation_rule vr
+                LEFT JOIN entity_attribute ea ON vr.attribute_id = ea.id
+                WHERE vr.entity_id = :entity_id AND vr.is_active = 1
+                ORDER BY vr.priority
