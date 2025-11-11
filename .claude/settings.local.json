@@ -25,7 +25,8 @@
       "Bash(timeout 3 bash:*)",
       "Bash(curl:*)",
       "Bash(cmd /c \"del data\\v4l.db 2>nul && echo Database deleted || echo Database does not exist\")",
-      "Bash(cmd /c setup.bat)"
+      "Bash(cmd /c setup.bat)",
+      "Bash(php test_processes.php:*)"
     ],
     "deny": [],
     "ask": []
