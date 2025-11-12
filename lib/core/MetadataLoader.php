@@ -124,10 +124,10 @@ class MetadataLoader
     public static function getEntityValidationRules(string $entityId): array
     {
         $sql = "SELECT vr.*, ea.code as attribute_code, ea.name as attribute_name
-                FROM validation_rule vr
+                FROM entity_validation_rule vr
                 LEFT JOIN entity_attribute ea ON vr.attribute_id = ea.id
-                WHERE vr.entity_id = :entity_id AND vr.is_active = 1
-                ORDER BY vr.priority";
+                WHERE vr.entity_id = :entity_id
+                ORDER BY vr.rule_name";
 
         return Database::fetchAll($sql, [':entity_id' => $entityId]);
     }

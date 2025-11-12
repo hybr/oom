@@ -60,6 +60,22 @@ try {
         // Build CREATE TABLE statement
         $columns = [];
         $primaryKey = null;
+        $hasIdColumn = false;
+        $hasCreatedAt = false;
+        $hasUpdatedAt = false;
+
+        // Check what system columns are already defined
+        foreach ($attributes as $attr) {
+            if ($attr['code'] === 'id') $hasIdColumn = true;
+            if ($attr['code'] === 'created_at') $hasCreatedAt = true;
+            if ($attr['code'] === 'updated_at') $hasUpdatedAt = true;
+        }
+
+        // Add id column first if not present
+        if (!$hasIdColumn) {
+            $columns[] = "`id` TEXT PRIMARY KEY";
+            $primaryKey = 'id';
+        }
 
         foreach ($attributes as $attr) {
             $colDef = "`{$attr['code']}` ";
@@ -130,6 +146,14 @@ try {
             }
 
             $columns[] = $colDef;
+        }
+
+        // Add created_at and updated_at if not present
+        if (!$hasCreatedAt) {
+            $columns[] = "`created_at` TEXT DEFAULT (datetime('now'))";
+        }
+        if (!$hasUpdatedAt) {
+            $columns[] = "`updated_at` TEXT DEFAULT (datetime('now'))";
         }
 
         // Create table

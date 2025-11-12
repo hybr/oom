@@ -66,12 +66,10 @@ ob_start();
 <div class="container-fluid py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1><i class="bi bi-table"></i> <?= e($entity['name']) ?></h1>
-        <div>
-            <?php if (Auth::hasPermission($entityCode, 'CREATE')): ?>
-            <a href="entity-form.php?entity=<?= e($entityCode) ?>&action=create" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Add New
+        <div class="btn-group">
+            <a href="entity-form.php?entity=<?= e($entityCode) ?>&action=create" class="btn btn-success">
+                <i class="bi bi-plus-circle"></i> Add New <?= e($entity['name']) ?>
             </a>
-            <?php endif; ?>
             <a href="dashboard.php" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i> Back
             </a>

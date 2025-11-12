@@ -1,0 +1,322 @@
+[2025-10-11 04:04:03] DATABASE ERROR: Query failed: SELECT COUNT(*) as cnt FROM credential WHERE username = ? | Error: SQLSTATE[HY000]: General error: 1 no such table: credential
+[2025-10-11 09:19:49] DATABASE ERROR: Query failed: INSERT INTO person_credentials (
+        id, person_id, username, email, password_hash,
+        created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, datetime('now'), datetime('now')) | Error: SQLSTATE[HY000]: General error: 1 no such table: main.person
+[2025-10-11 09:44:00] DATABASE ERROR: Query failed: INSERT INTO person_credentials (
+        id, person_id, username, email, password_hash,
+        security_question_1, security_answer_1_hash,
+        security_question_2, security_answer_2_hash,
+        created_at, updated_at
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now')) | Error: SQLSTATE[HY000]: General error: 1 no such table: main.person
+[2025-10-11 09:56:27] DATABASE ERROR: Query failed: SELECT * FROM continent WHERE deleted_at IS NULL LIMIT ? OFFSET ? | Error: SQLSTATE[HY000]: General error: 1 no such table: continent
+[2025-10-12 08:31:07] DATABASE ERROR: Query failed: SELECT COUNT(*) as cnt FROM person_credentials WHERE email = ? | Error: SQLSTATE[HY000]: General error: 1 no such column: email
+[2025-10-15 07:47:35] DATABASE ERROR: Query failed: SELECT * FROM person_credential WHERE username = ? AND deleted_at IS NULL | Error: SQLSTATE[HY000]: General error: 1 no such table: person_credential
+[2025-10-15 07:47:39] DATABASE ERROR: Query failed: SELECT * FROM person_credential WHERE username = ? AND deleted_at IS NULL | Error: SQLSTATE[HY000]: General error: 1 no such table: person_credential
+[2025-10-15 07:47:45] DATABASE ERROR: Query failed: SELECT * FROM person_credential WHERE username = ? AND deleted_at IS NULL | Error: SQLSTATE[HY000]: General error: 1 no such table: person_credential
+[2025-10-18 13:09:08] DATABASE ERROR: Query failed: SELECT COUNT(*) as cnt FROM district WHERE deleted_at IS NULL | Error: SQLSTATE[HY000]: General error: 1 no such table: district
+[2025-10-20 13:27:37] DATABASE ERROR: Query failed: INSERT INTO organization (short_name, legal_category_id, tag_line, description, website, subdomain, logo, primary_email, primary_phone, support_email, support_phone, admin_id, industry_id, tax_id, registration_number, established_date, status, verification_date, rating, id, created_at, updated_at, version_no) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) | Error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[2025-10-20 15:47:21] DATABASE ERROR: Query failed: INSERT INTO organization (short_name, legal_category_id, tag_line, description, website, subdomain, logo, primary_email, primary_phone, support_email, support_phone, admin_id, industry_id, tax_id, registration_number, established_date, status, verification_date, rating, id, created_at, updated_at, version_no) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) | Error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[2025-10-20 15:48:01] DATABASE ERROR: Query failed: INSERT INTO organization (short_name, legal_category_id, tag_line, description, website, subdomain, logo, primary_email, primary_phone, support_email, support_phone, admin_id, industry_id, tax_id, registration_number, established_date, status, verification_date, rating, id, created_at, updated_at, version_no) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) | Error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[2025-10-21 04:44:08] DATABASE ERROR: Query failed: SELECT * FROM organization WHERE deleted_at IS NULL AND organization_id = ? LIMIT ? OFFSET ? | Error: SQLSTATE[HY000]: General error: 1 no such column: organization_id
+[2025-10-22 17:24:26] DATABASE ERROR: Query failed: INSERT INTO process_edge_condition (id, created_at, updated_at, version_no) VALUES (?, ?, ?, ?) | Error: SQLSTATE[23000]: Integrity constraint violation: 19 NOT NULL constraint failed: process_edge_condition.edge_id
+[2025-10-22 17:24:27] DATABASE ERROR: Query failed: INSERT INTO process_edge_condition (id, created_at, updated_at, version_no) VALUES (?, ?, ?, ?) | Error: SQLSTATE[23000]: Integrity constraint violation: 19 NOT NULL constraint failed: process_edge_condition.edge_id
+[2025-10-23 17:28:50] DATABASE ERROR: Query failed: SELECT o.id, o.short_name as name,
+                       CASE
+                           WHEN o.main_admin_id = ? THEN 1
+                           WHEN oa.person_id IS NOT NULL THEN 2
+                           ELSE 3
+                       END as priority,
+                       CASE
+                           WHEN o.main_admin_id = ? THEN 'MAIN_ADMIN'
+                           WHEN oa.role IS NOT NULL THEN oa.role
+                           ELSE 'EMPLOYEE'
+                       END as role,
+                       ec.job_title
+                FROM organization o
+                LEFT JOIN organization_admin oa ON o.id = oa.organization_id
+                    AND oa.person_id = ? AND oa.is_active = 1 AND oa.deleted_at IS NULL
+                LEFT JOIN employment_contract ec ON o.id = ec.organization_id
+                    AND ec.employee_id = ? AND ec.status = 'ACTIVE' AND ec.deleted_at IS NULL
+                WHERE (o.main_admin_id = ? OR oa.person_id IS NOT NULL OR ec.employee_id IS NOT NULL)
+                  AND o.deleted_at IS NULL
+                ORDER BY priority ASC, o.short_name ASC
+                LIMIT 1 | Error: SQLSTATE[HY000]: General error: 1 no such column: ec.job_title
+[2025-10-23 17:40:08] DATABASE ERROR: Query failed: 
+        -- 1. Main Admin memberships
+        SELECT
+            o.id,
+            o.short_name as name,
+            o.subdomain,
+            'MAIN_ADMIN' as membership_type,
+            'SUPER_ADMIN' as role,
+            NULL as job_title,
+            NULL as position_id,
+            1 as priority
+        FROM organization o
+        WHERE o.main_admin_id = ?
+          AND o.deleted_at IS NULL
+
+        UNION
+
+        -- 2. Organization Admin memberships
+        SELECT
+            o.id,
+            o.short_name as name,
+            o.subdomain,
+            'ORGANIZATION_ADMIN' as membership_type,
+            oa.role,
+            NULL as job_title,
+            NULL as position_id,
+            CASE
+                WHEN oa.role = 'SUPER_ADMIN' THEN 2
+                WHEN oa.role = 'ADMIN' THEN 3
+                WHEN oa.role = 'MODERATOR' THEN 4
+                ELSE 5
+            END as priority
+        FROM organization_admin oa
+        INNER JOIN organization o ON oa.organization_id = o.id
+        WHERE oa.person_id = ?
+          AND oa.is_active = 1
+          AND oa.deleted_at IS NULL
+          AND o.deleted_at IS NULL
+
+        UNION
+
+        -- 3. Employee memberships
+        SELECT
+            o.id,
+            o.short_name as name,
+            o.subdomain,
+            'EMPLOYEE' as membership_type,
+            NULL as role,
+            ec.job_title,
+            ec.position_id,
+            6 as priority
+        FROM employment_contract ec
+        INNER JOIN organization o ON ec.organization_id = o.id
+        WHERE ec.employee_id = ?
+          AND ec.status = 'ACTIVE'
+          AND ec.deleted_at IS NULL
+          AND o.deleted_at IS NULL
+
+        ORDER BY name ASC
+     | Error: SQLSTATE[HY000]: General error: 1 no such column: ec.job_title
+[2025-10-23 17:44:50] DATABASE ERROR: Query failed: SELECT * FROM entity_definition WHERE is_active = 1 | Error: SQLSTATE[HY000]: General error: 1 no such table: entity_definition
+[2025-10-23 17:46:23] DATABASE ERROR: Query failed: SELECT * FROM person_credential WHERE id = ? AND deleted_at IS NULL | Error: SQLSTATE[HY000]: General error: 1 no such table: person_credential
+[2025-10-23 17:46:32] DATABASE ERROR: Query failed: SELECT * FROM person_credential WHERE id = ? AND deleted_at IS NULL | Error: SQLSTATE[HY000]: General error: 1 no such table: person_credential
+[2025-10-23 17:48:18] DATABASE ERROR: Query failed: INSERT INTO organization (short_name, legal_category_id, tag_line, description, website, subdomain, primary_email, primary_phone, support_email, support_phone, main_admin_id, industry_id, tax_id, registration_number, established_date, status, verification_date, rating, id, created_at, updated_at, version_no) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) | Error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[2025-10-23 17:49:18] DATABASE ERROR: Query failed: 
+        -- 1. Main Admin memberships
+        SELECT
+            o.id,
+            o.short_name as name,
+            o.subdomain,
+            'MAIN_ADMIN' as membership_type,
+            'SUPER_ADMIN' as role,
+            NULL as job_title,
+            NULL as position_id,
+            1 as priority
+        FROM organization o
+        WHERE o.main_admin_id = ?
+          AND o.deleted_at IS NULL
+
+        UNION
+
+        -- 2. Organization Admin memberships
+        SELECT
+            o.id,
+            o.short_name as name,
+            o.subdomain,
+            'ORGANIZATION_ADMIN' as membership_type,
+            oa.role,
+            NULL as job_title,
+            NULL as position_id,
+            CASE
+                WHEN oa.role = 'SUPER_ADMIN' THEN 2
+                WHEN oa.role = 'ADMIN' THEN 3
+                WHEN oa.role = 'MODERATOR' THEN 4
+                ELSE 5
+            END as priority
+        FROM organization_admin oa
+        INNER JOIN organization o ON oa.organization_id = o.id
+        WHERE oa.person_id = ?
+          AND oa.is_active = 1
+          AND oa.deleted_at IS NULL
+          AND o.deleted_at IS NULL
+
+        UNION
+
+        -- 3. Employee memberships
+        SELECT
+            o.id,
+            o.short_name as name,
+            o.subdomain,
+            'EMPLOYEE' as membership_type,
+            NULL as role,
+            ec.job_title,
+            ec.position_id,
+            6 as priority
+        FROM employment_contract ec
+        INNER JOIN organization o ON ec.organization_id = o.id
+        WHERE ec.employee_id = ?
+          AND ec.status = 'ACTIVE'
+          AND ec.deleted_at IS NULL
+          AND o.deleted_at IS NULL
+
+        ORDER BY name ASC
+     | Error: SQLSTATE[HY000]: General error: 1 no such column: ec.job_title
+[2025-10-23 17:49:23] DATABASE ERROR: Query failed: 
+        -- 1. Main Admin memberships
+        SELECT
+            o.id,
+            o.short_name as name,
+            o.subdomain,
+            'MAIN_ADMIN' as membership_type,
+            'SUPER_ADMIN' as role,
+            NULL as job_title,
+            NULL as position_id,
+            1 as priority
+        FROM organization o
+        WHERE o.main_admin_id = ?
+          AND o.deleted_at IS NULL
+
+        UNION
+
+        -- 2. Organization Admin memberships
+        SELECT
+            o.id,
+            o.short_name as name,
+            o.subdomain,
+            'ORGANIZATION_ADMIN' as membership_type,
+            oa.role,
+            NULL as job_title,
+            NULL as position_id,
+            CASE
+                WHEN oa.role = 'SUPER_ADMIN' THEN 2
+                WHEN oa.role = 'ADMIN' THEN 3
+                WHEN oa.role = 'MODERATOR' THEN 4
+                ELSE 5
+            END as priority
+        FROM organization_admin oa
+        INNER JOIN organization o ON oa.organization_id = o.id
+        WHERE oa.person_id = ?
+          AND oa.is_active = 1
+          AND oa.deleted_at IS NULL
+          AND o.deleted_at IS NULL
+
+        UNION
+
+        -- 3. Employee memberships
+        SELECT
+            o.id,
+            o.short_name as name,
+            o.subdomain,
+            'EMPLOYEE' as membership_type,
+            NULL as role,
+            ec.job_title,
+            ec.position_id,
+            6 as priority
+        FROM employment_contract ec
+        INNER JOIN organization o ON ec.organization_id = o.id
+        WHERE ec.employee_id = ?
+          AND ec.status = 'ACTIVE'
+          AND ec.deleted_at IS NULL
+          AND o.deleted_at IS NULL
+
+        ORDER BY name ASC
+     | Error: SQLSTATE[HY000]: General error: 1 no such column: ec.job_title
+[2025-10-23 17:52:44] DATABASE ERROR: Query failed: INSERT INTO task_flow_instance (
+                        id, graph_id, graph_version, entity_code, entity_record_id,
+                        organization_id, current_node_id, status, started_at, started_by,
+                        flow_variables, reference_number
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, 'RUNNING', datetime('now'), ?, ?, ?) | Error: SQLSTATE[23000]: Integrity constraint violation: 19 FOREIGN KEY constraint failed
+[2025-10-23 18:03:05] DATABASE ERROR: Query failed: SELECT DISTINCT ec.employee_id
+                FROM employment_contract ec
+                JOIN job_offer jo ON ec.job_offer_id = jo.id
+                JOIN vacancy_application va ON jo.application_id = va.id
+                JOIN organization_vacancy ov ON va.vacancy_id = ov.id
+                WHERE ov.popular_position_id = ?
+                AND ec.organization_id = ?
+                AND ec.status = 'ACTIVE'
+                AND ec.deleted_at IS NULL
+                AND (ec.end_date IS NULL OR ec.end_date > datetime('now'))
+                LIMIT 1 | Error: SQLSTATE[HY000]: General error: 1 no such table: organization_vacancy
+[2025-10-23 18:08:20] DATABASE ERROR: Query failed: SELECT DISTINCT ec.employee_id
+                    FROM employment_contract ec
+                    JOIN job_offer jo ON ec.job_offer_id = jo.id
+                    JOIN vacancy_application va ON jo.application_id = va.id
+                    JOIN organization_vacancy ov ON va.vacancy_id = ov.id
+                    WHERE ov.popular_position_id = ?
+                    AND ec.organization_id = ?
+                    AND ec.status = 'ACTIVE'
+                    AND ec.deleted_at IS NULL
+                    AND (ec.end_date IS NULL OR ec.end_date > datetime('now'))
+                    LIMIT 1 | Error: SQLSTATE[HY000]: General error: 1 no such table: organization_vacancy
+[2025-10-23 18:08:26] DATABASE ERROR: Query failed: SELECT tal.*, p.first_name || ' ' || p.last_name as actor_name,
+               pn.node_name
+        FROM task_audit_log tal
+        LEFT JOIN person p ON tal.actor_id = p.id
+        LEFT JOIN process_node pn ON tal.node_id = pn.id
+        WHERE tal.flow_instance_id = ? AND tal.deleted_at IS NULL
+        ORDER BY tal.created_at DESC | Error: SQLSTATE[HY000]: General error: 1 no such column: tal.deleted_at
+[2025-10-23 18:10:04] DATABASE ERROR: Query failed: SELECT tal.*, p.first_name || ' ' || p.last_name as actor_name,
+               pn.node_name
+        FROM task_audit_log tal
+        LEFT JOIN person p ON tal.actor_id = p.id
+        LEFT JOIN process_node pn ON tal.node_id = pn.id
+        WHERE tal.flow_instance_id = ?
+        ORDER BY tal.created_at DESC | Error: SQLSTATE[HY000]: General error: 1 no such column: tal.node_id
+[2025-10-23 18:10:08] DATABASE ERROR: Query failed: SELECT tal.*, p.first_name || ' ' || p.last_name as actor_name,
+               pn.node_name
+        FROM task_audit_log tal
+        LEFT JOIN person p ON tal.actor_id = p.id
+        LEFT JOIN process_node pn ON tal.node_id = pn.id
+        WHERE tal.flow_instance_id = ?
+        ORDER BY tal.created_at DESC | Error: SQLSTATE[HY000]: General error: 1 no such column: tal.node_id
+[2025-10-23 18:10:14] DATABASE ERROR: Query failed: SELECT tal.*, p.first_name || ' ' || p.last_name as actor_name,
+               pn.node_name
+        FROM task_audit_log tal
+        LEFT JOIN person p ON tal.actor_id = p.id
+        LEFT JOIN process_node pn ON tal.node_id = pn.id
+        WHERE tal.flow_instance_id = ?
+        ORDER BY tal.created_at DESC | Error: SQLSTATE[HY000]: General error: 1 no such column: tal.node_id
+[2025-10-23 18:11:44] DATABASE ERROR: Query failed: SELECT * FROM process_node
+        WHERE graph_id = ? AND deleted_at IS NULL
+        ORDER BY display_order, created_at | Error: SQLSTATE[HY000]: General error: 1 no such column: display_order
+[2025-10-23 18:12:04] DATABASE ERROR: Query failed: SELECT * FROM process_node
+        WHERE graph_id = ? AND deleted_at IS NULL
+        ORDER BY display_order, created_at | Error: SQLSTATE[HY000]: General error: 1 no such column: display_order
+[2025-10-23 18:17:36] DATABASE ERROR: Query failed: SELECT DISTINCT ec.employee_id
+                    FROM employment_contract ec
+                    JOIN job_offer jo ON ec.job_offer_id = jo.id
+                    JOIN vacancy_application va ON jo.application_id = va.id
+                    JOIN organization_vacancy ov ON va.vacancy_id = ov.id
+                    WHERE ov.popular_position_id = ?
+                    AND ec.organization_id = ?
+                    AND ec.status = 'ACTIVE'
+                    AND ec.deleted_at IS NULL
+                    AND (ec.end_date IS NULL OR ec.end_date > datetime('now'))
+                    LIMIT 1 | Error: SQLSTATE[HY000]: General error: 1 no such table: organization_vacancy
+[2025-10-25 05:16:01] DATABASE ERROR: Query failed: SELECT DISTINCT ec.employee_id
+                    FROM employment_contract ec
+                    JOIN job_offer jo ON ec.job_offer_id = jo.id
+                    JOIN vacancy_application va ON jo.application_id = va.id
+                    JOIN organization_vacancy ov ON va.vacancy_id = ov.id
+                    WHERE ov.popular_position_id = ?
+                    AND ec.organization_id = ?
+                    AND ec.status = 'ACTIVE'
+                    AND ec.deleted_at IS NULL
+                    AND (ec.end_date IS NULL OR ec.end_date > datetime('now'))
+                    LIMIT 1 | Error: SQLSTATE[HY000]: General error: 1 no such table: organization_vacancy
+[2025-10-26 10:20:29] DATABASE ERROR: Query failed: SELECT DISTINCT ec.employee_id
+                    FROM employment_contract ec
+                    JOIN job_offer jo ON ec.job_offer_id = jo.id
+                    JOIN vacancy_application va ON jo.application_id = va.id
+                    JOIN organization_vacancy ov ON va.vacancy_id = ov.id
+                    WHERE ov.popular_position_id = ?
+                    AND ec.organization_id = ?
+                    AND ec.status = 'ACTIVE'
+                    AND ec.deleted_at IS NULL
+                    AND (ec.end_date IS NULL OR ec.end_date > datetime('now'))
+                    LIMIT 1 | Error: SQLSTATE[HY000]: General error: 1 no such table: organization_vacancy

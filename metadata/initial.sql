@@ -64,6 +64,54 @@ CREATE TABLE IF NOT EXISTS entity_relationship (
 );
 
 -- =========================================
+-- Entity Function Table
+-- =========================================
+CREATE TABLE IF NOT EXISTS entity_function (
+    id TEXT PRIMARY KEY,
+    entity_id TEXT NOT NULL,
+    function_code TEXT NOT NULL,
+    function_name TEXT,
+    function_description TEXT,
+    parameters TEXT,
+    return_type TEXT,
+    is_system INTEGER DEFAULT 0,
+    is_active INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (datetime('now')),
+    updated_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (entity_id) REFERENCES entity_definition(id),
+    UNIQUE(entity_id, function_code)
+);
+
+-- =========================================
+-- Entity Function Handler Table
+-- =========================================
+CREATE TABLE IF NOT EXISTS entity_function_handler (
+    id TEXT PRIMARY KEY,
+    function_id TEXT NOT NULL,
+    handler_type TEXT,
+    handler_reference TEXT,
+    is_active INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (function_id) REFERENCES entity_function(id)
+);
+
+-- =========================================
+-- Entity Validation Rule Table
+-- =========================================
+CREATE TABLE IF NOT EXISTS entity_validation_rule (
+    id TEXT PRIMARY KEY,
+    entity_id TEXT NOT NULL,
+    attribute_id TEXT NOT NULL,
+    rule_name TEXT,
+    rule_expression TEXT,
+    error_message TEXT,
+    severity TEXT,
+    created_at TEXT DEFAULT (datetime('now')),
+    FOREIGN KEY (entity_id) REFERENCES entity_definition(id),
+    FOREIGN KEY (attribute_id) REFERENCES entity_attribute(id)
+);
+
+-- =========================================
 -- Process Definition Table
 -- =========================================
 CREATE TABLE IF NOT EXISTS process_definition (
@@ -176,6 +224,10 @@ CREATE TABLE IF NOT EXISTS process_edge (
 CREATE INDEX IF NOT EXISTS idx_entity_attribute_entity_id ON entity_attribute(entity_id);
 CREATE INDEX IF NOT EXISTS idx_entity_relationship_from ON entity_relationship(from_entity_id);
 CREATE INDEX IF NOT EXISTS idx_entity_relationship_to ON entity_relationship(to_entity_id);
+CREATE INDEX IF NOT EXISTS idx_entity_function_entity_id ON entity_function(entity_id);
+CREATE INDEX IF NOT EXISTS idx_entity_function_handler_function_id ON entity_function_handler(function_id);
+CREATE INDEX IF NOT EXISTS idx_entity_validation_rule_entity_id ON entity_validation_rule(entity_id);
+CREATE INDEX IF NOT EXISTS idx_entity_validation_rule_attribute_id ON entity_validation_rule(attribute_id);
 CREATE INDEX IF NOT EXISTS idx_process_step_process_id ON process_step(process_id);
 CREATE INDEX IF NOT EXISTS idx_process_node_graph_id ON process_node(graph_id);
 CREATE INDEX IF NOT EXISTS idx_process_edge_graph_id ON process_edge(graph_id);

@@ -39,7 +39,7 @@ echo This may take a few minutes...
 echo.
 
 REM Create database and import initial schema
-echo [1/4] Creating database schema...
+echo [1/5] Creating database schema...
 sqlite3 data\v4l.db < metadata\initial.sql 2>nul
 if errorlevel 1 (
     echo ERROR: Failed to create initial schema
@@ -48,7 +48,7 @@ if errorlevel 1 (
 )
 
 REM Import all entity definitions
-echo [2/4] Importing entity definitions...
+echo [2/5] Importing entity definitions...
 
 echo PRAGMA foreign_keys = OFF; > temp_import.sql
 echo BEGIN TRANSACTION; >> temp_import.sql
@@ -62,7 +62,7 @@ sqlite3 data\v4l.db < temp_import.sql 2>setup_errors.log
 del temp_import.sql
 
 REM Import process definitions
-echo [3/4] Importing process definitions...
+echo [3/5] Importing process definitions...
 
 echo PRAGMA foreign_keys = OFF; > temp_import.sql
 echo BEGIN TRANSACTION; >> temp_import.sql
@@ -76,8 +76,12 @@ sqlite3 data\v4l.db < temp_import.sql 2>>setup_errors.log
 del temp_import.sql
 
 echo.
-echo [4/4] Creating database tables from metadata...
+echo [4/5] Creating database tables from metadata...
 php create_tables.php
+
+echo.
+echo [5/5] Importing entity data...
+php import_entity_data.php
 
 echo.
 echo Database created successfully!

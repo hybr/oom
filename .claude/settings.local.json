@@ -26,7 +26,15 @@
       "Bash(curl:*)",
       "Bash(cmd /c \"del data\\v4l.db 2>nul && echo Database deleted || echo Database does not exist\")",
       "Bash(cmd /c setup.bat)",
-      "Bash(php test_processes.php:*)"
+      "Bash(php test_processes.php:*)",
+      "Bash(cmd /c \"dir /b data\\*.db\")",
+      "Bash(cmd /c \"dir /b data\")",
+      "Bash(cmd /c \"dir /b /s C:\\Users\\fwyog\\oom_old\\metadata\\entities\\*.sql | head -10\")",
+      "Bash(cmd /c \"dir /b data\\*.sql\")",
+      "Bash(cmd /c \"dir /b metadata\\entities\\*.sql\")",
+      "Bash(cmd /c \"del /f data\\001-continents.sql data\\002-enum_education_levels.sql data\\003-countries.sql data\\004-popular_education_subjects.sql data\\005-popular_skills.sql\")",
+      "Bash(cmd /c:*)",
+      "Bash(powershell -Command \"Remove-Item -Path ''data\\*.sql'' -Force\")"
     ],
     "deny": [],
     "ask": []

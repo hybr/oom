@@ -211,6 +211,11 @@ class Auth
             return false;
         }
 
+        // In development mode, all logged-in users have all permissions
+        if (IS_DEVELOPMENT) {
+            return true;
+        }
+
         // Super admin has all permissions
         if (self::isSuperAdmin()) {
             return true;
