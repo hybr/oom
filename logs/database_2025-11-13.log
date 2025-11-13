@@ -1,0 +1,5 @@
+[2025-11-13 02:21:21] Query failed: SQLSTATE[HY000]: General error: 1 no such column: tal.performed_by | SQL: SELECT tal.*, p.first_name, p.last_name, p.username
+     FROM task_audit_log tal
+     LEFT JOIN person p ON tal.performed_by = p.id
+     WHERE tal.flow_instance_id = :instance_id
+     ORDER BY tal.performed_at DESC

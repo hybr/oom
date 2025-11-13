@@ -50,13 +50,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Create task flow instance
         $instanceId = Database::generateUuid();
+        $instanceCode = 'FLOW-' . date('Ymd-His') . '-' . substr($instanceId, 0, 8);
+
+        // Get user's organization
+        $currentUser = Auth::getCurrentUser();
+        $userOrgs = Auth::getUserOrganizations();
+        $organizationId = !empty($userOrgs) ? $userOrgs[0]['id'] : null;
+
         Database::insert('task_flow_instance', [
             'id' => $instanceId,
+            'instance_code' => $instanceCode,
             'graph_id' => $process['id'],
+            'organization_id' => $organizationId,
             'entity_id' => $entityId,
             'status' => 'IN_PROGRESS',
             'initiated_by' => Auth::getUserId(),
             'initiated_at' => date('Y-m-d H:i:s'),
+            'started_at' => date('Y-m-d H:i:s'),
             'created_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         ]);
@@ -93,12 +103,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 if ($nextNode) {
                     // Create first task
                     $taskId = Database::generateUuid();
+                    $taskCode = 'TASK-' . date('Ymd-His') . '-' . substr($taskId, 0, 8);
+
                     Database::insert('task_instance', [
                         'id' => $taskId,
+                        'task_code' => $taskCode,
                         'flow_instance_id' => $instanceId,
                         'node_id' => $nextNode['id'],
                         'status' => 'PENDING',
                         'assigned_to' => Auth::getUserId(),
+                        'assigned_at' => date('Y-m-d H:i:s'),
                         'created_at' => date('Y-m-d H:i:s'),
                         'updated_at' => date('Y-m-d H:i:s')
                     ]);

@@ -31,52 +31,46 @@ foreach ($processes as $process) {
     $processCategories[$category][] = $process;
 }
 
+// Group entities by domain
+$entityDomains = [];
+foreach ($entities as $entity) {
+    $domain = $entity['domain'] ?? 'Other';
+    if (!isset($entityDomains[$domain])) {
+        $entityDomains[$domain] = [];
+    }
+    $entityDomains[$domain][] = $entity;
+}
+
 $pageTitle = 'Dashboard - ' . APP_NAME;
 ob_start();
 ?>
 
 <div class="container-fluid py-4">
     <div class="row">
-        <!-- Sidebar -->
-        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
-            <div class="position-sticky pt-3">
-                <h6 class="sidebar-heading px-3 mt-4 mb-1 text-muted">
-                    <span>Entities</span>
-                </h6>
-                <ul class="nav flex-column">
-                    <?php foreach ($entities as $entity): ?>
-                    <li class="nav-item">
-                        <a class="nav-link" href="entity-list.php?entity=<?= e($entity['code']) ?>">
-                            <i class="bi bi-table"></i> <?= e($entity['name']) ?>
-                        </a>
-                    </li>
-                    <?php endforeach; ?>
-                </ul>
-
-                <?php if ($isSuperAdmin): ?>
-                <h6 class="sidebar-heading px-3 mt-4 mb-1 text-muted">
-                    <span>Administration</span>
-                </h6>
-                <ul class="nav flex-column">
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-users.php">
-                            <i class="bi bi-people"></i> Users
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="admin-organizations.php">
-                            <i class="bi bi-building"></i> Organizations
-                        </a>
-                    </li>
-                </ul>
-                <?php endif; ?>
-            </div>
-        </div>
-
         <!-- Main content -->
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <main class="col-12 px-md-4">
             <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                 <h1 class="h2">Dashboard</h1>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="input-group input-group-lg">
+                        <span class="input-group-text bg-white">
+                            <i class="bi bi-search"></i>
+                        </span>
+                        <input type="text"
+                               id="dashboardSearch"
+                               class="form-control form-control-lg"
+                               placeholder="Search Business Processes and Entities..."
+                               autocomplete="off">
+                        <button class="btn btn-outline-secondary" type="button" id="clearSearch" style="display: none;">
+                            <i class="bi bi-x-lg"></i> Clear
+                        </button>
+                    </div>
+                    <small class="text-muted ms-2" id="searchResultsCount"></small>
+                </div>
             </div>
 
             <!-- Welcome Card -->
@@ -156,16 +150,19 @@ ob_start();
 
             <!-- Business Processes -->
             <?php if (!empty($processCategories)): ?>
-            <h3 class="mb-3 mt-5">Business Processes</h3>
+            <h3 class="mb-3 mt-5" id="businessProcessesSection">Business Processes</h3>
             <?php foreach ($processCategories as $categoryName => $categoryProcesses): ?>
-                <div class="mb-4">
-                    <h5 class="text-muted mb-3">
+                <div class="mb-4 process-category-section" data-category="<?= e($categoryName) ?>">
+                    <h5 class="text-muted mb-3 category-heading">
                         <i class="bi bi-diagram-3"></i>
                         <?= e(ucwords(str_replace('_', ' ', strtolower($categoryName)))) ?>
                     </h5>
                     <div class="row g-3">
                         <?php foreach ($categoryProcesses as $process): ?>
-                        <div class="col-md-6 col-lg-4 col-xl-3">
+                        <div class="col-md-6 col-lg-4 col-xl-3 searchable-item process-item"
+                             data-name="<?= e(strtolower($process['name'])) ?>"
+                             data-description="<?= e(strtolower($process['description'] ?? '')) ?>"
+                             data-category="<?= e(strtolower($categoryName)) ?>">
                             <div class="card h-100 shadow-sm hover-shadow">
                                 <div class="card-body">
                                     <h6 class="card-title">
@@ -189,6 +186,45 @@ ob_start();
                 </div>
             <?php endforeach; ?>
             <?php endif; ?>
+
+            <!-- Entities -->
+            <?php if (!empty($entityDomains)): ?>
+            <h3 class="mb-3 mt-5" id="entitiesSection">Entities</h3>
+            <?php foreach ($entityDomains as $domainName => $domainEntities): ?>
+                <div class="mb-4 entity-domain-section" data-domain="<?= e($domainName) ?>">
+                    <h5 class="text-muted mb-3 category-heading">
+                        <i class="bi bi-database"></i>
+                        <?= e(ucwords(str_replace('_', ' ', strtolower($domainName)))) ?>
+                    </h5>
+                    <div class="row g-3">
+                        <?php foreach ($domainEntities as $entity): ?>
+                        <div class="col-md-6 col-lg-4 col-xl-3 searchable-item entity-item"
+                             data-name="<?= e(strtolower($entity['name'])) ?>"
+                             data-description="<?= e(strtolower($entity['description'] ?? '')) ?>"
+                             data-domain="<?= e(strtolower($domainName)) ?>">
+                            <div class="card h-100 shadow-sm hover-shadow">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="bi bi-table text-success"></i>
+                                        <?= e($entity['name']) ?>
+                                    </h6>
+                                    <?php if ($entity['description']): ?>
+                                        <p class="card-text small text-muted mb-3">
+                                            <?= e(truncate($entity['description'], 80)) ?>
+                                        </p>
+                                    <?php endif; ?>
+                                    <a href="entity-list.php?entity=<?= e($entity['code']) ?>"
+                                       class="btn btn-sm btn-outline-success w-100">
+                                        <i class="bi bi-arrow-right-circle"></i> View
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+            <?php endif; ?>
         </main>
     </div>
 </div>
@@ -200,7 +236,149 @@ ob_start();
 .hover-shadow:hover {
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
 }
+.searchable-item {
+    transition: opacity 0.2s ease-in-out;
+}
+.searchable-item.hidden {
+    display: none !important;
+}
+.category-heading.hidden {
+    display: none !important;
+}
+#dashboardSearch:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('dashboardSearch');
+    const clearButton = document.getElementById('clearSearch');
+    const searchResultsCount = document.getElementById('searchResultsCount');
+    const searchableItems = document.querySelectorAll('.searchable-item');
+    const processCategorySections = document.querySelectorAll('.process-category-section');
+    const entityDomainSections = document.querySelectorAll('.entity-domain-section');
+    const businessProcessesSection = document.getElementById('businessProcessesSection');
+    const entitiesSection = document.getElementById('entitiesSection');
+
+    function performSearch() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+
+        // Show/hide clear button
+        clearButton.style.display = searchTerm ? 'block' : 'none';
+
+        if (!searchTerm) {
+            // Show all items and sections
+            searchableItems.forEach(item => item.classList.remove('hidden'));
+            processCategorySections.forEach(section => {
+                section.classList.remove('hidden');
+                section.querySelector('.category-heading').classList.remove('hidden');
+            });
+            entityDomainSections.forEach(section => {
+                section.classList.remove('hidden');
+                section.querySelector('.category-heading').classList.remove('hidden');
+            });
+            if (businessProcessesSection) businessProcessesSection.classList.remove('hidden');
+            if (entitiesSection) entitiesSection.classList.remove('hidden');
+            searchResultsCount.textContent = '';
+            return;
+        }
+
+        let visibleCount = 0;
+        let visibleProcesses = 0;
+        let visibleEntities = 0;
+
+        // Filter items
+        searchableItems.forEach(item => {
+            const name = item.dataset.name || '';
+            const description = item.dataset.description || '';
+            const category = item.dataset.category || '';
+            const domain = item.dataset.domain || '';
+
+            const matches = name.includes(searchTerm) ||
+                          description.includes(searchTerm) ||
+                          category.includes(searchTerm) ||
+                          domain.includes(searchTerm);
+
+            if (matches) {
+                item.classList.remove('hidden');
+                visibleCount++;
+                if (item.classList.contains('process-item')) {
+                    visibleProcesses++;
+                } else if (item.classList.contains('entity-item')) {
+                    visibleEntities++;
+                }
+            } else {
+                item.classList.add('hidden');
+            }
+        });
+
+        // Hide empty category sections
+        processCategorySections.forEach(section => {
+            const visibleItems = section.querySelectorAll('.searchable-item:not(.hidden)');
+            if (visibleItems.length === 0) {
+                section.classList.add('hidden');
+            } else {
+                section.classList.remove('hidden');
+            }
+        });
+
+        entityDomainSections.forEach(section => {
+            const visibleItems = section.querySelectorAll('.searchable-item:not(.hidden)');
+            if (visibleItems.length === 0) {
+                section.classList.add('hidden');
+            } else {
+                section.classList.remove('hidden');
+            }
+        });
+
+        // Hide section headers if no items in that section
+        if (businessProcessesSection) {
+            businessProcessesSection.classList.toggle('hidden', visibleProcesses === 0);
+        }
+        if (entitiesSection) {
+            entitiesSection.classList.toggle('hidden', visibleEntities === 0);
+        }
+
+        // Update results count
+        if (visibleCount === 0) {
+            searchResultsCount.textContent = 'No results found';
+            searchResultsCount.className = 'text-danger ms-2';
+        } else {
+            const processText = visibleProcesses > 0 ? `${visibleProcesses} process${visibleProcesses !== 1 ? 'es' : ''}` : '';
+            const entityText = visibleEntities > 0 ? `${visibleEntities} ${visibleEntities !== 1 ? 'entities' : 'entity'}` : '';
+            const parts = [processText, entityText].filter(p => p);
+            searchResultsCount.textContent = `Found ${parts.join(' and ')}`;
+            searchResultsCount.className = 'text-success ms-2';
+        }
+    }
+
+    // Event listeners
+    searchInput.addEventListener('input', performSearch);
+    searchInput.addEventListener('keyup', function(e) {
+        if (e.key === 'Escape') {
+            searchInput.value = '';
+            performSearch();
+            searchInput.blur();
+        }
+    });
+
+    clearButton.addEventListener('click', function() {
+        searchInput.value = '';
+        performSearch();
+        searchInput.focus();
+    });
+
+    // Focus search on Ctrl/Cmd + K
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+            e.preventDefault();
+            searchInput.focus();
+        }
+    });
+});
+</script>
 
 <?php
 $content = ob_get_clean();
