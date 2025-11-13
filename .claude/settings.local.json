@@ -3,7 +3,8 @@
     "allow": [
       "Bash(sqlite3:*)",
       "Bash(setup.bat)",
-      "Bash(php create_tables.php:*)"
+      "Bash(php create_tables.php:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

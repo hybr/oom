@@ -1,0 +1,29 @@
+Error: near line 507: no such table: continent
+Error: near line 521: no such table: continent
+Error: near line 583: no such table: language
+Error: near line 657: no such table: language
+Error: near line 720: no such table: currency
+Error: near line 787: no such table: currency
+Error: near line 849: no such table: timezone
+Error: near line 938: no such table: timezone
+Error: near line 999: no such table: enum_education_level
+Error: near line 1015: no such table: enum_education_level
+Error: near line 1075: no such table: enum_marks_type
+Error: near line 1094: no such table: enum_marks_type
+Error: near line 1154: no such table: enum_skill_level
+Error: near line 1166: no such table: enum_skill_level
+Error: near line 1226: no such table: popular_skill
+Error: near line 1624: no such table: popular_skill
+Error: near line 1955: no such table: enum_entity_permission_type
+Error: near line 2103: no such table: country
+Error: near line 2191: no such table: country
+Error: near line 2344: no such table: state
+Error: near line 2362: no such table: state
+Error: near line 2472: no such table: district
+Error: near line 2503: no such table: district
+Error: near line 2633: no such table: city
+Error: near line 2656: no such table: city
+Error: near line 246: table process_edge has no column named is_default
+Error: near line 261: table process_edge has no column named is_default
+Error: near line 331: no such table: process_edge_condition
+Error: near line 1638: all VALUES must have the same number of terms
